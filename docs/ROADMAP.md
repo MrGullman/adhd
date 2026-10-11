@@ -86,19 +86,19 @@ Få en fungerande Laravel-app lokalt, på svenska och mot MariaDB.
 
 ## Tasks
 
-- [ ] Skapa appen med `laravel new` (Laravel 13, Vue starter kit utan Teams, Pest, MariaDB) i en tom mapp och flytta in den i repot. Behåll README.md, docs/, .ai/ och resources/images/.
-- [ ] Skapa databaserna npf_familjen och npf_familjen_test (utf8mb4, utf8mb4_uca1400_swedish_ai_ci)
-- [ ] Tester körs mot npf_familjen_test
-- [ ] Sätt APP_NAME="NPF-familjen"
-- [ ] Logotyp från resources/images/logo.png i appen, plus favicon (en förenklad variant utan text behövs i små storlekar)
-- [ ] Stilguidens tokens (docs/design/tokens.json) till resources/css/app.css: Tailwind 4 @theme, shadcn-vue-variabler, ljust och mörkt tema, typsnitten Fredoka och Atkinson Hyperlegible Next
-- [ ] Svenska: APP_LOCALE=sv, APP_FAKER_LOCALE=sv_SE, installera laravel-lang/lang
-- [ ] Översätt startkitets sidor (inloggning, inställningar) till svenska
-- [ ] Servera appen via Laravel Herd
-- [ ] Installera Laravel Boost (`composer require laravel/boost --dev` + `php artisan boost:install`, välj Claude Code och Copilot). Projektets regler i .ai/guidelines/ tas med automatiskt.
-- [ ] Committa Boosts genererade filer (CLAUDE.md, AGENTS.md, .github/copilot-instructions.md) så att AI-verktyg på GitHub också hittar dem
-- [ ] Kör migrations
-- [ ] Verifiera login fungerar
+- [x] Skapa appen med `laravel new` (Laravel 13, Vue starter kit utan Teams, Pest, MariaDB) i en tom mapp och flytta in den i repot. Behåll README.md, docs/, .ai/ och resources/images/.
+- [x] Skapa databaserna npf_familjen och npf_familjen_test (utf8mb4, utf8mb4_uca1400_swedish_ai_ci)
+- [x] Tester körs mot npf_familjen_test
+- [x] Sätt APP_NAME="NPF-familjen"
+- [x] Logotyp från resources/images/logo.png i appen, plus favicon (tillfällig ikon tills en förenklad logotyp utan text finns)
+- [x] Stilguidens tokens (docs/design/tokens.json) till resources/css/app.css: Tailwind 4 @theme, shadcn-vue-variabler, ljust och mörkt tema, typsnitten Fredoka och Atkinson Hyperlegible Next
+- [x] Svenska: APP_LOCALE=sv, APP_FAKER_LOCALE=sv_SE, installera laravel-lang/lang
+- [x] Översätt startkitets sidor (inloggning, inställningar) till svenska
+- [x] Servera appen via Laravel Herd
+- [x] Installera Laravel Boost (`composer require laravel/boost --dev` + `php artisan boost:install`, välj Claude Code och Copilot). Projektets regler i .ai/guidelines/ tas med automatiskt.
+- [x] Committa Boosts genererade filer (CLAUDE.md, AGENTS.md, boost.json och skills) så att AI-verktyg på GitHub också hittar dem
+- [x] Kör migrations
+- [x] Verifiera login fungerar
 - [ ] GitHub Actions: tester vid varje push (Pest mot MariaDB 12.3, Pint, Larastan, frontend-build)
 
 ## Definition of Done

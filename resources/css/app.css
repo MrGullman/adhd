@@ -1,0 +1,265 @@
+@import 'tailwindcss';
+
+@import 'tw-animate-css';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+  NPF-familjen. Värdena kommer från docs/design/tokens.json (se docs/STYLEGUIDE.md).
+  Ändra tokens här och i tokens.json samtidigt.
+*/
+
+@theme inline {
+    /* Typsnitt: byggs in av Vite (vite.config.ts → fonts) */
+    --font-sans: var(--npf-font-body), system-ui, sans-serif;
+    --font-display: var(--npf-font-display), ui-rounded, system-ui, sans-serif;
+
+    /* Typografi: text-display-xl, text-child-label, text-caption … */
+    --text-display-xl: 56px;
+    --text-display-xl--line-height: 60px;
+    --text-display-l: 36px;
+    --text-display-l--line-height: 42px;
+    --text-heading: 26px;
+    --text-heading--line-height: 32px;
+    --text-child-label: 22px;
+    --text-child-label--line-height: 28px;
+    --text-title: 18px;
+    --text-title--line-height: 26px;
+    --text-body: 17px;
+    --text-body--line-height: 26px;
+    --text-caption: 14px;
+    --text-caption--line-height: 20px;
+    --text-overline: 13px;
+    --text-overline--line-height: 18px;
+    --text-overline--letter-spacing: 0.06em;
+
+    /* Former */
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 22px;
+    --radius-xl: 32px;
+
+    /* Storlekar: h-tap-child, size-picture-md … */
+    --spacing-tap-adult: 48px;
+    --spacing-tap-child: 64px;
+    --spacing-picture-sm: 56px;
+    --spacing-picture-md: 96px;
+    --spacing-picture-lg: 200px;
+
+    --shadow-raised: var(--shadow-raised-value);
+
+    /* Stilguidens färger som Tailwind-färger: bg-surface, text-ink-muted, bg-morning-soft … */
+    --color-surface: var(--surface);
+    --color-surface-raised: var(--surface-raised);
+    --color-surface-sunken: var(--surface-sunken);
+    --color-line: var(--line);
+    --color-line-strong: var(--line-strong);
+    --color-ink: var(--ink);
+    --color-ink-muted: var(--ink-muted);
+    --color-on-primary: var(--on-primary);
+    --color-primary-soft: var(--primary-soft);
+    --color-focus-ring: var(--focus-ring);
+    --color-brand-teal: var(--brand-teal);
+    --color-brand-orange: var(--brand-orange);
+    --color-brand-purple: var(--brand-purple);
+    --color-brand-yellow: var(--brand-yellow);
+    --color-brand-green: var(--brand-green);
+    --color-brand-blue: var(--brand-blue);
+    --color-on-brand: var(--on-brand);
+    --color-on-brand-purple: var(--on-brand-purple);
+    --color-orange-strong: var(--orange-strong);
+    --color-orange-soft: var(--orange-soft);
+    --color-morning: var(--morning);
+    --color-morning-soft: var(--morning-soft);
+    --color-morning-strong: var(--morning-strong);
+    --color-forenoon: var(--forenoon);
+    --color-forenoon-soft: var(--forenoon-soft);
+    --color-forenoon-strong: var(--forenoon-strong);
+    --color-afternoon: var(--afternoon);
+    --color-afternoon-soft: var(--afternoon-soft);
+    --color-afternoon-strong: var(--afternoon-strong);
+    --color-evening: var(--evening);
+    --color-evening-soft: var(--evening-soft);
+    --color-evening-strong: var(--evening-strong);
+    --color-success: var(--success);
+    --color-success-soft: var(--success-soft);
+    --color-on-success: var(--on-success);
+    --color-danger: var(--danger);
+
+    /* shadcn-vue */
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+    --color-sidebar: var(--sidebar-background);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* Ljust tema (tokens.json: light) */
+:root {
+    --surface: #f5f9fa;
+    --surface-raised: #ffffff;
+    --surface-sunken: #e9f1f3;
+    --line: #cfdde2;
+    --line-strong: #7c929c;
+    --ink: #142229;
+    --ink-muted: #4a5d66;
+    --primary: #006f80;
+    --on-primary: #ffffff;
+    --primary-soft: #d9f4f7;
+    --focus-ring: #006f80;
+    --brand-teal: #00b7c8;
+    --brand-orange: #f86c00;
+    --brand-purple: #48399b;
+    --brand-yellow: #f8c800;
+    --brand-green: #80c008;
+    --brand-blue: #0080d0;
+    --on-brand: #142229;
+    --on-brand-purple: #ffffff;
+    --orange-strong: #a84800;
+    --orange-soft: #ffead6;
+    --morning: var(--brand-yellow);
+    --morning-soft: #fff3c4;
+    --morning-strong: #755600;
+    --forenoon: var(--brand-green);
+    --forenoon-soft: #e8f5d3;
+    --forenoon-strong: #3d6600;
+    --afternoon: var(--brand-blue);
+    --afternoon-soft: #dcedfb;
+    --afternoon-strong: #005a99;
+    --evening: var(--brand-purple);
+    --evening-soft: #e8e4f8;
+    --evening-strong: #48399b;
+    --success: var(--forenoon-strong);
+    --on-success: #ffffff;
+    --success-soft: var(--forenoon-soft);
+    --danger: #b3261e;
+    --shadow-raised-value:
+        0 1px 2px rgba(20, 34, 41, 0.06), 0 6px 16px rgba(20, 34, 41, 0.08);
+
+    /* shadcn-vue, kopplat till stilguiden */
+    --background: var(--surface);
+    --foreground: var(--ink);
+    --card: var(--surface-raised);
+    --card-foreground: var(--ink);
+    --popover: var(--surface-raised);
+    --popover-foreground: var(--ink);
+    --primary-foreground: var(--on-primary);
+    --secondary: var(--surface-sunken);
+    --secondary-foreground: var(--ink);
+    --muted: var(--surface-sunken);
+    --muted-foreground: var(--ink-muted);
+    --accent: var(--primary-soft);
+    --accent-foreground: var(--ink);
+    --destructive: var(--danger);
+    --destructive-foreground: var(--on-primary);
+    --border: var(--line);
+    --input: var(--line-strong);
+    --ring: var(--focus-ring);
+    --chart-1: var(--brand-teal);
+    --chart-2: var(--brand-orange);
+    --chart-3: var(--brand-purple);
+    --chart-4: var(--brand-yellow);
+    --chart-5: var(--brand-green);
+    --radius: 14px;
+    --sidebar-background: var(--surface-raised);
+    --sidebar: var(--surface-raised);
+    --sidebar-foreground: var(--ink);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--on-primary);
+    --sidebar-accent: var(--primary-soft);
+    --sidebar-accent-foreground: var(--primary);
+    --sidebar-border: var(--line);
+    --sidebar-ring: var(--focus-ring);
+}
+
+/* Mörkt tema (tokens.json: dark). Bara tokens skrivs om, kopplingarna ovan följer med. */
+.dark {
+    --surface: #10171c;
+    --surface-raised: #18222a;
+    --surface-sunken: #0b1115;
+    --line: #2a3942;
+    --line-strong: #6f8792;
+    --ink: #eef5f7;
+    --ink-muted: #a6b8c0;
+    --primary: #3fd0e0;
+    --on-primary: #062026;
+    --primary-soft: #0d3a42;
+    --focus-ring: #7fe3ee;
+    --brand-purple: #6e5fcf;
+    --orange-strong: #ffa65c;
+    --orange-soft: #3d1f05;
+    --morning-soft: #3a3005;
+    --morning-strong: #ffd84d;
+    --forenoon-soft: #1d2e07;
+    --forenoon-strong: #a6e04a;
+    --afternoon-soft: #0a2840;
+    --afternoon-strong: #6cb8f2;
+    --evening-soft: #221b47;
+    --evening-strong: #b3a6f5;
+    --on-success: #142229;
+    --danger: #ff8a80;
+    --shadow-raised-value:
+        0 1px 2px rgba(0, 0, 0, 0.5), 0 6px 16px rgba(0, 0, 0, 0.35);
+    color-scheme: dark;
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background font-sans text-body text-foreground;
+    }
+
+    h1,
+    h2,
+    h3 {
+        font-family: var(--font-display);
+    }
+
+    :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+        outline: 3px solid var(--focus-ring);
+        outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        ::before,
+        ::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+}
