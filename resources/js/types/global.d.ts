@@ -1,5 +1,5 @@
 import type { Directive } from 'vue';
-import type { Auth } from '@/types/auth';
+import type { Auth, CurrentFamily, FamilyOption } from '@/types/auth';
 
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
@@ -19,8 +19,17 @@ declare module '@inertiajs/core' {
         sharedPageProps: {
             name: string;
             auth: Auth;
+            family: CurrentFamily | null;
+            families: FamilyOption[];
             sidebarOpen: boolean;
             [key: string]: unknown;
+        };
+        flashDataType: {
+            toast?: {
+                type: 'success' | 'info' | 'warning' | 'error';
+                message: string;
+            };
+            pairing?: { url: string; qr: string; expiresAt: string };
         };
     }
 }

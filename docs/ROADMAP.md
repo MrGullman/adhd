@@ -118,26 +118,26 @@ All privat data ska vara kopplad till en familj. Vårdnadshavare, andra vuxna oc
 
 ## Tasks
 
-- [ ] Skapa families tabell
-- [ ] Skapa family_user pivot tabell med role (parent, editor, viewer, child)
-- [ ] Lägg till active_family_id i users tabellen (ingen family_id på users, så att växelvis boende kan läggas till senare)
-- [ ] Create Family page
-- [ ] Middleware för aktuell familj
-- [ ] BelongsToFamily trait (global scope + family_id vid create)
-- [ ] Bjuda in andra vuxna via e-post med roll (family_invitations)
-- [ ] Byta familj i menyn för vuxna som tillhör flera familjer
-- [ ] Barnkonton: vårdnadshavare skapar barn (namn, avatar, kod på 4–6 siffror), email nullable
-- [ ] Koden lagras krypterad. Vårdnadshavare kan visa, byta och återställa den.
-- [ ] Neka enkla koder (0000, 1234, 4321)
-- [ ] devices tabell
-- [ ] Familjeenhet: barnet väljer sig själv och skriver koden
-- [ ] Barnets egen enhet kopplas via QR-kod
-- [ ] Barnens inloggning för både telefon och läsplatta
-- [ ] Felaktiga försök: vänta en minut efter 5, stäng av inloggningen efter 10
-- [ ] Stänga av ett barns inloggning: alla sessioner loggas ut (SESSION_DRIVER=database) och barnets enheter kopplas bort
-- [ ] Inloggningshistorik för barnen (login_events)
-- [ ] Policies för alla fyra roller
-- [ ] Isolationstester mellan familjer
+- [x] Skapa families tabell
+- [x] Skapa family_user pivot tabell med role (parent, editor, viewer, child)
+- [x] Lägg till active_family_id i users tabellen (ingen family_id på users, så att växelvis boende kan läggas till senare)
+- [x] Create Family page
+- [x] Middleware för aktuell familj
+- [x] BelongsToFamily trait (global scope + family_id vid create)
+- [x] Bjuda in andra vuxna via e-post med roll (family_invitations)
+- [x] Byta familj i menyn för vuxna som tillhör flera familjer
+- [x] Barnkonton: vårdnadshavare skapar barn (namn, avatar, kod på 4–6 siffror), email nullable
+- [x] Koden lagras krypterad. Vårdnadshavare kan visa, byta och återställa den.
+- [x] Neka enkla koder (0000, 1234, 4321)
+- [x] devices tabell
+- [x] Familjeenhet: barnet väljer sig själv och skriver koden
+- [x] Barnets egen enhet kopplas via QR-kod
+- [x] Barnens inloggning för både telefon och läsplatta
+- [x] Felaktiga försök: vänta en minut efter 5, stäng av inloggningen efter 10
+- [x] Stänga av ett barns inloggning: alla sessioner loggas ut (SESSION_DRIVER=database) och barnets enheter kopplas bort
+- [x] Inloggningshistorik för barnen (login_events)
+- [x] Policies för alla fyra roller
+- [x] Isolationstester mellan familjer
 
 ## Definition of Done
 
@@ -429,6 +429,7 @@ Appen körs på en server så att familjen kan använda den på telefonerna och 
 ## Tasks
 
 - [ ] Debian 13 (uppgradera från 12 eller installera om)
+- [ ] Stäng registreringen: REGISTRATION_ENABLED=false (andra vuxna går med via inbjudan)
 - [ ] Server: användaren deploy, inloggning bara med SSH-nyckel, brandvägg, fail2ban, automatiska säkerhetsuppdateringar
 - [ ] Nginx, PHP 8.4 (Debians paket), MariaDB 12.3 LTS (MariaDB:s paketförråd)
 - [ ] DuckDNS-adress, med uppdatering om servern har dynamisk IP

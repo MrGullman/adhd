@@ -1,7 +1,10 @@
+export type AvatarColor = 'teal' | 'orange' | 'green' | 'yellow' | 'purple';
+
 export type User = {
     id: number;
     name: string;
-    email: string;
+    email: string | null;
+    avatar_color: AvatarColor;
     avatar?: string;
     email_verified_at: string | null;
     two_factor_enabled?: boolean;
@@ -12,6 +15,27 @@ export type User = {
 
 export type Auth = {
     user: User;
+};
+
+export type FamilyRole = 'parent' | 'editor' | 'viewer' | 'child';
+
+export type CurrentFamily = {
+    id: number;
+    name: string;
+    role: FamilyRole | null;
+    roleLabel: string | null;
+    canEdit: boolean;
+    canManage: boolean;
+};
+
+export type FamilyOption = {
+    id: number;
+    name: string;
+};
+
+export type Option = {
+    value: string;
+    label: string;
 };
 
 export type Passkey = {

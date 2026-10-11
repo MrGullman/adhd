@@ -161,7 +161,8 @@ return [
     */
 
     'features' => [
-        Features::registration(),
+        // Turn off with REGISTRATION_ENABLED=false on the server. Other adults join by invitation.
+        ...(env('REGISTRATION_ENABLED', true) ? [Features::registration()] : []),
         Features::resetPasswords(),
         Features::emailVerification(),
         Features::twoFactorAuthentication([

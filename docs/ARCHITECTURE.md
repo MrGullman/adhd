@@ -122,6 +122,7 @@ Rollen kontrolleras i policies.
 ## Vuxenkonton
 
 - Fortify: e-post + lösenord, 2FA
+- Öppen registrering skapar en ny familj. Den stängs av med REGISTRATION_ENABLED=false (på servern).
 - En vårdnadshavare bjuder in andra vuxna via e-post och väljer roll (parent, editor eller viewer)
 - Inbjudan är en länk som gäller i 7 dagar
 - En vuxen kan tillhöra flera familjer (t.ex. mormor som hjälper två familjer) och byter familj i menyn
