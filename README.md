@@ -8,6 +8,7 @@ Ett hjälpmedel för barn och familjer med NPF-problematik (t.ex. ADHD och autis
 
 - [Arkitektur](docs/ARCHITECTURE.md): stack, datamodell och regler
 - [Roadmap](docs/ROADMAP.md): milestones i byggordning
+- [Stilguide](docs/STYLEGUIDE.md): färger, typsnitt och komponenter, med [tokens](docs/design/tokens.json) och [utkast av hemskärmen](docs/mockups/)
 
 ## AI-stöd
 
