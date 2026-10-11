@@ -32,6 +32,7 @@ Lokal utvecklingsmiljö:
 
 - Laravel Herd
 - MariaDB 12.3 (Homebrew)
+- Mailpit (Homebrew): fångar alla mejl lokalt, inkorg på http://localhost:8025
 
 Test och kodkvalitet:
 
@@ -1085,7 +1086,7 @@ När systemet växer:
 
 # AI-riktlinjer
 
-Projektets regler för AI-verktyg ligger i .ai/guidelines/npf-familjen.md. Laravel Boost tar med dem i CLAUDE.md, AGENTS.md och .github/copilot-instructions.md vid boost:install och boost:update. Ändra reglerna där, inte i de genererade filerna.
+Projektets regler för AI-verktyg ligger i .ai/guidelines/ (npf-familjen.md och design.md). Laravel Boost tar med dem i CLAUDE.md (Claude Code) och AGENTS.md (Copilot) vid boost:install och boost:update. Vilka agenter som används står i boost.json. Ändra reglerna där, inte i de genererade filerna.
 
 Regler som bara gäller vissa sökvägar sparas i .ai/rules via Boosts record-rule.
 
