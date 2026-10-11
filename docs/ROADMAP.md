@@ -428,10 +428,10 @@ Appen körs på en server så att familjen kan använda den på telefonerna och 
 
 ## Tasks
 
-- [ ] Debian 13 (uppgradera från 12 eller installera om)
+- [ ] Debian 12: lägg till Ondřej Surýs paketförråd för PHP 8.4 och MariaDB:s paketförråd för 12.3
 - [ ] Stäng registreringen: REGISTRATION_ENABLED=false (andra vuxna går med via inbjudan)
 - [ ] Server: användaren deploy, inloggning bara med SSH-nyckel, brandvägg, fail2ban, automatiska säkerhetsuppdateringar
-- [ ] Nginx, PHP 8.4 (Debians paket), MariaDB 12.3 LTS (MariaDB:s paketförråd)
+- [ ] Nginx, PHP 8.4, MariaDB 12.3 LTS
 - [ ] DuckDNS-adress, med uppdatering om servern har dynamisk IP
 - [ ] HTTPS med Let's Encrypt
 - [ ] Kontrollera att hemmanätet når servern via DuckDNS-adressen (NAT loopback)
@@ -605,6 +605,7 @@ Vårdnadshavare i olika familjer kan diskutera problem och tips.
 - Hemskärm: bocka av tasks via pekskärm
 - Egen domän och e-posttjänst inom EU (t.ex. Brevo eller Mailgun EU)
 - Backup även utanför servern
+- Flytta servern till en nyare Debian innan Debian 12:s LTS-stöd tar slut (juni 2028)
 - Importera recept från länk (schema.org/Recipe, Laravel AI SDK för att tolka ingredienser)
 - Dra av ingredienser från skafferiet när en måltid är lagad
 

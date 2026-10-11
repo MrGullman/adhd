@@ -837,8 +837,8 @@ Version 1 körs på en egen server med root-åtkomst. Ingen Forge: deploy sker f
 
 ## Server
 
-- Debian 13 (Trixie): PHP 8.4 finns i Debians egna paket och fullt säkerhetsstöd gäller till 2030. Debian 12 har bara LTS-stöd (till juni 2028) och PHP 8.2.
-- PHP 8.4 (samma version som lokalt), Nginx
+- Debian 12 (Bookworm). Den har LTS-stöd till juni 2028, så servern bör flyttas till en nyare Debian innan dess.
+- PHP 8.4 (samma version som lokalt) från Ondřej Surýs paketförråd (packages.sury.org), eftersom Debian 12 bara har PHP 8.2. Nginx.
 - MariaDB 12.3 LTS (från MariaDB:s eget paketförråd)
 - Användaren deploy sköter deployer, inte root. Inloggning bara med SSH-nyckel.
 - Brandvägg (ufw: 22, 80, 443), fail2ban, automatiska säkerhetsuppdateringar
