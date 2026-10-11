@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { Form, Head, Link } from '@inertiajs/vue3';
 import ChildController from '@/actions/App/Http/Controllers/Family/ChildController';
+import DayPartController from '@/actions/App/Http/Controllers/Family/DayPartController';
 import DeviceController from '@/actions/App/Http/Controllers/Family/DeviceController';
 import FamilyController from '@/actions/App/Http/Controllers/Family/FamilyController';
 import FamilyInvitationController from '@/actions/App/Http/Controllers/Family/FamilyInvitationController';
+import DayPartLabel from '@/components/DayPartLabel.vue';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
@@ -11,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { formatDate, formatDateTime } from '@/lib/format';
 import { show as familyShow } from '@/routes/family';
-import type { Option } from '@/types';
+import type { DayPartOption, Option } from '@/types';
 
 defineOptions({
     layout: {
@@ -51,6 +53,7 @@ defineProps<{
         isThisDevice: boolean;
     }>;
     thisDeviceIsTrusted: boolean;
+    dayParts: DayPartOption[];
     roles: Option[];
     avatarColors: Option[];
 }>();
@@ -348,6 +351,62 @@ const selectClass =
                 </div>
                 <Button type="submit" class="w-fit" :disabled="processing">
                     Godkänn den här enheten
+                </Button>
+            </Form>
+        </section>
+
+        <!-- Dagens delar -->
+        <section
+            v-if="canManage"
+            class="flex flex-col gap-4"
+            aria-labelledby="dagsdelar"
+        >
+            <h2 id="dagsdelar" class="text-title">Dagens delar</h2>
+            <p class="text-ink-muted">
+                När morgon, förmiddag, eftermiddag och kväll börjar. Uppgifter
+                med klockslag hamnar i rätt del av dagen.
+            </p>
+            <Form
+                v-bind="DayPartController.update.form()"
+                class="flex flex-col gap-4"
+                v-slot="{ errors, processing }"
+            >
+                <div class="grid gap-3 sm:grid-cols-2">
+                    <div
+                        v-for="part in dayParts"
+                        :key="part.value"
+                        class="flex items-center justify-between gap-3 rounded-lg border border-line bg-surface-raised p-3"
+                    >
+                        <Label :for="`day-part-${part.value}`">
+                            <DayPartLabel
+                                :part="part.value"
+                                :label="part.label"
+                            />
+                        </Label>
+                        <div class="grid gap-1">
+                            <Input
+                                :id="`day-part-${part.value}`"
+                                :name="part.value"
+                                type="time"
+                                :default-value="part.start"
+                                required
+                                class="w-32"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <InputError
+                    v-for="part in dayParts"
+                    :key="part.value"
+                    :message="errors[part.value]"
+                />
+                <Button
+                    variant="outline"
+                    type="submit"
+                    class="w-fit"
+                    :disabled="processing"
+                >
+                    Spara tider
                 </Button>
             </Form>
         </section>
