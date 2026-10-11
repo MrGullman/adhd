@@ -41,7 +41,7 @@ return [
         // Nattlig backup (spatie/laravel-backup). På servern: /var/backups/npf-familjen.
         'backups' => [
             'driver' => 'local',
-            'root' => env('BACKUP_PATH', storage_path('app/backups')),
+            'root' => env('BACKUP_PATH') ?: storage_path('app/backups'),
             'throw' => false,
             'report' => false,
         ],

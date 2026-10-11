@@ -234,10 +234,11 @@ return [
         'notifiable' => Notifiable::class,
 
         'mail' => [
-            'to' => env('BACKUP_NOTIFICATION_EMAIL', env('MAIL_FROM_ADDRESS')),
+            // Paketet kräver en giltig adress redan när appen startar, även innan e-posten är inställd.
+            'to' => env('BACKUP_NOTIFICATION_EMAIL') ?: (env('MAIL_FROM_ADDRESS') ?: 'hello@example.com'),
 
             'from' => [
-                'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
+                'address' => env('MAIL_FROM_ADDRESS') ?: 'hello@example.com',
                 'name' => env('MAIL_FROM_NAME', 'Example'),
             ],
         ],

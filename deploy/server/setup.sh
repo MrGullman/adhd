@@ -137,6 +137,8 @@ MAIL_FROM_ADDRESS=
 MAIL_FROM_NAME="NPF-familjen"
 
 BACKUP_PATH=${BACKUP_DIR}
+# Hit skickas mejl om backupen misslyckas.
+BACKUP_NOTIFICATION_EMAIL=${CERT_EMAIL}
 ENV
     chown deploy:deploy "$APP_DIR/shared/.env"
     chmod 600 "$APP_DIR/shared/.env"
