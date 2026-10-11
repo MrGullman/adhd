@@ -99,7 +99,7 @@ Få en fungerande Laravel-app lokalt, på svenska och mot MariaDB.
 - [x] Committa Boosts genererade filer (CLAUDE.md, AGENTS.md, boost.json och skills) så att AI-verktyg på GitHub också hittar dem
 - [x] Kör migrations
 - [x] Verifiera login fungerar
-- [ ] GitHub Actions: tester vid varje push (Pest mot MariaDB 12.3, Pint, Larastan, frontend-build)
+- [x] GitHub Actions: tester vid varje push (Pest mot MariaDB 12.3, Pint, Larastan, frontend-build)
 
 ## Definition of Done
 
