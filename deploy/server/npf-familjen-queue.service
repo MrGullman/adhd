@@ -1,0 +1,17 @@
+# /etc/systemd/system/npf-familjen-queue.service
+# Köworkern. Startas om automatiskt, och efter varje deploy via `php artisan reload`.
+
+[Unit]
+Description=NPF-familjen köworker
+After=network.target mariadb.service
+
+[Service]
+User=deploy
+Group=deploy
+Restart=always
+RestartSec=5
+WorkingDirectory=/var/www/npf-familjen/current
+ExecStart=/usr/bin/php8.4 /var/www/npf-familjen/current/artisan queue:work --sleep=3 --tries=3 --max-time=3600
+
+[Install]
+WantedBy=multi-user.target

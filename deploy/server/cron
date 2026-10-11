@@ -1,0 +1,3 @@
+# /etc/cron.d/npf-familjen
+# Laravels schemaläggare (backup, och senare skolmat, kalender och påminnelser).
+* * * * * deploy /usr/bin/php8.4 /var/www/npf-familjen/current/artisan schedule:run >> /dev/null 2>&1

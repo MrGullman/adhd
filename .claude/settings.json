@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(unzip -l storage/app/backups/*/*.zip)",
+      "Bash(curl -s https://packages.sury.org/php/README.txt)",
+      "Bash(curl -sI https://r.mariadb.com/downloads/mariadb_repo_setup)",
+      "Bash(curl -s https://r.mariadb.com/downloads/mariadb_repo_setup)",
+      "Bash(curl -sL https://getcomposer.org/download/latest-stable/composer.phar.sha256sum)",
+      "Bash(curl -sL https://r.mariadb.com/downloads/mariadb_repo_setup -o /private/tmp/claude-501/-Users-jespergullman-Herd-adhd/1e5e7140-4803-4412-a515-7dfcdac39c2a/scratchpad/mariadb_repo_setup)",
+      "Bash(curl -sL https://r.mariadb.com/downloads/mariadb_repo_setup.sha256)",
+      "Bash(bash -n deploy/server/setup.sh)",
+      "Bash(command -v shellcheck)",
+      "Bash(shellcheck -S warning deploy/server/setup.sh)",
+      "Bash(chmod +x deploy/server/setup.sh)",
+      "Bash(grep -i -E \"\\\\.env$|backups|\\\\.zip\")"
+    ]
+  }
+}
