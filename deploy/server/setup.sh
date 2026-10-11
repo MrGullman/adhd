@@ -46,7 +46,7 @@ apt-get -y install --no-upgrade git unzip curl acl certbot python3-certbot-nginx
     "php${PHP}-curl" "php${PHP}-zip" "php${PHP}-bcmath" "php${PHP}-intl" "php${PHP}-gd" "php${PHP}-opcache"
 
 step "Kontrollerar MariaDB"
-mariadb -N -e "SHOW COLLATION LIKE '${DB_COLLATION}'" | grep -q "$DB_COLLATION" \
+mariadb -N -e "SELECT _utf8mb4'a' COLLATE ${DB_COLLATION}" >/dev/null 2>&1 \
     || fail "MariaDB saknar sorteringen ${DB_COLLATION} (kräver MariaDB 10.10 eller senare)."
 mariadb -N -e "SELECT VERSION()"
 
