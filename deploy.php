@@ -11,11 +11,11 @@ set('application', 'NPF-familjen');
 set('repository', 'https://github.com/MrGullman/adhd.git');
 set('keep_releases', 5);
 
-// PHP-FPM kör som användaren deploy, så filerna behöver inga särskilda rättigheter.
+// PHP-FPM kör som användaren npf-familjen, som äger filerna, så filerna behöver inga särskilda rättigheter.
 set('writable_mode', 'skip');
 
 host('npf-familjen.duckdns.org')
-    ->set('remote_user', 'deploy')
+    ->set('remote_user', 'npf-familjen')
     ->set('deploy_path', '/var/www/npf-familjen')
     ->set('bin/php', '/usr/bin/php8.4');
 

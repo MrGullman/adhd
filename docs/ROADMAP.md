@@ -431,7 +431,7 @@ Appen körs på en server så att familjen kan använda den på telefonerna och 
 - [x] Driftpaket i repot: deploy.php, deploy-flöde i GitHub Actions, serverskript, backupschema och runbook ([DRIFT.md](DRIFT.md))
 - [ ] Debian 12: lägg till Ondřej Surýs paketförråd för PHP 8.4 och MariaDB:s paketförråd för 12.3
 - [ ] Stäng registreringen: REGISTRATION_ENABLED=false (andra vuxna går med via inbjudan)
-- [ ] Server: användaren deploy, inloggning bara med SSH-nyckel, brandvägg, fail2ban, automatiska säkerhetsuppdateringar
+- [ ] Server: egen användare npf-familjen (servern delas med andra projekt), inloggning bara med SSH-nyckel
 - [ ] Nginx, PHP 8.4, MariaDB 12.3 LTS
 - [x] DuckDNS-adress (servern står hos en leverantör med fast IP, så ingen uppdatering eller NAT loopback behövs)
 - [ ] HTTPS med Let's Encrypt

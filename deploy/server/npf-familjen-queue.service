@@ -6,8 +6,8 @@ Description=NPF-familjen köworker
 After=network.target mariadb.service
 
 [Service]
-User=deploy
-Group=deploy
+User=npf-familjen
+Group=npf-familjen
 Restart=always
 RestartSec=5
 WorkingDirectory=/var/www/npf-familjen/current

@@ -840,8 +840,9 @@ Version 1 körs på en egen server hos en leverantör, med root-åtkomst. Ingen 
 - Debian 12 (Bookworm). Den har LTS-stöd till juni 2028, så servern bör flyttas till en nyare Debian innan dess.
 - PHP 8.4 (samma version som lokalt) från Ondřej Surýs paketförråd (packages.sury.org), eftersom Debian 12 bara har PHP 8.2. Nginx.
 - MariaDB 12.3 LTS (från MariaDB:s eget paketförråd)
-- Användaren deploy sköter deployer, inte root. Inloggning bara med SSH-nyckel.
-- Brandvägg (ufw: 22, 80, 443), fail2ban, automatiska säkerhetsuppdateringar
+- Servern delas med andra projekt. NPF-familjen har egen användare (`npf-familjen`), egen PHP-FPM-pool, egen Nginx-sajt och egen databas med egen databasanvändare. Installationen ändrar aldrig något som delas (systemuppgraderingar, brandvägg, MariaDB-inställningar, andra sajter).
+- Användaren npf-familjen sköter deployer, inte root. Inloggning bara med SSH-nyckel.
+- Brandvägg, fail2ban och SSH-inställningar gäller hela servern och sköts utanför NPF-familjen (rekommendationer i DRIFT.md)
 - Köworker som systemd-tjänst
 - Scheduler: cron kör php artisan schedule:run varje minut
 - .env och storage (bilder) ligger i en delad mapp som överlever deployer
