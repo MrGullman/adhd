@@ -41,7 +41,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 step "Installerar det som saknas (befintliga paket uppgraderas inte)"
 apt-get update
-apt-get -y install --no-upgrade git unzip curl acl certbot python3-certbot-nginx \
+apt-get -y install --no-upgrade git unzip curl acl rsync certbot python3-certbot-nginx \
     "php${PHP}-fpm" "php${PHP}-cli" "php${PHP}-mysql" "php${PHP}-mbstring" "php${PHP}-xml" \
     "php${PHP}-curl" "php${PHP}-zip" "php${PHP}-bcmath" "php${PHP}-intl" "php${PHP}-gd" "php${PHP}-opcache"
 
