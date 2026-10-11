@@ -74,7 +74,7 @@ chown "$APP_USER:$APP_USER" "/home/${APP_USER}/.ssh/authorized_keys"
 chmod 600 "/home/${APP_USER}/.ssh/authorized_keys"
 
 step "Skapar mappar"
-install -d -o "$APP_USER" -g "$APP_USER" "$APP_DIR" "$APP_DIR/shared" "$APP_DIR/shared/storage"
+install -d -o "$APP_USER" -g "$APP_USER" "$APP_DIR" "$APP_DIR/shared"
 install -d -m 700 -o "$APP_USER" -g "$APP_USER" "$BACKUP_DIR"
 
 step "Skapar databasen och databasanvändaren"
