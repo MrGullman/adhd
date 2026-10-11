@@ -20,8 +20,9 @@ Frontend:
 
 Database:
 
-- SQLite (development)
-- MySQL/Postgres (production)
+- MariaDB 12.3 LTS (både lokalt och på servern, ingen SQLite)
+- Teckenkodning utf8mb4, sortering utf8mb4_uca1400_swedish_ai_ci (å, ä, ö sorteras efter z)
+- Tester körs mot en egen testdatabas i MariaDB
 
 Auth:
 
@@ -30,6 +31,7 @@ Auth:
 Lokal utvecklingsmiljö:
 
 - Laravel Herd
+- MariaDB 12.3 (Homebrew)
 
 Test och kodkvalitet:
 
@@ -71,7 +73,7 @@ Policies används alltid.
 
 - En familjs data syns aldrig för en annan familj
 - Enda undantaget: inlägg som en vuxen själv publicerar i Community
-- Bildgalleriet (från adminportalen) är inte familjedata
+- Bildgalleriet, grundlistan med ingredienser och rutinmallarna (från adminportalen) är inte familjedata
 
 ## Automatisk familjefiltrering
 
@@ -105,7 +107,8 @@ Vuxen kan:
 - ge och dra poäng, godkänna inlösen av belöningar
 - skriva och läsa dagboken
 - lägga till kalendrar
-- skapa aktiviteter och packlistor
+- skapa aktiviteter, packlistor och rutiner
+- hantera recept, skafferi, veckomatsedel och handlingslista
 - ställa in hemskärmen
 - använda Community
 - exportera och radera familjens data
@@ -115,6 +118,9 @@ Barn kan:
 - se vad de ska göra idag
 - se och bocka av sina uppgifter
 - bocka av packlistor
+- göra sina rutiner
+- se veckomatsedeln
+- lägga till varor på handlingslistan
 - se sina poäng
 - önska en belöning (en vuxen godkänner)
 
@@ -208,9 +214,11 @@ Tillgängliga widgets:
 - Klocka och datum
 - Kalender (dagens händelser)
 - Skollunch per barn
+- Middag ikväll / veckans mat (familjens veckomatsedel, inte skolmaten)
 - Dagens uppgifter per familjemedlem (med bildstöd och avatar)
+- Rutiner (varje barns pågående steg)
 - Aktiviteter och packning (t.ex. "Imorgon: simskola")
-- Shoppinglistor
+- Handlingslista
 - Poäng och belöningar
 
 Dagbok kan aldrig visas på hemskärmen.
@@ -228,7 +236,7 @@ display_widgets
 
 - family_id
 - device_id (skärmen)
-- type (clock, calendar, school_meals, tasks, activities, shopping_list, points)
+- type (clock, calendar, school_meals, meal_plan, tasks, routines, activities, shopping_list, points)
 - x, y, w, h (position i rutnätet)
 - settings (json)
 
@@ -308,6 +316,9 @@ Modeller med bild får picture_id (nullable):
 - list_items
 - rewards
 - recurring_tasks
+- routines och routine_steps
+- recipes
+- ingredients (så att barn kan lägga till på handlingslistan genom att välja bild)
 - users (avatar)
 
 ## Regler
@@ -376,6 +387,82 @@ activity_confirmations (barnet svarar "ja, jag har packat" samma dag)
 
 ---
 
+# Rutiner
+
+En rutin är en kedja av steg med bildstöd, t.ex. morgonrutin, efter skolan eller läggdags.
+
+## Inspiration från liknande appar
+
+- Brili: rutinen har en sluttid, tiden per steg anpassas efter hur det går, rätt rutin startar vid rätt tid
+- Tiimo: fokus på nu och nästa, visuell timer
+- Goally: steg för steg med bild och timer, vuxna följer läget från sin telefon
+- Choiceworks: "att göra" och "klart", först–sen
+- MEMOplanner (Abilia): kvartsprincipen, 1 prick = 15 minuter, prickarna släcks när tiden går
+- Joon: barnet bockar av, vuxen godkänner, poäng
+
+## Så gör vi
+
+- Fokusläge: ett steg i taget med stor bild och stor Klar-knapp. Nästa steg syns litet (först–sen).
+- Synlig tid: kvartsprickar fram till "klar senast". Lugnt, inga röda larm.
+- Om tiden inte räcker föreslår appen att hoppa över steg som vuxna markerat som valfria
+- Kopplat till dagen: steget "Kolla packningen" visar dagens packlistor (t.ex. simskola)
+- Steg kan gälla bara vissa dagar (t.ex. "packa gympapåsen" på måndagar)
+- Uppläsning av steget med webbläsarens talsyntes (svenska), för barn som inte läser
+- Rätt rutin visas överst i barnets Idag-vy när det är dags
+- Syns på hemskärmen: varje barns pågående steg
+- Vuxna ser läget live i sin dashboard
+- Belöning i verkliga livet: avklarad rutin kan ge poäng i belöningssystemet, aldrig skärmtid i ett spel
+- Färdiga mallar (morgon, efter skolan, kväll, läggdags) från adminportalen. Familjen kopierar och anpassar.
+- Lugnt firande när rutinen är klar
+
+## Tabeller
+
+routines
+
+- family_id (nullable: null = mall från adminportalen)
+- name
+- picture_id
+- part_of_day
+- start_time (nullable)
+- done_by (nullable: klar senast)
+- weekdays
+- ordered (fast eller fri ordning)
+
+routine_child
+
+- routine_id
+- user_id
+
+routine_steps
+
+- routine_id
+- picture_id
+- label
+- minutes (uppskattad tid)
+- type (step, packlist)
+- weekdays (nullable: bara vissa dagar)
+- optional (kan hoppas över om tiden inte räcker)
+- sort_order
+
+routine_runs (en körning per barn och dag)
+
+- routine_id
+- user_id
+- date
+- started_at
+- completed_at
+
+routine_step_checks
+
+- routine_run_id
+- routine_step_id
+- checked_at
+- skipped
+
+Mallar kopieras till familjen. Familjens rutiner delas aldrig tillbaka.
+
+---
+
 # Adminportal
 
 Adminportalen är till för den som driver appen, inte för familjerna.
@@ -387,11 +474,92 @@ Adminportalen är till för den som driver appen, inte för familjerna.
 Funktioner:
 
 - Bildgalleri: massuppladdning, kategorier, etiketter, sökord, sortering
+- Grundlista med ingredienser och butiksavdelningar
+- Rutinmallar
 - Senare: översikt av familjer, moderering av community
 
 Adminportalen visar aldrig familjers innehåll (uppgifter, dagbok, foton). Bara översiktsdata, t.ex. antal familjer.
 
 Bilder som läggs i galleriet delas med alla familjer. Kontrollera att du har rätt att dela dem, även i en framtida betalversion.
+
+---
+
+# Mat: receptbank, skafferi och veckomatsedel
+
+Familjens egen mat. Hålls helt skild från Skolmat (Matilda): egna tabeller, egna sidor och egna widgets.
+
+## Flöde
+
+1. Familjen bygger en receptbank
+2. Familjen skriver in vad som finns hemma (skafferi)
+3. Appen föreslår recept utifrån vad som finns hemma
+4. Recept läggs in i veckomatsedeln
+5. Appen skapar en handlingslista med det som behöver kompletteringshandlas
+6. Det som bockas av på handlingslistan hamnar i skafferiet
+
+## Tabeller
+
+ingredients
+
+- family_id (nullable: null = gemensam grundlista från adminportalen)
+- name
+- picture_id (nullable)
+- category (butiksavdelning, t.ex. Frukt & grönt, Mejeri, Skafferi, Frys)
+- default_unit
+
+recipes
+
+- family_id
+- name
+- picture_id
+- portions
+- instructions
+- time_minutes
+
+recipe_ingredients
+
+- recipe_id
+- ingredient_id
+- quantity (nullable)
+- unit
+- note (t.ex. "hackad")
+
+pantry_items (det som finns hemma)
+
+- family_id
+- ingredient_id
+- quantity (nullable: tom = "finns")
+- unit
+- always_home (basvara som alltid finns, t.ex. salt och olja)
+
+meal_plan_entries (veckomatsedel)
+
+- family_id
+- date
+- meal (t.ex. middag)
+- recipe_id (nullable)
+- title (fritext utan recept, t.ex. "Pizza ute")
+- portions
+
+list_items (handlingslistan) får också:
+
+- ingredient_id (nullable)
+- quantity, unit
+- meal_plan_entry_id (nullable: vilken måltid varan behövs till)
+- added_by (vem som lade till varan)
+
+## Regler
+
+- Ingredienser väljs med autocomplete, så samma vara alltid heter samma sak. Det krävs för att kunna jämföra recept och skafferi.
+- Grundlistan med vanliga ingredienser underhålls i adminportalen. Familjen kan lägga till egna.
+- Matförslag: recept rangordnas efter hur stor del av ingredienserna som finns hemma. Visas som "Kan lagas nu" och "Saknar 1–2 saker". Basvaror räknas som att de finns.
+- Handlingslista från veckomatsedeln: veckans ingredienser (skalade efter portioner) minus det som finns hemma
+- Finns en vara hemma utan angiven mängd räknas den som tillräcklig
+- Samma vara slås ihop. Mängder räknas om inom vikt (g, kg) och volym (krm, tsk, msk, ml, dl, l). Olika enhetsgrupper (t.ex. st och g) listas var för sig.
+- Handlingslistan sorteras efter butiksavdelning
+- Avbockad vara läggs i skafferiet
+- Barn ser veckomatsedeln med bild ("Middag ikväll" i Idag-vyn)
+- Barn kan lägga till på handlingslistan, genom att skriva eller välja en bild. Vuxna ser vem som lagt till.
 
 ---
 
@@ -536,6 +704,93 @@ Påminnelser byggs tillsammans med PWA.
 
 ---
 
+# Språk och tid
+
+- Appen är på svenska (APP_LOCALE=sv, APP_FAKER_LOCALE=sv_SE)
+- Laravels egna texter (validering, lösenord m.m.) översätts med laravel-lang/lang
+- Startkitets Vue-texter skrivs om till svenska direkt i komponenterna. Inget i18n-bibliotek i version 1.
+- Databasen lagrar tider i UTC
+- "Idag", schemalagda jobb och visning använder Europe/Stockholm
+
+## Del av dagen och klockslag
+
+Uppgifter, återkommande uppgifter, rutiner och aktiviteter kan ha:
+
+- del av dagen (morgon, förmiddag, eftermiddag, kväll)
+- klockslag (t.ex. simskolan 17:15)
+- eller båda
+
+Om klockslag anges räknas delen av dagen ut automatiskt.
+
+Familjen ställer in när dagsdelarna börjar (families.day_parts). Standard: morgon 06, förmiddag 09, eftermiddag 12, kväll 17.
+
+Idag-vyn grupperar efter del av dagen och sorterar på klockslag.
+
+---
+
+# Drift
+
+Version 1 körs på en egen server med root-åtkomst. Ingen Forge: deploy sker från GitHub.
+
+## Server
+
+- Debian 13 (Trixie): PHP 8.4 finns i Debians egna paket och fullt säkerhetsstöd gäller till 2030. Debian 12 har bara LTS-stöd (till juni 2028) och PHP 8.2.
+- PHP 8.4 (samma version som lokalt), Nginx
+- MariaDB 12.3 LTS (från MariaDB:s eget paketförråd)
+- Användaren deploy sköter deployer, inte root. Inloggning bara med SSH-nyckel.
+- Brandvägg (ufw: 22, 80, 443), fail2ban, automatiska säkerhetsuppdateringar
+- Köworker som systemd-tjänst
+- Scheduler: cron kör php artisan schedule:run varje minut
+- .env och storage (bilder) ligger i en delad mapp som överlever deployer
+
+## Deploy från GitHub
+
+GitHub Actions:
+
+1. Vid varje push: Pest (mot MariaDB 12.3 i en tjänstecontainer), Pint, Larastan och frontend-build
+2. Vid push till main, om testerna gick igenom: deploy med Deployer 8 (deployphp/action)
+
+Deployer:
+
+- Zero-downtime: varje version i en egen mapp, current pekar på den aktiva
+- Frontend byggs i GitHub Actions och laddas upp. Servern behöver inte Node.
+- Kör composer install --no-dev, migrate --force, optimize och queue:restart
+- dep rollback går tillbaka till förra versionen
+- SSH-nyckel och serverns host key ligger som GitHub Secrets
+
+## Domän och HTTPS
+
+- Till en början en DuckDNS-adress (t.ex. npf-familjen.duckdns.org)
+- Om servern har dynamisk IP uppdaterar ett cron-jobb DuckDNS var 5:e minut
+- HTTPS med Let's Encrypt: Certbot med HTTP-01 (port 80 måste nå servern), annars DNS-01 via DuckDNS-token
+- Om servern står hemma: routern måste klara NAT loopback, annars når enheter på hemmanätet (t.ex. Raspberry Pi:n) inte servern via DuckDNS-adressen. Lösning: lokal DNS-post i routern.
+- Vid byte till egen domän: ändra APP_URL, skaffa nytt certifikat och uppdatera hemskärmslänken på Raspberry Pi:n
+
+## E-post
+
+Version 1: Gmail via SMTP.
+
+- smtp.gmail.com, port 587, med ett applösenord (kräver tvåstegsverifiering på Google-kontot)
+- Använd ett separat Gmail-konto för appen. Ett applösenord ger åtkomst till hela brevlådan och ska inte ligga på servern för ett personligt konto.
+- Max 500 mottagare per dag
+- Applösenordet finns bara i serverns .env
+
+Senare, med egen domän: e-posttjänst inom EU, t.ex. Brevo (gratis 300 mejl/dag via SMTP) eller Mailgun med EU-region (inbyggd drivrutin i Laravel).
+
+## Backup
+
+Version 1: backup på servern.
+
+- spatie/laravel-backup: databas och bilder varje natt
+- Sparas i en egen mapp utanför appen, behålls i 14 dagar
+- Återställning testas
+- Skyddar mot misstag och trasiga uppdateringar, men inte mot att servern eller disken går sönder
+- Senare: en andra kopia utanför servern (spatie/laravel-backup klarar flera mål)
+
+Hemskärmen (Raspberry Pi) och telefonerna ansluter mot servern.
+
+---
+
 # Struktur Laravel
 
 Models:
@@ -568,7 +823,11 @@ pages/
 
 today/
 lists/
+recipes/
+pantry/
+meal-plan/
 activities/
+routines/
 journal/
 rewards/
 community/
@@ -598,6 +857,7 @@ Systemet ska vara:
 - Mobilvänligt
 - Bildstöd: bild + kort text där det går
 - Förutsägbart: samma struktur varje dag, ändringar syns tydligt
+- Lugnt: inga röda larm eller stressande nedräkningar, tid visas visuellt
 
 Prioriterade vyer:
 
@@ -709,9 +969,13 @@ När systemet växer:
 
 ---
 
-# Copilot riktlinjer
+# AI-riktlinjer
 
-Laravel Boost genererar Laravel-specifika AI-riktlinjer. Reglerna nedan gäller utöver dessa.
+Projektets regler för AI-verktyg ligger i .ai/guidelines/npf-familjen.md. Laravel Boost tar med dem i CLAUDE.md, AGENTS.md och .github/copilot-instructions.md vid boost:install och boost:update. Ändra reglerna där, inte i de genererade filerna.
+
+Regler som bara gäller vissa sökvägar sparas i .ai/rules via Boosts record-rule.
+
+Laravel Boost genererar även Laravel-specifika AI-riktlinjer. Reglerna nedan gäller utöver dessa.
 
 All ny kod skall:
 

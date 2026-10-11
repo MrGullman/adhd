@@ -7,7 +7,8 @@ NPF-familjen är ett hjälpmedel för barn och familjer med NPF-problematik (t.e
 En familjedelad webapp för:
 
 - Att-göra listor
-- Matlistor och shoppinglistor
+- Handlingslista
+- Familjens veckomatsedel, receptbank och skafferi (skild från skolmaten)
 - Dagbok för vårdnadshavare
 - Belöningssystem
 - Kalender (Google, iPhone, Outlook)
@@ -15,18 +16,22 @@ En familjedelad webapp för:
 - Familjedelning med egna enkla konton för barn
 - Bildstöd (pictogram och egna foton)
 - Aktiviteter med packlistor i bildstöd
+- Rutiner steg för steg med bildstöd och synlig tid
 - Hemskärm som vårdnadshavarna själva ställer in
 - Community för vårdnadshavare
 
 Systemet byggs med:
 
 - Laravel 13
-- SQLite
+- MariaDB 12.3 LTS
 - Laravels Vue starter kit (Fortify-auth)
 - Inertia.js 3
 - Vue 3 + TypeScript
 - Tailwind CSS 4 + shadcn-vue
 - Filament 5 (adminportal)
+- Egen server, deploy från GitHub (GitHub Actions + Deployer 8)
+
+Appen är på svenska.
 
 Mobilvänlig design är prioritet.
 
@@ -36,25 +41,54 @@ Appen är gratis till en början men kan bli en betaltjänst längre fram.
 
 ---
 
+# Versioner
+
+## Version 1
+
+Används bara av vår familj.
+
+Milestone 0–12.
+
+Driften (Milestone 12) kan med fördel sättas upp tidigt, så att hemskärmen kan testas på riktigt.
+
+## Version 2
+
+Milestone 13–16: dagbok, belöningssystem, kalender, PWA och påminnelser.
+
+## Innan andra familjer bjuds in
+
+Milestone 17–18: datakontroll och integritetspolicy, community.
+
+---
+
 # Milestone 0 – Setup
 
 ## Mål
-Få en fungerande Laravel-app lokalt.
+
+Få en fungerande Laravel-app lokalt, på svenska och mot MariaDB.
 
 ## Tasks
 
-- [ ] Skapa appen med `laravel new` (Laravel 13, välj Vue starter kit utan Teams, Pest och SQLite)
+- [ ] Skapa appen med `laravel new` (Laravel 13, Vue starter kit utan Teams, Pest, MariaDB) i en tom mapp och flytta in den i repot. Behåll README.md, docs/, .ai/ och resources/images/.
+- [ ] Skapa databaserna npf_familjen och npf_familjen_test (utf8mb4, utf8mb4_uca1400_swedish_ai_ci)
+- [ ] Tester körs mot npf_familjen_test
 - [ ] Sätt APP_NAME="NPF-familjen"
+- [ ] Logotyp från resources/images/logo.png i appen, plus favicon (en förenklad variant utan text behövs i små storlekar)
+- [ ] Svenska: APP_LOCALE=sv, APP_FAKER_LOCALE=sv_SE, installera laravel-lang/lang
+- [ ] Översätt startkitets sidor (inloggning, inställningar) till svenska
 - [ ] Servera appen via Laravel Herd
-- [ ] Installera Laravel Boost (`composer require laravel/boost --dev` + `php artisan boost:install`, välj Copilot)
+- [ ] Installera Laravel Boost (`composer require laravel/boost --dev` + `php artisan boost:install`, välj Claude Code och Copilot). Projektets regler i .ai/guidelines/ tas med automatiskt.
+- [ ] Committa Boosts genererade filer (CLAUDE.md, AGENTS.md, .github/copilot-instructions.md) så att AI-verktyg på GitHub också hittar dem
 - [ ] Kör migrations
 - [ ] Verifiera login fungerar
+- [ ] GitHub Actions: tester vid varje push (Pest mot MariaDB 12.3, Pint, Larastan, frontend-build)
 
 ## Definition of Done
 
-- App kör lokalt
+- App kör lokalt mot MariaDB
 - Login fungerar
-- Dashboard visas
+- Inloggning, inställningar och felmeddelanden är på svenska
+- Testerna går igenom mot MariaDB, lokalt och på GitHub
 
 ---
 
@@ -89,7 +123,7 @@ All privat data ska vara kopplad till en familj. Vuxna och barn har egna konton.
 
 ---
 
-# Milestone 2 – Tasks och listor
+# Milestone 2 – Uppgifter och listor
 
 ## Mål
 
@@ -97,31 +131,55 @@ Familjen ska kunna dela uppgifter och listor.
 
 ## Tasks
 
-- [ ] Lists tabell
-- [ ] Tasks tabell
+- [ ] lists tabell (t.ex. handlingslista)
+- [ ] list_items tabell (med added_by)
+- [ ] tasks tabell med del av dagen och/eller klockslag
+- [ ] Dagsdelar per familj (standard: morgon 06, förmiddag 09, eftermiddag 12, kväll 17)
 - [ ] Lists UI
 - [ ] Tasks UI
-- [ ] Assign user
-- [ ] Delete tasks
-- [ ] Edit tasks
+- [ ] Tilldela uppgift till familjemedlem
+- [ ] Ändra och ta bort uppgifter
+- [ ] Barn kan lägga till på handlingslistan
 
 ## Definition of Done
 
 - Familjen kan hantera listor
-- Familjen kan hantera tasks
+- Familjen kan hantera uppgifter
+- En uppgift kan ha del av dagen, klockslag eller båda
+- Barn kan lägga till varor på handlingslistan
 
 ---
 
-# Milestone 3 – Bildstöd
+# Milestone 3 – Återkommande uppgifter
 
 ## Mål
 
-Allt viktigt ska gå att förstå utan att läsa: uppgifter, listor, belöningar och familjemedlemmar har bilder.
+Uppgifter som återkommer (t.ex. borsta tänderna varje morgon) skapas automatiskt.
+
+## Tasks
+
+- [ ] recurring_tasks tabell (vem, del av dagen och/eller klockslag, upprepning: varje dag, vissa veckodagar eller varje vecka)
+- [ ] Schemalagt kommando som skapar dagens uppgifter varje natt (routes/console.php, Europe/Stockholm)
+- [ ] Ändring av en återkommande uppgift påverkar bara kommande dagar
+- [ ] Tester för veckodagar och sommartid/vintertid
+
+## Definition of Done
+
+- Återkommande uppgifter dyker upp automatiskt de dagar de ska
+- Inga dubbletter om kommandot körs två gånger
+
+---
+
+# Milestone 4 – Bildstöd
+
+## Mål
+
+Allt viktigt ska gå att förstå utan att läsa: uppgifter, listor och familjemedlemmar har bilder.
 
 ## Tasks
 
 - [ ] pictures och picture_categories tabeller
-- [ ] picture_id på tasks, list_items och users (avatar)
+- [ ] picture_id på tasks, recurring_tasks, list_items och users (avatar)
 - [ ] is_admin på users
 - [ ] Installera Filament 5, adminportal på /admin (bara admin)
 - [ ] Admin: massuppladdning till galleriet, kategorier, etiketter, sökord
@@ -130,17 +188,17 @@ Allt viktigt ska gå att förstå utan att läsa: uppgifter, listor, belöningar
 - [ ] Ladda upp eget foto (mobilkamera)
 - [ ] Admin: importera Mulberry Symbols med svenska etiketter (valfritt)
 - [ ] Sida med bildkällor
-- [ ] Visa bild + kort text i listor och tasks
+- [ ] Visa bild + kort text i listor och uppgifter
 
 ## Definition of Done
 
 - Admin kan ladda upp många bilder på en gång och sortera dem i kategorier
-- Familjer kan välja bild från galleriet till en task
+- Familjen kan välja bild från galleriet till en uppgift
 - Familjens egna foton är inte publikt åtkomliga
 
 ---
 
-# Milestone 4 – Idag vy
+# Milestone 5 – Idag-vy
 
 ## Mål
 
@@ -150,19 +208,20 @@ Visa dagens uppgifter. Barnen ser vad de ska göra idag, vårdnadshavarna ser he
 
 - [ ] TodayController
 - [ ] pages/today/Index.vue
-- [ ] Filtrera tasks för idag
+- [ ] Filtrera uppgifter för idag (Europe/Stockholm)
+- [ ] Gruppera efter del av dagen, sortera på klockslag
 - [ ] Barnets vy: dagens uppgifter med bildstöd och stora knappar
 - [ ] Vårdnadshavarnas dashboard: hela familjens dag
 
 ## Definition of Done
 
-- Idag visar tasks korrekt
+- Idag visar uppgifter korrekt
 - Barnet ser sin egen dag med bildstöd
 - Vårdnadshavare ser alla barns dag
 
 ---
 
-# Milestone 5 – Aktiviteter och packlistor
+# Milestone 6 – Aktiviteter och packlistor
 
 ## Mål
 
@@ -185,71 +244,38 @@ Barnen ser dagens aktiviteter (t.ex. simskola) och får hjälp att packa med bil
 
 ---
 
-# Milestone 6 – Dagbok
+# Milestone 7 – Rutiner
 
 ## Mål
 
-Vårdnadshavarnas anteckningar om ett eller flera barn.
+Barnen klarar sina rutiner (morgon, efter skolan, kväll) steg för steg med bildstöd och synlig tid.
 
 ## Tasks
 
-- [ ] journal_entries tabell
-- [ ] journal_entry_child tabell (vilka barn anteckningen gäller)
-- [ ] Kryptera innehållet (encrypted cast)
-- [ ] JournalPolicy: bara vuxna
-- [ ] Journal page
-- [ ] Historik, filtrera per barn
+- [ ] routines, routine_child och routine_steps tabeller
+- [ ] routine_runs och routine_step_checks tabeller
+- [ ] Vuxen skapar rutin: steg med bild, uppskattad tid, valfria steg, steg bara vissa dagar
+- [ ] Rutin med "klar senast" (t.ex. 07:45)
+- [ ] Fokusläge för barnet: ett steg i taget, stor Klar-knapp, nästa steg syns litet (först–sen)
+- [ ] Synlig tid: kvartsprickar (1 prick = 15 min) fram till "klar senast"
+- [ ] Om tiden inte räcker: föreslå att hoppa över valfria steg
+- [ ] Steg "Kolla packningen" visar dagens packlistor
+- [ ] Uppläsning av steget (webbläsarens talsyntes, svenska)
+- [ ] Rätt rutin visas överst i barnets Idag-vy när det är dags
+- [ ] Vuxna ser läget live i sin dashboard
+- [ ] Lugnt firande när rutinen är klar
+- [ ] Färdiga rutinmallar i adminportalen (morgon, efter skolan, kväll, läggdags)
 
 ## Definition of Done
 
-- Vuxna kan skriva anteckningar om ett eller flera barn
-- Barn har ingen åtkomst till dagboken
+- Barnet kan göra sin morgonrutin på egen hand, ett steg i taget
+- Barnet ser hur mycket tid som är kvar utan att läsa klockan
+- Vuxna ser hur långt barnet har kommit
+- Familjen kan utgå från en mall och anpassa den
 
 ---
 
-# Milestone 7 – Belöningssystem
-
-## Mål
-
-Motivera användare genom poäng.
-
-## Tasks
-
-- [ ] task_completions tabell
-- [ ] daily_goals tabell
-- [ ] family_points_ledger tabell
-- [ ] rewards tabell
-- [ ] reward_redemptions tabell
-- [ ] Rewards UI
-- [ ] Bara vuxna kan ge och dra poäng
-- [ ] Barn kan önska belöning, vuxen godkänner
-
-## Definition of Done
-
-- Tasks ger poäng
-- Rewards kan lösas in
-- Barn kan inte ge sig själva poäng
-
----
-
-# Milestone 8 – Återkommande tasks
-
-## Mål
-
-Automatiska tasks.
-
-## Tasks
-
-- [ ] recurring_tasks tabell
-- [ ] Scheduler command (schemaläggs i routes/console.php)
-
-## Definition of Done
-
-- Tasks skapas automatiskt
-
----
-
-# Milestone 9 – Skolmat
+# Milestone 8 – Skolmat
 
 ## Mål
 
@@ -274,28 +300,53 @@ Visa barnens skollunch från Matilda Menu.
 
 ---
 
-# Milestone 10 – Kalender
+# Milestone 9 – Receptbank och skafferi
 
 ## Mål
 
-Familjens kalendrar från Google, iPhone (iCloud) och Outlook visas i appen och på hemskärmen.
+Familjen har en egen receptbank, skriver in vad som finns hemma och får förslag på vad de kan laga.
 
 ## Tasks
 
-- [ ] calendars tabell (iCal-länk lagras krypterad)
-- [ ] calendar_events tabell
-- [ ] Lägg till kalender via iCal-länk, med guide för Google, iPhone och Outlook
-- [ ] Synk med sabre/vobject, inklusive återkommande händelser
-- [ ] Schemalagt kommando som synkar var 15:e minut
-- [ ] Visa dagens händelser i Idag-vyn
-- [ ] Koppla aktiviteter till kalenderhändelser via namn (t.ex. "Simskola")
-- [ ] Tester med Http::fake() och exempel-filer från alla tre
+- [ ] ingredients tabell (gemensam grundlista + familjens egna)
+- [ ] Admin: grundlista med vanliga ingredienser och butiksavdelningar
+- [ ] recipes och recipe_ingredients tabeller
+- [ ] Receptbank UI: namn, bild, portioner, gör så här, ingredienser med autocomplete
+- [ ] pantry_items tabell
+- [ ] Skafferi UI: snabbt lägga till och ta bort det som finns hemma, markera basvaror
+- [ ] Matförslag: "Kan lagas nu" och "Saknar 1–2 saker"
 
 ## Definition of Done
 
-- Kalendrar från Google, iPhone och Outlook visas
-- Återkommande händelser visas rätt
-- Tider visas i svensk tid, även över sommartid/vintertid
+- Familjen kan spara recept med ingredienser
+- Familjen kan skriva in vad som finns hemma
+- Förslagen visar recept som går att laga med det som finns hemma
+
+---
+
+# Milestone 10 – Veckomatsedel och handlingslista
+
+## Mål
+
+Familjen planerar veckans mat och får en handlingslista med det som behöver kompletteringshandlas.
+
+## Tasks
+
+- [ ] meal_plan_entries tabell
+- [ ] Veckomatsedel UI: lägg recept (eller fritext) på en dag, ändra portioner
+- [ ] Lägg till recept i veckomatsedeln direkt från matförslagen
+- [ ] Skapa handlingslista: veckans ingredienser minus det som finns hemma
+- [ ] Slå ihop samma vara och räkna om enheter inom vikt och volym
+- [ ] Handlingslistan sorteras efter butiksavdelning
+- [ ] Avbockad vara läggs i skafferiet
+- [ ] "Middag ikväll" med bild i Idag-vyn
+- [ ] Tester för portioner, enheter och avdrag mot skafferiet
+
+## Definition of Done
+
+- Veckomatsedeln är tydligt skild från skolmaten
+- Handlingslistan innehåller bara det som saknas hemma
+- Det som handlas hamnar i skafferiet
 
 ---
 
@@ -315,8 +366,10 @@ En separat skärm hemma, likt DAKboard. Vårdnadshavarna väljer själva vad som
 - [ ] Redigerare i vårdnadshavarnas dashboard: dra och släpp med gridstack, ändra storlek, inställningar per widget
 - [ ] Förhandsvisning i redigeraren
 - [ ] DisplayLayout utan navigation, pages/display/Index.vue
-- [ ] Widgets: klocka/datum, kalender, skollunch, dagens uppgifter, aktiviteter och packning, shoppinglistor, poäng
+- [ ] Widgets: klocka/datum, skollunch, middag ikväll/veckans mat, dagens uppgifter, rutiner (varje barns pågående steg), aktiviteter och packning, handlingslista
 - [ ] Automatisk uppdatering med usePoll
+
+Widgets för kalender och poäng läggs till när de delarna byggs (version 2).
 
 ## Definition of Done
 
@@ -328,7 +381,137 @@ En separat skärm hemma, likt DAKboard. Vårdnadshavarna väljer själva vad som
 
 ---
 
-# Milestone 12 – Datakontroll
+# Milestone 12 – Drift
+
+## Mål
+
+Appen körs på en server så att familjen kan använda den på telefonerna och hemskärmen.
+
+## Tasks
+
+- [ ] Debian 13 (uppgradera från 12 eller installera om)
+- [ ] Server: användaren deploy, inloggning bara med SSH-nyckel, brandvägg, fail2ban, automatiska säkerhetsuppdateringar
+- [ ] Nginx, PHP 8.4 (Debians paket), MariaDB 12.3 LTS (MariaDB:s paketförråd)
+- [ ] DuckDNS-adress, med uppdatering om servern har dynamisk IP
+- [ ] HTTPS med Let's Encrypt
+- [ ] Kontrollera att hemmanätet når servern via DuckDNS-adressen (NAT loopback)
+- [ ] GitHub Actions: deploy vid push till main med Deployer 8, om testerna går igenom
+- [ ] Zero-downtime-deploy och rollback
+- [ ] Köworker (systemd) och scheduler (cron)
+- [ ] E-post via Gmail SMTP med applösenord (separat Gmail-konto för appen)
+- [ ] Bilder på privat disk i delad mapp som överlever deployer
+- [ ] Backup varje natt till en egen mapp på servern (spatie/laravel-backup, 14 dagar)
+- [ ] Raspberry Pi: Chromium i kioskläge mot hemskärmslänken, skärmen av på natten
+
+## Definition of Done
+
+- En push till main deployar automatiskt utan driftstopp
+- Rollback fungerar
+- Familjen använder appen på telefonerna och hemskärmen
+- Backup tas automatiskt och återställning är testad
+
+---
+
+# Milestone 13 – Dagbok
+
+## Mål
+
+Vårdnadshavarnas anteckningar om ett eller flera barn.
+
+## Tasks
+
+- [ ] journal_entries tabell
+- [ ] journal_entry_child tabell (vilka barn anteckningen gäller)
+- [ ] Kryptera innehållet (encrypted cast)
+- [ ] JournalPolicy: bara vuxna
+- [ ] Journal page
+- [ ] Historik, filtrera per barn
+
+## Definition of Done
+
+- Vuxna kan skriva anteckningar om ett eller flera barn
+- Barn har ingen åtkomst till dagboken
+
+---
+
+# Milestone 14 – Belöningssystem
+
+## Mål
+
+Motivera användare genom poäng.
+
+## Tasks
+
+- [ ] task_completions tabell
+- [ ] daily_goals tabell
+- [ ] family_points_ledger tabell
+- [ ] rewards tabell (med picture_id)
+- [ ] reward_redemptions tabell
+- [ ] Rewards UI
+- [ ] Bara vuxna kan ge och dra poäng
+- [ ] Barn kan önska belöning, vuxen godkänner
+- [ ] Avklarad rutin och packning kan ge poäng (valbart)
+- [ ] Poäng-widget på hemskärmen
+
+## Definition of Done
+
+- Uppgifter ger poäng
+- Belöningar kan lösas in
+- Barn kan inte ge sig själva poäng
+
+---
+
+# Milestone 15 – Kalender
+
+## Mål
+
+Familjens kalendrar från Google, iPhone (iCloud) och Outlook visas i appen och på hemskärmen.
+
+## Tasks
+
+- [ ] calendars tabell (iCal-länk lagras krypterad)
+- [ ] calendar_events tabell
+- [ ] Lägg till kalender via iCal-länk, med guide för Google, iPhone och Outlook
+- [ ] Synk med sabre/vobject, inklusive återkommande händelser
+- [ ] Schemalagt kommando som synkar var 15:e minut
+- [ ] Visa dagens händelser i Idag-vyn
+- [ ] Kalender-widget på hemskärmen
+- [ ] Koppla aktiviteter till kalenderhändelser via namn (t.ex. "Simskola")
+- [ ] Tester med Http::fake() och exempel-filer från alla tre
+
+## Definition of Done
+
+- Kalendrar från Google, iPhone och Outlook visas
+- Återkommande händelser visas rätt
+- Tider visas i svensk tid, även över sommartid/vintertid
+
+---
+
+# Milestone 16 – PWA och påminnelser
+
+## Mål
+
+Appen kan installeras på telefonen och skickar påminnelser.
+
+## Tasks
+
+- [ ] PWA med vite-plugin-pwa (manifest, service worker, ikon)
+- [ ] Web Push med laravel-notification-channels/webpush (VAPID-nycklar)
+- [ ] Guide: lägg till på hemskärmen (krävs för push på iPhone)
+- [ ] Påminnelser för uppgifter med tid, kalenderhändelser och när en rutin ska starta
+- [ ] Påminnelse om packning dagen innan en aktivitet
+- [ ] Barn får påminnelser på sin egen enhet
+- [ ] Tysta timmar per användare
+
+## Definition of Done
+
+- Appen går att installera på iPhone och Android
+- Påminnelser kommer i tid som push-notis
+- Inga påminnelser under tysta timmar
+
+---
+
+# Milestone 17 – Datakontroll
 
 ## Mål
 
@@ -348,31 +531,7 @@ Familjen har full kontroll över sin data.
 
 ---
 
-# Milestone 13 – PWA och påminnelser
-
-## Mål
-
-Appen kan installeras på telefonen och skickar påminnelser.
-
-## Tasks
-
-- [ ] PWA med vite-plugin-pwa (manifest, service worker, ikon)
-- [ ] Web Push med laravel-notification-channels/webpush (VAPID-nycklar)
-- [ ] Guide: lägg till på hemskärmen (krävs för push på iPhone)
-- [ ] Påminnelser för uppgifter med tid, rutiner och kalenderhändelser
-- [ ] Påminnelse om packning dagen innan en aktivitet
-- [ ] Barn får påminnelser på sin egen enhet
-- [ ] Tysta timmar per användare
-
-## Definition of Done
-
-- Appen går att installera på iPhone och Android
-- Påminnelser kommer i tid som push-notis
-- Inga påminnelser under tysta timmar
-
----
-
-# Milestone 14 – Community
+# Milestone 18 – Community
 
 ## Mål
 
@@ -394,28 +553,6 @@ Vårdnadshavare i olika familjer kan diskutera problem och tips.
 
 ---
 
-# Milestone ordning
-
-Rekommenderad byggordning:
-
-1 Setup
-2 Families
-3 Tasks
-4 Bildstöd
-5 Today view
-6 Aktiviteter och packlistor
-7 Journal
-8 Rewards
-9 Recurring
-10 Skolmat
-11 Kalender
-12 Hemskärm
-13 Datakontroll
-14 PWA och påminnelser
-15 Community
-
----
-
 # Framtida funktioner
 
 ## Möjliga features
@@ -426,5 +563,9 @@ Rekommenderad byggordning:
 - Kalender: tvåvägssynk med Google och Outlook
 - Hemskärm: väder, foton
 - Hemskärm: bocka av tasks via pekskärm
+- Egen domän och e-posttjänst inom EU (t.ex. Brevo eller Mailgun EU)
+- Backup även utanför servern
+- Importera recept från länk (schema.org/Recipe, Laravel AI SDK för att tolka ingredienser)
+- Dra av ingredienser från skafferiet när en måltid är lagad
 
 Dark mode ingår redan i starter kit (inställningar → Appearance).
