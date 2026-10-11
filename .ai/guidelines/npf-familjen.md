@@ -7,16 +7,19 @@ Stack: Laravel 13, Inertia 3, Vue 3 (TypeScript), Tailwind CSS 4, shadcn-vue, Fi
 ## Läs först
 
 - `docs/ARCHITECTURE.md`: datamodell, regler och beslut. Följ den.
-- `docs/ROADMAP.md`: milestones i byggordning. Bygg det som hör till aktuell milestone och bocka av tasks när de är klara.
+- `docs/ROADMAP.md`: milestones och rekommenderad byggordning. Bygg det som hör till aktuell milestone och bocka av tasks när de är klara.
+- `docs/STYLEGUIDE.md` och `docs/design/tokens.json`: färger, typsnitt, storlekar och komponenter.
 - Om koden eller en uppgift strider mot dokumenten: fråga innan du ändrar dokumenten.
 
 ## Gäller alltid
 
 - Data delas aldrig mellan familjer. Modeller med `family_id` använder `BelongsToFamily`. Aldrig `Model::all()` eller `withoutGlobalScopes()` i kod som körs för en familj.
-- Alla modeller har policies, och de kontrollerar roll: `parent` (vårdnadshavare) eller `child` (barn).
+- Alla modeller har policies, och de kontrollerar roll: `parent` (vårdnadshavare), `editor` (annan vuxen som kan ändra), `viewer` (annan vuxen som kan se) eller `child` (barn).
+- Lägg aldrig familjespecifika fält på `users`. Ett barn ska senare kunna tillhöra flera familjer (växelvis boende).
 - All validering sker i FormRequests.
 - Varje ny familjemodell får ett isolationstest: familj A kan aldrig läsa eller ändra familj B:s data.
-- Barn har aldrig åtkomst till dagbok eller community.
+- Dagbok och community är bara för vårdnadshavare. Barn och andra vuxna har aldrig åtkomst.
+- En vuxens händelser syns för barn bara när "Visa för barnen" är valt.
 - Hemskärmen är skrivskyddad och får bara data för de widgets som är valda.
 
 ## Språk, tid och databas

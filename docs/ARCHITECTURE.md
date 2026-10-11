@@ -97,48 +97,92 @@ Det skyddar även när någon glömmer where('family_id', ...).
 
 family_user.role
 
-- parent (vuxen/vårdnadshavare)
-- child (barn)
+- parent: vårdnadshavare
+- editor: annan vuxen som kan se och ändra (t.ex. mormor eller barnvakt)
+- viewer: annan vuxen som bara kan se
+- child: barn
 
-Vuxen kan:
-
-- hantera familjen, barnkonton och enheter
-- skapa och ändra uppgifter, listor och belöningar
-- ge och dra poäng, godkänna inlösen av belöningar
-- skriva och läsa dagboken
-- lägga till kalendrar
-- skapa aktiviteter, packlistor och rutiner
-- hantera recept, skafferi, veckomatsedel och handlingslista
-- ställa in hemskärmen
-- använda Community
-- exportera och radera familjens data
-
-Barn kan:
-
-- se vad de ska göra idag
-- se och bocka av sina uppgifter
-- bocka av packlistor
-- göra sina rutiner
-- se veckomatsedeln
-- lägga till varor på handlingslistan
-- se sina poäng
-- önska en belöning (en vuxen godkänner)
+| | Vårdnadshavare | Vuxen som kan ändra | Vuxen som kan se | Barn |
+| --- | --- | --- | --- | --- |
+| Se familjens dag, Imorgon och Veckan | Ja | Ja | Ja | Sin egen |
+| Ändra uppgifter, rutiner, aktiviteter och händelser | Ja | Ja | – | – |
+| Ändra recept, skafferi och veckomatsedel | Ja | Ja | – | – |
+| Lägga till på handlingslistan och bocka av | Ja | Ja | – | Ja |
+| Bocka av sina uppgifter, rutiner och packlistor | – | – | – | Ja |
+| Dagbok | Ja | – | – | – |
+| Ge poäng och godkänna belöningar | Ja | – | – | Önska belöning |
+| Medlemmar, barnkonton, koder och enheter | Ja | – | – | – |
+| Hemskärmar och kalendrar | Ja | – | – | – |
+| Community | Ja | – | – | – |
+| Exportera och radera familjens data | Ja | – | – | – |
 
 Rollen kontrolleras i policies.
 
 ## Vuxenkonton
 
-Fortify: e-post + lösenord, 2FA.
+- Fortify: e-post + lösenord, 2FA
+- En vårdnadshavare bjuder in andra vuxna via e-post och väljer roll (parent, editor eller viewer)
+- Inbjudan är en länk som gäller i 7 dagar
+- En vuxen kan tillhöra flera familjer (t.ex. mormor som hjälper två familjer) och byter familj i menyn
+
+family_invitations
+
+- family_id
+- email
+- role
+- token (lagras hashad)
+- invited_by
+- expires_at
+- accepted_at
 
 ## Barnkonton
 
-Barn har enkla konton utan e-post och lösenord.
+Barn har enkla konton utan e-post och lösenord. De loggar in med en kod på 4–6 siffror.
 
-- En vuxen skapar barnkontot (namn, avatar, PIN-kod)
-- users.email är nullable, users.pin lagras hashad
-- Barnet loggar in på en betrodd enhet: väljer sig själv och skriver sin PIN
-- PIN fungerar bara på betrodda enheter och rate-limitas
-- En vuxen kan byta PIN och logga ut barnets enheter
+- En vårdnadshavare skapar barnkontot: namn, avatar och kod
+- Koden lagras krypterad (Laravel encrypted cast), inte hashad, så att vårdnadshavare kan visa den för barnet. Vid inloggning jämförs den med hash_equals.
+- Vårdnadshavare kan visa, byta och återställa koden. Återställning ger en ny kod som vårdnadshavaren ser och säger till barnet.
+- För enkla koder nekas: samma siffra (0000), stigande eller fallande följd (1234, 4321)
+- Barnet loggar in på en betrodd enhet: väljer sig själv och skriver koden
+- Koden fungerar bara på betrodda enheter
+- Fel kod: efter 5 försök i rad väntar man en minut. Efter 10 försök i rad stängs barnets inloggning av, och vårdnadshavarna ser det i dashboarden.
+- Barnens inloggning fungerar på både telefon och läsplatta
+
+users (barn)
+
+- email (nullable)
+- pin (krypterad)
+- login_disabled_at (nullable)
+
+## Stänga av ett barns inloggning
+
+Om en vårdnadshavare misstänker att någon annan har fått tillgång till barnets inloggning:
+
+- Vårdnadshavaren väljer "Stäng av inloggning" på barnet
+- Alla barnets sessioner loggas ut direkt (SESSION_DRIVER=database, sessioner tas bort på user_id)
+- Barnets egna enheter (devices, type child) kopplas bort
+- Familjeenheter finns kvar, men barnet kan inte logga in på dem
+- Inloggningen slås på igen med en ny kod
+
+## Inloggningshistorik
+
+Vårdnadshavare ser när och på vilken enhet barnet har loggat in, och misslyckade försök.
+
+login_events
+
+- user_id
+- device_id
+- succeeded
+- created_at
+
+## Flera familjer (förberett för växelvis boende)
+
+I version 1 tillhör ett barn en familj, men datamodellen tillåter fler så att växelvis boende kan läggas till senare.
+
+- family_user är många-till-många. Det finns ingen family_id på users.
+- Det som skiljer sig mellan familjer (roll, skola) ligger på family_user, aldrig på users
+- Barnets innehåll (uppgifter, rutiner, aktiviteter) tillhör alltid en familj via family_id
+- Senare: ett boendeschema som styr vilken familj som är barnets aktiva familj en viss dag
 
 ## Enheter
 
@@ -149,15 +193,16 @@ devices
 - type (family, child, display)
 - name
 - token (lagras hashad)
+- settings (json, t.ex. hemskärmens täthet)
 - last_seen_at
 
 Typer:
 
 - family: delad enhet (t.ex. surfplatta i köket) där barnen loggar in med PIN
-- child: barnets egen telefon/platta, kopplas genom att en vuxen visar en QR-kod
+- child: barnets egen telefon/platta, kopplas genom att en vårdnadshavare visar en QR-kod
 - display: hemskärmen
 
-En vuxen aktiverar och återkallar enheter. Token sparas i en långlivad cookie (hemskärmen: i länken).
+En vårdnadshavare aktiverar och återkallar enheter. Token sparas i en långlivad cookie (hemskärmen: i länken).
 
 ---
 
@@ -165,7 +210,7 @@ En vuxen aktiverar och återkallar enheter. Token sparas i en långlivad cookie 
 
 Dagboken är för vårdnadshavare: anteckningar om ett eller flera av familjens barn.
 
-- Bara vuxna (parent) kan läsa och skriva
+- Bara vårdnadshavare (parent) kan läsa och skriva. Andra vuxna (editor, viewer) ser den inte.
 - Barn har ingen åtkomst
 - Innehållet krypteras i databasen (encrypted cast)
 
@@ -197,7 +242,7 @@ Community använder inte family_id.
 
 Behörighet styrs via group_members.
 
-Bara vuxna (parent) har åtkomst. Barnkonton kommer aldrig åt Community.
+Bara vårdnadshavare (parent) har åtkomst. Barnkonton kommer aldrig åt Community.
 
 ---
 
@@ -218,10 +263,35 @@ Tillgängliga widgets:
 - Dagens uppgifter per familjemedlem (med bildstöd och avatar)
 - Rutiner (varje barns pågående steg)
 - Aktiviteter och packning (t.ex. "Imorgon: simskola")
+- Imorgon (det man ska förbereda sig på)
+- Veckan (bara det stora och det som avviker, se Aktiviteter och händelser)
 - Handlingslista
 - Poäng och belöningar
 
 Dagbok kan aldrig visas på hemskärmen.
+
+## Täthet
+
+Varje skärm har en täthet efter hur långt bort man brukar stå. Upplösningen spelar ingen roll: sidan skalar om sig, så 1080p och 4K ger samma storlek på samma skärm.
+
+| Täthet | Passar när man står | Ungefär antal widgets |
+| --- | --- | --- |
+| Stor | 3–4 m bort | 4–5 |
+| Mellan | 2–3 m bort | 6–7 |
+| Kompakt | 1–2 m bort | 8–10 |
+
+- Sparas i devices.settings.density (large, medium, compact). Förval: medium.
+- Samma tokens i alla tätheter. Bara storleksstegen ändras, och rutnätet får fler rader när det blir tätare.
+- Redigeraren förhandsvisar med vald täthet
+
+Utkast: docs/mockups/hemskarm.html (#dag, #kvall, #kompakt) och bilderna i docs/mockups/.
+
+## Byte till nästa dag
+
+Widgets som visar en dag byter till nästa dag vid tider som familjen ställer in (families.settings):
+
+- Skollunch: "idag" blir "imorgon" efter skoldagen. Förval 15:00.
+- Middag: "ikväll" blir "imorgon" efter middagen. Förval 19:00.
 
 ## Redigera hemskärmen
 
@@ -236,7 +306,7 @@ display_widgets
 
 - family_id
 - device_id (skärmen)
-- type (clock, calendar, school_meals, meal_plan, tasks, routines, activities, shopping_list, points)
+- type (clock, calendar, school_meals, meal_plan, tasks, routines, activities, tomorrow, week, shopping_list, points)
 - x, y, w, h (position i rutnätet)
 - settings (json)
 
@@ -254,7 +324,7 @@ Hemskärmen har ingen inloggad användare. Den är en enhet (devices, type = dis
 
 Regler:
 
-- En vuxen skapar en skärm och får länken /display/{token}
+- En vårdnadshavare skapar en skärm och får länken /display/{token}
 - Middleware slår upp enheten via token och sätter aktuell familj
 - Länken kan återkallas genom att enheten tas bort
 - Hemskärmen är skrivskyddad
@@ -331,28 +401,41 @@ Modeller med bild får picture_id (nullable):
 
 ---
 
-# Aktiviteter och packlistor
+# Aktiviteter, händelser och packlistor
 
-Barnen ska se vad som händer idag och få hjälp att förbereda sig. Exempel: simskola.
+Barnen ska se vad som händer och få hjälp att förbereda sig. Exempel: simskola.
 
 - Dagen innan: "Packa till simskolan imorgon" med bildstöd för det som ska packas
 - Samma dag: "Har du packat till simskolan?" med samma bilder
+
+Samma tabell används för händelser som rör vuxna, t.ex. när en förälder reser bort eller någon annan hämtar. Barn med NPF oroar sig ofta för "Var är mamma?" och "Vem hämtar mig?".
+
+## Typer
+
+- activity: aktivitet med eventuell packlista (simskola, fotboll)
+- away: någon är bortrest (Mamma i Stockholm tisdag–onsdag)
+- pickup: vem som hämtar eller lämnar (Pappa hämtar 16:00, Mormor hämtar)
+- day_off: annorlunda dag (studiedag, lov)
 
 ## Tabeller
 
 activities
 
 - family_id
+- type (activity, away, pickup, day_off)
 - name (t.ex. Simskola)
 - picture_id
 - date (nullable: en gång)
+- end_date (nullable: flera dagar, t.ex. en resa)
 - weekday (nullable: varje vecka)
 - time
+- visible_to_children (Visa för barnen)
+- unusual (markeras som Annorlunda)
 
-activity_child
+activity_participants
 
 - activity_id
-- user_id (barnet)
+- user_id (barn eller vuxen)
 
 activity_items (packlistan)
 
@@ -378,12 +461,29 @@ activity_confirmations (barnet svarar "ja, jag har packat" samma dag)
 
 ## Regler
 
-- Vuxna skapar aktiviteter och packlistor, barn bockar av
-- Packlistan återanvänds varje gång aktiviteten sker
+- Vuxna skapar aktiviteter, händelser och packlistor, barn bockar av
+- Packlistor finns bara för type activity och återanvänds varje gång aktiviteten sker
 - Barnets Idag-vy visar dagens aktiviteter och morgondagens packning
 - Vuxna ser om barnet har packat
+- En vuxens händelser syns för barnen bara när "Visa för barnen" är valt. Barnen ser det som rör dem (vem som hämtar, vem som är borta), aldrig de vuxnas möten eller arbete.
+- Bortrest: barnen ser en nedräkning i nätter, t.ex. "2 sömnar kvar tills mamma kommer hem"
+- Det som avviker från en vanlig dag (studiedag, någon annan hämtar) markeras som Annorlunda
+- Senare: importerade kalendrar (version 2) blir händelser som är dolda för barnen från början
 - Senare: kopplas till kalenderhändelser via namn (t.ex. "Simskola" i Google Kalender)
 - Senare: push-påminnelse dagen innan (PWA)
+
+## Idag, Imorgon och Veckan
+
+| Vy | Visar |
+| --- | --- |
+| Idag | Allt: rutiner, uppgifter, packning, mat |
+| Imorgon | Det man ska förbereda sig på: aktiviteter, packning, vem som hämtar, det som är annorlunda |
+| Veckan | Bara aktiviteter, händelser och det som är annorlunda. Inga rutiner eller vardagsuppgifter. |
+
+- Veckan visar högst två–tre saker per dag och barn, med bild
+- Idag är markerad och dagar som har varit tonas ner
+- Barn ser sin egen vecka, vuxna ser allas
+- Imorgon och Veckan finns i appen och som widgets på hemskärmen
 
 ---
 
@@ -558,6 +658,7 @@ list_items (handlingslistan) får också:
 - Samma vara slås ihop. Mängder räknas om inom vikt (g, kg) och volym (krm, tsk, msk, ml, dl, l). Olika enhetsgrupper (t.ex. st och g) listas var för sig.
 - Handlingslistan sorteras efter butiksavdelning
 - Avbockad vara läggs i skafferiet
+- Om veckomatsedeln ändras: "Uppdatera handlingslistan" lägger till det som tillkommit och tar bort varor från måltider som strukits, om de inte är avbockade. Varor som familjen lagt till själv rörs aldrig.
 - Barn ser veckomatsedeln med bild ("Middag ikväll" i Idag-vyn)
 - Barn kan lägga till på handlingslistan, genom att skriva eller välja en bild. Vuxna ser vem som lagt till.
 
@@ -681,7 +782,7 @@ calendar_events
 
 ## Regler
 
-- Bara vuxna kan lägga till kalendrar
+- Bara vårdnadshavare kan lägga till kalendrar
 - Ett schemalagt kommando synkar var 15:e minut
 - sabre/vobject tolkar iCal; återkommande händelser (RRULE) räknas ut för 1 vecka bakåt och 8 veckor framåt
 - Sidor och hemskärm läser bara från databasen
@@ -859,6 +960,16 @@ Systemet ska vara:
 - Förutsägbart: samma struktur varje dag, ändringar syns tydligt
 - Lugnt: inga röda larm eller stressande nedräkningar, tid visas visuellt
 
+Färger, typsnitt, storlekar och komponenter finns i stilguiden: docs/STYLEGUIDE.md och docs/design/tokens.json.
+
+## Telefon och läsplatta
+
+Barnen använder både telefoner och läsplattor, så barnens vyer byggs för båda, stående och liggande.
+
+- Tailwinds brytpunkter: telefon under md (768px), läsplatta från md, dator från lg (1024px)
+- På läsplatta i liggande läge visar barnets Idag "Nu" och dagens lista bredvid varandra
+- Vuxnas vyer byggs för telefon först och får sidomeny från lg
+
 Prioriterade vyer:
 
 1 Today (barn: vad ska jag göra idag, med bildstöd. Vuxna: hela familjens dag)
@@ -929,8 +1040,9 @@ Business logic i Laravel.
 
 Familjen äger sin data och har full kontroll över den.
 
-- Export: en vuxen kan exportera all familjens data (JSON + bilder i en ZIP)
-- Radering: en vuxen kan radera ett barnkonto eller hela familjen
+- Export: en vårdnadshavare kan exportera all familjens data (JSON + bilder i en ZIP)
+- Radering: en vårdnadshavare kan radera ett barnkonto eller hela familjen
+- Vårdnadshavare ser barnens inloggningshistorik och kan stänga av ett barns inloggning
 - Vid radering tas all data och alla filer bort (köjobb), även familjens community-inlägg
 - Dagboken krypteras i databasen (Laravel encrypted cast)
 - Familjens foton ligger på privat disk
@@ -944,10 +1056,12 @@ Familjen äger sin data och har full kontroll över den.
 Viktiga regler:
 
 - All queries filtreras på family_id (BelongsToFamily)
-- Policies används alltid och kontrollerar roll (parent/child)
+- Policies används alltid och kontrollerar roll (parent, editor, viewer, child)
 - Validation används alltid
 - Isolationstester: för varje modell testas att familj A inte kan läsa eller ändra familj B:s data
-- PIN-inloggning rate-limitas och fungerar bara på betrodda enheter
+- Barnens kod fungerar bara på betrodda enheter, lagras krypterad och jämförs med hash_equals
+- Efter 5 fel i rad: vänta en minut. Efter 10 fel i rad: barnets inloggning stängs av tills en vårdnadshavare slår på den med ny kod.
+- Att stänga av ett barns inloggning loggar ut alla barnets sessioner och kopplar bort barnets egna enheter
 
 ---
 
@@ -979,7 +1093,7 @@ Laravel Boost genererar även Laravel-specifika AI-riktlinjer. Reglerna nedan g�
 
 All ny kod skall:
 
-- använda policies som kontrollerar roll (parent/child)
+- använda policies som kontrollerar roll (parent, editor, viewer, child)
 - använda FormRequests
 - använda BelongsToFamily på alla modeller med family_id
 - ha isolationstester mellan familjer

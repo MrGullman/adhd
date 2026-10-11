@@ -13,9 +13,10 @@ En familjedelad webapp för:
 - Belöningssystem
 - Kalender (Google, iPhone, Outlook)
 - Påminnelser (PWA)
-- Familjedelning med egna enkla konton för barn
+- Familjedelning med egna enkla konton för barn (telefon och läsplatta)
+- Andra vuxna (t.ex. mormor) som kan se eller ändra
 - Bildstöd (pictogram och egna foton)
-- Aktiviteter med packlistor i bildstöd
+- Aktiviteter och händelser med packlistor i bildstöd, Imorgon och Veckan
 - Rutiner steg för steg med bildstöd och synlig tid
 - Hemskärm som vårdnadshavarna själva ställer in
 - Community för vårdnadshavare
@@ -49,7 +50,23 @@ Används bara av vår familj.
 
 Milestone 0–12.
 
-Driften (Milestone 12) kan med fördel sättas upp tidigt, så att hemskärmen kan testas på riktigt.
+Rekommenderad byggordning, så att familjen kan börja använda appen tidigt:
+
+1. Milestone 0 – Setup
+2. Milestone 1 – Familjer och konton
+3. Milestone 12 – Drift (tidigt, så att servern och Raspberry Pi:n testas från början)
+4. Milestone 2 – Uppgifter och listor
+5. Milestone 3 – Återkommande uppgifter
+6. Milestone 4 – Bildstöd
+7. Milestone 5 – Idag-vy
+8. Milestone 7 – Rutiner
+9. Milestone 11 – Hemskärm
+10. Milestone 6 – Aktiviteter, händelser och packlistor
+11. Milestone 8 – Skolmat
+12. Milestone 9 – Receptbank och skafferi
+13. Milestone 10 – Veckomatsedel och handlingslista
+
+Barnen testar varje vy när den är klar, och vi justerar innan vi bygger vidare.
 
 ## Version 2
 
@@ -74,6 +91,7 @@ Få en fungerande Laravel-app lokalt, på svenska och mot MariaDB.
 - [ ] Tester körs mot npf_familjen_test
 - [ ] Sätt APP_NAME="NPF-familjen"
 - [ ] Logotyp från resources/images/logo.png i appen, plus favicon (en förenklad variant utan text behövs i små storlekar)
+- [ ] Stilguidens tokens (docs/design/tokens.json) till resources/css/app.css: Tailwind 4 @theme, shadcn-vue-variabler, ljust och mörkt tema, typsnitten Fredoka och Atkinson Hyperlegible Next
 - [ ] Svenska: APP_LOCALE=sv, APP_FAKER_LOCALE=sv_SE, installera laravel-lang/lang
 - [ ] Översätt startkitets sidor (inloggning, inställningar) till svenska
 - [ ] Servera appen via Laravel Herd
@@ -96,28 +114,38 @@ Få en fungerande Laravel-app lokalt, på svenska och mot MariaDB.
 
 ## Mål
 
-All privat data ska vara kopplad till en familj. Vuxna och barn har egna konton.
+All privat data ska vara kopplad till en familj. Vårdnadshavare, andra vuxna och barn har egna konton.
 
 ## Tasks
 
 - [ ] Skapa families tabell
-- [ ] Skapa family_user pivot tabell med role (parent/child)
-- [ ] Lägg till active_family_id i users tabellen
+- [ ] Skapa family_user pivot tabell med role (parent, editor, viewer, child)
+- [ ] Lägg till active_family_id i users tabellen (ingen family_id på users, så att växelvis boende kan läggas till senare)
 - [ ] Create Family page
 - [ ] Middleware för aktuell familj
 - [ ] BelongsToFamily trait (global scope + family_id vid create)
-- [ ] Barnkonton: vuxen skapar barn (namn, PIN), email nullable
+- [ ] Bjuda in andra vuxna via e-post med roll (family_invitations)
+- [ ] Byta familj i menyn för vuxna som tillhör flera familjer
+- [ ] Barnkonton: vårdnadshavare skapar barn (namn, avatar, kod på 4–6 siffror), email nullable
+- [ ] Koden lagras krypterad. Vårdnadshavare kan visa, byta och återställa den.
+- [ ] Neka enkla koder (0000, 1234, 4321)
 - [ ] devices tabell
-- [ ] Familjeenhet: barnet väljer sig själv och skriver PIN
+- [ ] Familjeenhet: barnet väljer sig själv och skriver koden
 - [ ] Barnets egen enhet kopplas via QR-kod
-- [ ] Rate limiting på PIN-inloggning
+- [ ] Barnens inloggning för både telefon och läsplatta
+- [ ] Felaktiga försök: vänta en minut efter 5, stäng av inloggningen efter 10
+- [ ] Stänga av ett barns inloggning: alla sessioner loggas ut (SESSION_DRIVER=database) och barnets enheter kopplas bort
+- [ ] Inloggningshistorik för barnen (login_events)
+- [ ] Policies för alla fyra roller
 - [ ] Isolationstester mellan familjer
 
 ## Definition of Done
 
 - User kan skapa familj
-- Vuxen kan skapa barnkonto
-- Barn kan logga in med PIN, men bara på en betrodd enhet
+- Vårdnadshavare kan bjuda in en vuxen som kan se eller ändra
+- Vårdnadshavare kan skapa barnkonto och visa, byta och återställa koden
+- Barn kan logga in med sin kod, men bara på en betrodd enhet
+- Ett avstängt barnkonto loggas ut överallt direkt
 - Aktiv familj används överallt
 - Tester visar att familj A aldrig ser familj B:s data
 
@@ -211,36 +239,43 @@ Visa dagens uppgifter. Barnen ser vad de ska göra idag, vårdnadshavarna ser he
 - [ ] Filtrera uppgifter för idag (Europe/Stockholm)
 - [ ] Gruppera efter del av dagen, sortera på klockslag
 - [ ] Barnets vy: dagens uppgifter med bildstöd och stora knappar
+- [ ] Barnets vy på läsplatta: "Nu" och dagens lista bredvid varandra i liggande läge
 - [ ] Vårdnadshavarnas dashboard: hela familjens dag
 
 ## Definition of Done
 
 - Idag visar uppgifter korrekt
-- Barnet ser sin egen dag med bildstöd
+- Barnet ser sin egen dag med bildstöd, på telefon och läsplatta
 - Vårdnadshavare ser alla barns dag
 
 ---
 
-# Milestone 6 – Aktiviteter och packlistor
+# Milestone 6 – Aktiviteter, händelser och packlistor
 
 ## Mål
 
-Barnen ser dagens aktiviteter (t.ex. simskola) och får hjälp att packa med bildstöd.
+Barnen ser vad som händer idag, imorgon och i veckan, inklusive när en förälder är borta eller någon annan hämtar, och får hjälp att packa med bildstöd.
 
 ## Tasks
 
-- [ ] activities, activity_child och activity_items tabeller
+- [ ] activities (med type, end_date, visible_to_children, unusual), activity_participants och activity_items tabeller
 - [ ] activity_item_checks och activity_confirmations tabeller
 - [ ] Vuxen skapar aktivitet (en gång eller varje vecka) och packlista med bilder
+- [ ] Händelser för vuxna och barn: bortrest, hämtning, annorlunda dag
+- [ ] "Visa för barnen" på händelser som rör vuxna
+- [ ] Nedräkning i nätter när någon är bortrest ("2 sömnar kvar")
 - [ ] Dagen innan: "Packa till simskolan imorgon" i barnets Idag-vy, bocka av varje sak
 - [ ] Samma dag: "Har du packat till simskolan?" med samma bilder
 - [ ] Vuxna ser om barnet har packat
+- [ ] Imorgon-vy och Veckan-vy (bara det stora och det som är annorlunda)
 
 ## Definition of Done
 
 - Barnet får packlistan med bilder dagen innan
 - Barnet får frågan om packningen samma dag
 - Packlistan återanvänds varje gång aktiviteten sker
+- Barnet ser vem som hämtar och när en förälder kommer hem
+- Vuxnas händelser syns bara för barnen när "Visa för barnen" är valt
 
 ---
 
@@ -339,6 +374,7 @@ Familjen planerar veckans mat och får en handlingslista med det som behöver ko
 - [ ] Slå ihop samma vara och räkna om enheter inom vikt och volym
 - [ ] Handlingslistan sorteras efter butiksavdelning
 - [ ] Avbockad vara läggs i skafferiet
+- [ ] Uppdatera handlingslistan när veckomatsedeln ändras (lägg till nytt, ta bort ej avbockade varor från strukna måltider, rör aldrig det familjen lagt till själv)
 - [ ] "Middag ikväll" med bild i Idag-vyn
 - [ ] Tester för portioner, enheter och avdrag mot skafferiet
 
@@ -365,16 +401,19 @@ En separat skärm hemma, likt DAKboard. Vårdnadshavarna väljer själva vad som
 - [ ] DisplayWidget-klass per widget-typ
 - [ ] Redigerare i vårdnadshavarnas dashboard: dra och släpp med gridstack, ändra storlek, inställningar per widget
 - [ ] Förhandsvisning i redigeraren
+- [ ] Täthet per skärm: stor, mellan, kompakt (devices.settings.density)
 - [ ] DisplayLayout utan navigation, pages/display/Index.vue
-- [ ] Widgets: klocka/datum, skollunch, middag ikväll/veckans mat, dagens uppgifter, rutiner (varje barns pågående steg), aktiviteter och packning, handlingslista
+- [ ] Widgets: klocka/datum, skollunch, middag ikväll/veckans mat, dagens uppgifter, rutiner (varje barns pågående steg), aktiviteter och packning, Imorgon, Veckan, handlingslista
+- [ ] Byte till nästa dag vid tider familjen ställer in (förval: skollunch 15:00, middag 19:00)
+- [ ] Mörkt tema kvällstid
 - [ ] Automatisk uppdatering med usePoll
 
-Widgets för kalender och poäng läggs till när de delarna byggs (version 2).
+Widgets för kalender och poäng läggs till när de delarna byggs (version 2). Utkast: docs/mockups/.
 
 ## Definition of Done
 
 - Vårdnadshavare kan välja och placera widgets med dra och släpp
-- Varje skärm har sin egen layout
+- Varje skärm har sin egen layout och täthet
 - Skärmen visar bara de valda widgetarna, utan inloggning
 - Ändringar syns på skärmen inom en minut
 - Skärmlänken kan återkallas
