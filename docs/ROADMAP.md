@@ -430,16 +430,16 @@ Appen körs på en server så att familjen kan använda den på telefonerna och 
 
 - [x] Driftpaket i repot: deploy.php, deploy-flöde i GitHub Actions, serverskript, backupschema och runbook ([DRIFT.md](DRIFT.md))
 - [ ] Debian 12: lägg till Ondřej Surýs paketförråd för PHP 8.4 och MariaDB:s paketförråd för 12.3
-- [ ] Stäng registreringen: REGISTRATION_ENABLED=false (andra vuxna går med via inbjudan)
-- [ ] Server: egen användare npf-familjen (servern delas med andra projekt), inloggning bara med SSH-nyckel
+- [x] Stäng registreringen: REGISTRATION_ENABLED=false (andra vuxna går med via inbjudan)
+- [x] Server: egen användare npf-familjen (servern delas med andra projekt), inloggning bara med SSH-nyckel
 - [ ] Nginx, PHP 8.4, MariaDB 12.3 LTS
 - [x] DuckDNS-adress (servern står hos en leverantör med fast IP, så ingen uppdatering eller NAT loopback behövs)
-- [ ] HTTPS med Let's Encrypt
-- [ ] GitHub Actions: deploy vid push till main med Deployer 8, om testerna går igenom
+- [x] HTTPS med Let's Encrypt
+- [x] GitHub Actions: deploy vid push till main med Deployer 8, om testerna går igenom
 - [ ] Zero-downtime-deploy och rollback
 - [ ] Köworker (systemd) och scheduler (cron)
-- [ ] E-post via Gmail SMTP med applösenord (separat Gmail-konto för appen)
-- [ ] Bilder på privat disk i delad mapp som överlever deployer
+- [x] E-post via Gmail SMTP med applösenord (separat Gmail-konto för appen)
+- [x] Bilder på privat disk i delad mapp som överlever deployer
 - [ ] Backup varje natt till en egen mapp på servern (spatie/laravel-backup, 14 dagar)
 - [ ] Raspberry Pi: Chromium i kioskläge mot hemskärmslänken, skärmen av på natten
 
