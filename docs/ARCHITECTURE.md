@@ -833,15 +833,16 @@ Idag-vyn grupperar efter del av dagen och sorterar på klockslag.
 
 # Drift
 
-Version 1 körs på en egen server med root-åtkomst. Ingen Forge: deploy sker från GitHub.
+Version 1 körs på en egen server hos en leverantör, med root-åtkomst. Ingen Forge: deploy sker från GitHub. Steg för steg: [DRIFT.md](DRIFT.md).
 
 ## Server
 
 - Debian 12 (Bookworm). Den har LTS-stöd till juni 2028, så servern bör flyttas till en nyare Debian innan dess.
 - PHP 8.4 (samma version som lokalt) från Ondřej Surýs paketförråd (packages.sury.org), eftersom Debian 12 bara har PHP 8.2. Nginx.
 - MariaDB 12.3 LTS (från MariaDB:s eget paketförråd)
-- Användaren deploy sköter deployer, inte root. Inloggning bara med SSH-nyckel.
-- Brandvägg (ufw: 22, 80, 443), fail2ban, automatiska säkerhetsuppdateringar
+- Servern delas med andra projekt. NPF-familjen har egen användare (`npf-familjen`), egen PHP-FPM-pool, egen Nginx-sajt och egen databas med egen databasanvändare. Installationen ändrar aldrig något som delas (systemuppgraderingar, brandvägg, MariaDB-inställningar, andra sajter).
+- Användaren npf-familjen sköter deployer, inte root. Inloggning bara med SSH-nyckel.
+- Brandvägg, fail2ban och SSH-inställningar gäller hela servern och sköts utanför NPF-familjen (rekommendationer i DRIFT.md)
 - Köworker som systemd-tjänst
 - Scheduler: cron kör php artisan schedule:run varje minut
 - .env och storage (bilder) ligger i en delad mapp som överlever deployer
@@ -863,10 +864,8 @@ Deployer:
 
 ## Domän och HTTPS
 
-- Till en början en DuckDNS-adress (t.ex. npf-familjen.duckdns.org)
-- Om servern har dynamisk IP uppdaterar ett cron-jobb DuckDNS var 5:e minut
-- HTTPS med Let's Encrypt: Certbot med HTTP-01 (port 80 måste nå servern), annars DNS-01 via DuckDNS-token
-- Om servern står hemma: routern måste klara NAT loopback, annars når enheter på hemmanätet (t.ex. Raspberry Pi:n) inte servern via DuckDNS-adressen. Lösning: lokal DNS-post i routern.
+- Till en början DuckDNS-adressen npf-familjen.duckdns.org. Servern har fast IP hos leverantören, så adressen behöver inte uppdateras och NAT loopback är inget problem.
+- HTTPS med Let's Encrypt: Certbot med HTTP-01 via Nginx-pluginet, förnyas automatiskt
 - Vid byte till egen domän: ändra APP_URL, skaffa nytt certifikat och uppdatera hemskärmslänken på Raspberry Pi:n
 
 ## E-post
@@ -884,8 +883,8 @@ Senare, med egen domän: e-posttjänst inom EU, t.ex. Brevo (gratis 300 mejl/dag
 
 Version 1: backup på servern.
 
-- spatie/laravel-backup: databas och bilder varje natt
-- Sparas i en egen mapp utanför appen, behålls i 14 dagar
+- spatie/laravel-backup: databas och bilder varje natt kl. 02:30 (rensning 02:00)
+- Sparas i /var/backups/npf-familjen (BACKUP_PATH), behålls i 14 dagar. Mejl bara när något går fel.
 - Återställning testas
 - Skyddar mot misstag och trasiga uppdateringar, men inte mot att servern eller disken går sönder
 - Senare: en andra kopia utanför servern (spatie/laravel-backup klarar flera mål)

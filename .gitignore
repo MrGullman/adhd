@@ -39,3 +39,4 @@ yarn-error.log
 /.mcp.json
 /opencode.json
 /opencode.jsonc
+/.claude/settings.json
