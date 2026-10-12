@@ -102,8 +102,23 @@ class ActivityCalendar
     {
         return $this->activities
             ->filter(fn (Activity $activity) => $activity->occursOn($day))
-            ->filter(fn (Activity $activity) => $child === null || $activity->isVisibleTo($child))
+            ->filter(fn (Activity $activity) => $child === null || $this->concerns($activity, $child))
             ->values();
+    }
+
+    /**
+     * Whether a child sees an activity: what the child takes part in, and
+     * what is marked "Visa för barnen" unless it is another child's (a
+     * sibling's simskola is not in your day). Never the adults' other events.
+     */
+    public function concerns(Activity $activity, User $child): bool
+    {
+        if ($activity->participants->contains(fn (User $participant) => $participant->is($child))) {
+            return true;
+        }
+
+        return $activity->visible_to_children
+            && ! $activity->participants->contains(fn (User $participant) => in_array($participant->id, $this->childIds, true));
     }
 
     /**

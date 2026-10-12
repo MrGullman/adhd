@@ -30,6 +30,8 @@ declare module '@inertiajs/core' {
                 message: string;
             };
             pairing?: { url: string; qr: string; expiresAt: string };
+            /** A home display's link, shown once. */
+            displayLink?: string;
         };
     }
 }

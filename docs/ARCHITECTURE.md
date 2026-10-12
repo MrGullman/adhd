@@ -413,6 +413,18 @@ Task::where('family_id', $device->family_id)
 - Läsbar på flera meters avstånd: stora typsnitt, hög kontrast
 - Mörkt tema kvällstid
 
+## I version 1 (Milestone 11)
+
+- Klocka, datum, vecka och del av dagen står alltid överst. De är ingen widget.
+- Widgets: child (Barnets dag: rutinens steg med kvartsprickar, annars nästa uppgift, och barnets aktiviteter), tasks, activities, tomorrow, week, shopping_list. school_meals och meal_plan kommer med Milestone 8 och 10.
+- Rutnätet är alltid 12 × 6. Tätheten ändrar storleken på allt (Stor 1,25, Mellan 1, Kompakt 0,82), inte rutnätet.
+- Skärmen ritas för 1920 px bredd och zoomas (CSS zoom) till skärmens storlek, så 1080p och 4K ser likadana ut. Förhandsvisningen i redigeraren använder samma komponent.
+- Mörkt tema från kvällens start till morgonens start (familjens dagsdelar).
+- Länken är /display/{token}. Bara enheter av typen display öppnar skärmen. Skärmen sparar sin token som enhetscookie, så att bilderna (/bilder/{id}) kan visas.
+- Skärmen visar aldrig de vuxnas egna händelser: bara det som är markerat "Visa för barnen" eller gäller ett barn.
+- Ett barn ser inte syskons aktiviteter. Det gäller både Min dag och barnkortet på skärmen.
+- Nya widgets hamnar på första lediga plats i rutnätet.
+
 ## Hårdvara (förslag)
 
 - Raspberry Pi med Chromium i kioskläge

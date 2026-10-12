@@ -111,3 +111,24 @@ export type ActivityEntry = {
     /** A child's own packing, or each child's status for the adults. */
     packing: ChildPacking | ChildPackingStatus[] | null;
 };
+
+export type DisplayWidgetItem = {
+    id: number;
+    type: string;
+    label: string;
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    settings: Record<string, number>;
+    data: Record<string, unknown>;
+};
+
+export type DisplayHeaderData = {
+    date: string;
+    week: number;
+    dayPart: { value: DayPart; label: string };
+    evening: boolean;
+};
+
+export type Density = 'large' | 'medium' | 'compact';
