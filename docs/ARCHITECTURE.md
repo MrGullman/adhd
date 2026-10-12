@@ -546,6 +546,14 @@ activity_confirmations (barnet svarar "ja, jag har packat" samma dag)
 - Senare: kopplas till kalenderhändelser via namn (t.ex. "Simskola" i Google Kalender)
 - Senare: push-påminnelse dagen innan (PWA)
 
+I koden:
+
+- En gång: date (till end_date för flera dagar). Varje vecka: weekday, mellan date och end_date om de är satta. Dagarna är dagar i Sverige.
+- Packning och "Ja, jag har packat" sparas per tillfälle (aktivitetens dag), så listan börjar om nästa gång.
+- Barnet packar bara för idag eller imorgon, och bara till det barnet själv är med i.
+- Bortrest: aktivitetens deltagare är den som är borta, end_date är hemkomstdagen. Sömnar kvar = dagar till end_date.
+- Barnets vecka visar högst tre saker per dag, resten som "Och 2 till".
+
 ## Idag, Imorgon och Veckan
 
 | Vy | Visar |

@@ -75,3 +75,39 @@ export type RoutineFocus = {
     skippable: number[];
     steps: RoutineStepItem[];
 };
+
+export type ActivityType = 'activity' | 'away' | 'pickup' | 'day_off';
+
+export type ChildPacking = {
+    date: string;
+    items: Array<{
+        id: number;
+        label: string;
+        picture: PictureItem | null;
+        packed: boolean;
+    }>;
+    packed: number;
+    total: number;
+    confirmed: boolean;
+};
+
+export type ChildPackingStatus = {
+    child: string;
+    packed: number;
+    total: number;
+    confirmed: boolean;
+};
+
+export type ActivityEntry = {
+    id: number;
+    type: ActivityType;
+    typeLabel: string;
+    name: string;
+    picture: PictureItem | null;
+    time: string | null;
+    unusual: boolean;
+    nightsLeft: number | null;
+    participants: Member[];
+    /** A child's own packing, or each child's status for the adults. */
+    packing: ChildPacking | ChildPackingStatus[] | null;
+};

@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Routines;
 
 use App\Actions\Routines\CheckRoutineStep;
 use App\Http\Controllers\Controller;
+use App\Models\Activity;
 use App\Models\Routine;
 use App\Models\RoutineStep;
 use App\Models\User;
+use App\Support\ActivityCalendar;
 use App\Support\LocalTime;
 use App\Support\RoutineDay;
 use Illuminate\Http\RedirectResponse;
@@ -29,8 +31,16 @@ class ChildRoutineController extends Controller
         $child = $request->user();
         $routine->load('steps.picture');
 
+        $today = LocalTime::now()->startOfDay();
+        $calendar = ActivityCalendar::between($today, $today);
+
         return Inertia::render('child/Routine', [
             'routine' => RoutineDay::for($routine, $child)->focus(LocalTime::now()),
+            // For the step "Kolla packningen": what to have with you today.
+            'packing' => $calendar->on($today, $child)
+                ->filter(fn (Activity $activity) => $calendar->packs($activity, $child))
+                ->map(fn (Activity $activity) => $calendar->present($activity, $today, $child))
+                ->values(),
         ]);
     }
 

@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Activities\ActivityController;
+use App\Http\Controllers\Activities\CalendarController;
+use App\Http\Controllers\Activities\ChildActivityController;
 use App\Http\Controllers\ChildShoppingListController;
 use App\Http\Controllers\Lists\CompletedListItemsController;
 use App\Http\Controllers\Lists\ListController;
@@ -36,6 +39,16 @@ Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function 
     Route::put('uppgifter/aterkommande/{recurringTask}', [RecurringTaskController::class, 'update'])->name('recurring-tasks.update');
     Route::delete('uppgifter/aterkommande/{recurringTask}', [RecurringTaskController::class, 'destroy'])->name('recurring-tasks.destroy');
 
+    Route::get('imorgon', [CalendarController::class, 'tomorrow'])->name('tomorrow');
+    Route::get('veckan', [CalendarController::class, 'week'])->name('week');
+
+    Route::get('aktiviteter', [ActivityController::class, 'index'])->name('activities.index');
+    Route::get('aktiviteter/ny', [ActivityController::class, 'create'])->name('activities.create');
+    Route::post('aktiviteter', [ActivityController::class, 'store'])->name('activities.store');
+    Route::get('aktiviteter/{activity}/andra', [ActivityController::class, 'edit'])->name('activities.edit');
+    Route::put('aktiviteter/{activity}', [ActivityController::class, 'update'])->name('activities.update');
+    Route::delete('aktiviteter/{activity}', [ActivityController::class, 'destroy'])->name('activities.destroy');
+
     Route::get('rutiner', [RoutineController::class, 'index'])->name('routines.index');
     Route::get('rutiner/ny', [RoutineController::class, 'create'])->name('routines.create');
     Route::post('rutiner', [RoutineController::class, 'store'])->name('routines.store');
@@ -69,6 +82,16 @@ Route::middleware(['auth', 'verified', 'family'])->group(function () {
 
 Route::middleware(['auth', 'family', 'role:child'])->group(function () {
     Route::get('handla', ChildShoppingListController::class)->name('child.shopping');
+
+    Route::get('min-dag/veckan', [CalendarController::class, 'childWeek'])->name('child.week');
+    Route::scopeBindings()->group(function () {
+        Route::post('min-dag/aktivitet/{activity}/{date}/sak/{item}', [ChildActivityController::class, 'pack'])
+            ->where('date', '\\d{4}-\\d{2}-\\d{2}')->name('child.activities.pack');
+        Route::delete('min-dag/aktivitet/{activity}/{date}/sak/{item}', [ChildActivityController::class, 'unpack'])
+            ->where('date', '\\d{4}-\\d{2}-\\d{2}')->name('child.activities.unpack');
+    });
+    Route::post('min-dag/aktivitet/{activity}/{date}/packat', [ChildActivityController::class, 'confirm'])
+        ->where('date', '\\d{4}-\\d{2}-\\d{2}')->name('child.activities.confirm');
 
     Route::get('min-dag/rutin/{routine}', [ChildRoutineController::class, 'show'])->name('child.routines.show');
     Route::scopeBindings()->group(function () {

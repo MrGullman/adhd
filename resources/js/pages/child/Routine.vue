@@ -7,10 +7,13 @@ import CompletionToggle from '@/components/CompletionToggle.vue';
 import PictureThumb from '@/components/PictureThumb.vue';
 import QuarterDots from '@/components/QuarterDots.vue';
 import { home as childHome } from '@/routes/child';
-import type { RoutineFocus, RoutineStepItem } from '@/types';
+import { childPacking } from '@/lib/activities';
+import type { ActivityEntry, RoutineFocus, RoutineStepItem } from '@/types';
 
 const props = defineProps<{
     routine: RoutineFocus;
+    /** Today's packing lists, for the step "Kolla packningen". */
+    packing: ActivityEntry[];
 }>();
 
 const current = computed(() =>
@@ -152,12 +155,43 @@ function stepHref(step: RoutineStepItem) {
                     >
                         {{ current.label }}
                     </h2>
-                    <p
-                        v-if="current.type === 'packlist'"
-                        class="font-display text-child-label"
-                    >
-                        Titta i väskan att allt är med.
-                    </p>
+                    <template v-if="current.type === 'packlist'">
+                        <p class="font-display text-child-label">
+                            {{
+                                packing.length
+                                    ? 'Titta i väskan att allt är med:'
+                                    : 'Titta i väskan att allt är med.'
+                            }}
+                        </p>
+                        <div
+                            v-for="activity in packing"
+                            :key="activity.id"
+                            class="flex w-full flex-col gap-2 rounded-lg bg-surface-raised p-3"
+                        >
+                            <p
+                                class="font-display text-child-label font-semibold"
+                            >
+                                {{ activity.name }}
+                            </p>
+                            <ul class="flex flex-wrap justify-center gap-3">
+                                <li
+                                    v-for="item in childPacking(activity)
+                                        ?.items ?? []"
+                                    :key="item.id"
+                                    class="flex flex-col items-center gap-1"
+                                >
+                                    <PictureThumb
+                                        v-if="item.picture"
+                                        :picture="item.picture"
+                                        size="md"
+                                    />
+                                    <span class="font-display text-child-label">
+                                        {{ item.label }}
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                    </template>
                     <div class="flex flex-wrap justify-center gap-3">
                         <button
                             v-if="canSpeak"
