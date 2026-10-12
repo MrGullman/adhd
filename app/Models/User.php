@@ -51,6 +51,15 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail, Pas
     use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
     /**
+     * The same defaults as the database, so that a user just created has them too.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'avatar_color' => 'teal',
+    ];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

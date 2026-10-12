@@ -18,3 +18,21 @@ export type PictureItem = {
     label: string;
     url: string;
 };
+
+export type TaskRowData = {
+    id: number;
+    title: string;
+    picture: PictureItem | null;
+    time: string | null;
+    dayPart: DayPart | null;
+    completed: boolean;
+    recurring: boolean;
+    assignee: Member | null;
+};
+
+export type DayGroup = {
+    value: DayPart | null;
+    label: string;
+    start: string | null;
+    tasks: TaskRowData[];
+};

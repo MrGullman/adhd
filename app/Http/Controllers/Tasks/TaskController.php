@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Tasks;
 
-use App\Enums\DayPart;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tasks\Concerns\TaskFormOptions;
 use App\Http\Requests\Tasks\StoreTaskRequest;
@@ -10,11 +9,11 @@ use App\Http\Requests\Tasks\UpdateTaskRequest;
 use App\Models\Task;
 use App\Models\User;
 use App\Support\CurrentFamily;
+use App\Support\DayPlan;
 use App\Support\LocalTime;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -34,39 +33,12 @@ class TaskController extends Controller
         /** @var User $user */
         $user = $request->user();
 
-        $tasks = Task::query()
-            ->with(['picture', 'assignee:id,name,avatar_color,picture_id', 'assignee.picture'])
-            ->whereDate('date', $date->toDateString())
-            ->orderByRaw('time is null')
-            ->orderBy('time')
-            ->orderBy('id')
-            ->get();
-
-        $groups = [];
-
-        foreach (DayPart::cases() as $part) {
-            $groups[] = [
-                'value' => $part->value,
-                'label' => $part->label(),
-                'start' => $family->dayParts()[$part->value],
-                'tasks' => $this->present($tasks->filter(fn (Task $task) => $task->day_part === $part)),
-            ];
-        }
-
-        // Tasks without a part of the day or a time.
-        $groups[] = [
-            'value' => null,
-            'label' => 'Under dagen',
-            'start' => null,
-            'tasks' => $this->present($tasks->filter(fn (Task $task) => $task->day_part === null)),
-        ];
-
         return Inertia::render('tasks/Index', [
             'date' => $date->toDateString(),
             'today' => LocalTime::today(),
             'previousDate' => $date->subDay()->toDateString(),
             'nextDate' => $date->addDay()->toDateString(),
-            'groups' => $groups,
+            'groups' => DayPlan::for($family, $date->toDateString())->groups(),
             'canCreate' => $user->can('create', Task::class),
         ]);
     }
@@ -158,30 +130,5 @@ class TaskController extends Controller
         }
 
         return LocalTime::now()->startOfDay();
-    }
-
-    /**
-     * @param  Collection<int, Task>  $tasks
-     * @return array<int, array<string, mixed>>
-     */
-    private function present(Collection $tasks): array
-    {
-        return $tasks
-            ->map(fn (Task $task) => [
-                'id' => $task->id,
-                'title' => $task->title,
-                'picture' => $task->picture?->toPicker(),
-                'time' => $task->shortTime(),
-                'completed' => $task->isCompleted(),
-                'recurring' => $task->isRecurring(),
-                'assignee' => $task->assignee === null ? null : [
-                    'id' => $task->assignee->id,
-                    'name' => $task->assignee->name,
-                    'avatarColor' => $task->assignee->avatar_color->value,
-                    'avatarUrl' => $task->assignee->avatarUrl(),
-                ],
-            ])
-            ->values()
-            ->all();
     }
 }
