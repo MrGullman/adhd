@@ -337,20 +337,19 @@ const selectClass =
                 <label
                     v-for="child in children"
                     :key="child.id"
-                    class="flex items-center gap-3 rounded-lg border border-line bg-surface-raised p-3"
+                    class="flex flex-col gap-2 rounded-lg border border-line bg-surface-raised p-3"
                 >
-                    <FamilyAvatar
-                        :name="child.name"
-                        :color="child.avatarColor"
-                        :picture-url="child.avatarUrl"
-                        size="sm"
-                    />
-                    <span class="min-w-0 flex-1 font-bold">{{
-                        child.name
-                    }}</span>
+                    <span class="flex items-center gap-3">
+                        <FamilyAvatar
+                            :name="child.name"
+                            :color="child.avatarColor"
+                            :picture-url="child.avatarUrl"
+                            size="sm"
+                        />
+                        <span class="font-bold">{{ child.name }} äter på</span>
+                    </span>
                     <select
                         :class="selectClass"
-                        class="w-auto"
                         :aria-label="`Skola för ${child.name}`"
                         :value="child.schoolMenuId ?? ''"
                         @change="
