@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
 /**
@@ -16,25 +17,30 @@ use Illuminate\Support\Carbon;
  * time the part of the day follows from the family's day parts.
  *
  * date and time are the day and wall-clock time in Sweden, not instants.
+ * Deleting an occurrence of a recurring task keeps it as a skipped day
+ * (soft delete), so that it is not created again.
  *
  * @property int $id
  * @property int $family_id
+ * @property int|null $recurring_task_id
  * @property string $title
  * @property int|null $assigned_to
  * @property Carbon $date
  * @property DayPart|null $day_part
  * @property string|null $time
+ * @property bool $customized
  * @property Carbon|null $completed_at
  * @property int|null $completed_by
  * @property int|null $created_by
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  */
 #[Fillable(['title', 'assigned_to', 'date', 'day_part', 'time', 'created_by'])]
 class Task extends Model
 {
     /** @use HasFactory<TaskFactory> */
-    use BelongsToFamily, HasFactory;
+    use BelongsToFamily, HasFactory, SoftDeletes;
 
     /**
      * Get the attributes that should be cast.
@@ -46,6 +52,7 @@ class Task extends Model
         return [
             'date' => 'date:Y-m-d',
             'day_part' => DayPart::class,
+            'customized' => 'boolean',
             'completed_at' => 'datetime',
         ];
     }
@@ -56,6 +63,19 @@ class Task extends Model
     public function assignee(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    /**
+     * @return BelongsTo<RecurringTask, $this>
+     */
+    public function recurringTask(): BelongsTo
+    {
+        return $this->belongsTo(RecurringTask::class);
+    }
+
+    public function isRecurring(): bool
+    {
+        return $this->recurring_task_id !== null;
     }
 
     public function isCompleted(): bool

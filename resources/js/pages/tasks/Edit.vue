@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
+import { Form, Head, Link } from '@inertiajs/vue3';
+import RecurringTaskController from '@/actions/App/Http/Controllers/Tasks/RecurringTaskController';
 import TaskController from '@/actions/App/Http/Controllers/Tasks/TaskController';
 import TaskForm from '@/components/TaskForm.vue';
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,7 @@ defineProps<{
         date: string;
         dayPart: string | null;
         time: string | null;
+        recurring: boolean;
     };
 }>();
 </script>
@@ -35,7 +37,17 @@ defineProps<{
     <Head title="Ändra uppgift" />
 
     <div class="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 md:p-8">
-        <h1 class="text-heading font-semibold">Ändra uppgift</h1>
+        <header class="flex flex-col gap-1">
+            <h1 class="text-heading font-semibold">Ändra uppgift</h1>
+            <p v-if="task.recurring" class="text-ink-muted">
+                Ändringen gäller bara den här dagen. Alla dagar ändras under
+                <Link
+                    :href="RecurringTaskController.index()"
+                    class="font-bold underline"
+                    >Återkommande</Link
+                >.
+            </p>
+        </header>
         <TaskForm
             :action="TaskController.update.form(task.id)"
             :members="members"
@@ -50,7 +62,11 @@ defineProps<{
             v-slot="{ processing }"
         >
             <Button variant="destructive" type="submit" :disabled="processing">
-                Ta bort uppgiften
+                {{
+                    task.recurring
+                        ? 'Hoppa över den här dagen'
+                        : 'Ta bort uppgiften'
+                }}
             </Button>
         </Form>
     </div>

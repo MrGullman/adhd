@@ -186,10 +186,10 @@ Uppgifter som återkommer (t.ex. borsta tänderna varje morgon) skapas automatis
 
 ## Tasks
 
-- [ ] recurring_tasks tabell (vem, del av dagen och/eller klockslag, upprepning: varje dag, vissa veckodagar eller varje vecka)
-- [ ] Schemalagt kommando som skapar dagens uppgifter varje natt (routes/console.php, Europe/Stockholm)
-- [ ] Ändring av en återkommande uppgift påverkar bara kommande dagar
-- [ ] Tester för veckodagar och sommartid/vintertid
+- [x] recurring_tasks tabell (vem, del av dagen och/eller klockslag, upprepning: varje dag, vissa veckodagar eller varje vecka)
+- [x] Schemalagt kommando som skapar dagens uppgifter varje natt (routes/console.php, Europe/Stockholm)
+- [x] Ändring av en återkommande uppgift påverkar bara kommande dagar
+- [x] Tester för veckodagar och sommartid/vintertid
 
 ## Definition of Done
 

@@ -9,6 +9,7 @@ use App\Models\Family;
 use App\Models\FamilyInvitation;
 use App\Models\FamilyList;
 use App\Models\ListItem;
+use App\Models\RecurringTask;
 use App\Models\Task;
 use App\Models\User;
 use App\Support\CurrentFamily;
@@ -116,6 +117,20 @@ class FamilyIsolationTest extends TestCase
         $this->assertDatabaseHas('tasks', ['id' => $otherTask->id, 'title' => 'Deras uppgift', 'completed_at' => null]);
     }
 
+    public function test_a_parent_cannot_open_change_or_remove_another_familys_recurring_task()
+    {
+        $parent = User::factory()->inFamily(Family::factory()->create())->create();
+        $other = RecurringTask::factory()->create(['title' => 'Deras']);
+
+        $this->actingAs($parent)->get(route('recurring-tasks.edit', $other->id))->assertNotFound();
+        $this->actingAs($parent)
+            ->put(route('recurring-tasks.update', $other->id), ['title' => 'Vår nu', 'frequency' => 'daily', 'starts_on' => '2026-10-12'])
+            ->assertNotFound();
+        $this->actingAs($parent)->delete(route('recurring-tasks.destroy', $other->id))->assertNotFound();
+
+        $this->assertDatabaseHas('recurring_tasks', ['id' => $other->id, 'title' => 'Deras']);
+    }
+
     public function test_lists_items_and_tasks_only_return_the_current_familys_rows()
     {
         $family = Family::factory()->create();
@@ -126,12 +141,15 @@ class FamilyIsolationTest extends TestCase
         $otherList = FamilyList::factory()->create(['name' => 'Deras lista']);
         ListItem::factory()->for($otherList, 'list')->create(['name' => 'Deras vara']);
         Task::factory()->create(['title' => 'Deras uppgift']);
+        RecurringTask::factory()->for($family)->create(['title' => 'Vår återkommande']);
+        RecurringTask::factory()->create(['title' => 'Deras återkommande']);
 
         app(CurrentFamily::class)->set($family);
 
         $this->assertSame(['Handlingslista', 'Vår lista'], FamilyList::query()->orderBy('name')->pluck('name')->all());
         $this->assertSame(['Vår vara'], ListItem::query()->pluck('name')->all());
         $this->assertSame(['Vår uppgift'], Task::query()->pluck('title')->all());
+        $this->assertSame(['Vår återkommande'], RecurringTask::query()->pluck('title')->all());
     }
 
     public function test_family_scoped_models_only_return_the_current_familys_rows()
