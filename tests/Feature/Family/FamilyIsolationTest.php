@@ -11,6 +11,7 @@ use App\Models\FamilyList;
 use App\Models\ListItem;
 use App\Models\Picture;
 use App\Models\RecurringTask;
+use App\Models\Routine;
 use App\Models\Task;
 use App\Models\User;
 use App\Support\CurrentFamily;
@@ -130,6 +131,31 @@ class FamilyIsolationTest extends TestCase
         $this->actingAs($parent)->delete(route('recurring-tasks.destroy', $other->id))->assertNotFound();
 
         $this->assertDatabaseHas('recurring_tasks', ['id' => $other->id, 'title' => 'Deras']);
+    }
+
+    public function test_a_parent_cannot_open_change_or_remove_another_familys_routine()
+    {
+        $parent = User::factory()->inFamily(Family::factory()->create())->create();
+        $other = Routine::factory()->withSteps([['Deras steg']])->create(['name' => 'Deras rutin']);
+
+        $this->actingAs($parent)->get(route('routines.edit', $other->id))->assertNotFound();
+        $this->actingAs($parent)
+            ->put(route('routines.update', $other->id), ['name' => 'Vår nu', 'steps' => [['label' => 'X', 'type' => 'step']]])
+            ->assertNotFound();
+        $this->actingAs($parent)->delete(route('routines.destroy', $other->id))->assertNotFound();
+
+        $this->assertDatabaseHas('routines', ['id' => $other->id, 'name' => 'Deras rutin']);
+    }
+
+    public function test_routines_are_the_current_familys_and_never_templates()
+    {
+        $family = Family::factory()->create();
+        Routine::factory()->for($family)->create(['name' => 'Vår rutin']);
+        Routine::factory()->create(['name' => 'Deras rutin']);
+
+        app(CurrentFamily::class)->set($family);
+
+        $this->assertSame(['Vår rutin'], Routine::query()->pluck('name')->all());
     }
 
     public function test_lists_items_and_tasks_only_return_the_current_familys_rows()

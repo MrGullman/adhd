@@ -59,8 +59,8 @@ Rekommenderad byggordning, så att familjen kan börja använda appen tidigt:
 5. Milestone 3 – Återkommande uppgifter (klar)
 6. Milestone 4 – Bildstöd (klar)
 7. Milestone 5 – Idag-vy (klar)
-8. Milestone 7 – Rutiner (nästa)
-9. Milestone 11 – Hemskärm
+8. Milestone 7 – Rutiner (klar)
+9. Milestone 11 – Hemskärm (nästa)
 10. Milestone 6 – Aktiviteter, händelser och packlistor
 11. Milestone 8 – Skolmat
 12. Milestone 9 – Receptbank och skafferi
@@ -287,19 +287,19 @@ Barnen klarar sina rutiner (morgon, efter skolan, kväll) steg för steg med bil
 
 ## Tasks
 
-- [ ] routines, routine_child och routine_steps tabeller
-- [ ] routine_runs och routine_step_checks tabeller
-- [ ] Vuxen skapar rutin: steg med bild, uppskattad tid, valfria steg, steg bara vissa dagar
-- [ ] Rutin med "klar senast" (t.ex. 07:45)
-- [ ] Fokusläge för barnet: ett steg i taget, stor Klar-knapp, nästa steg syns litet (först–sen)
-- [ ] Synlig tid: kvartsprickar (1 prick = 15 min) fram till "klar senast"
-- [ ] Om tiden inte räcker: föreslå att hoppa över valfria steg
-- [ ] Steg "Kolla packningen" visar dagens packlistor
-- [ ] Uppläsning av steget (webbläsarens talsyntes, svenska)
-- [ ] Rätt rutin visas överst i barnets Idag-vy när det är dags
-- [ ] Vuxna ser läget live i sin dashboard
-- [ ] Lugnt firande när rutinen är klar
-- [ ] Färdiga rutinmallar i adminportalen (morgon, efter skolan, kväll, läggdags)
+- [x] routines, routine_child och routine_steps tabeller
+- [x] routine_runs och routine_step_checks tabeller
+- [x] Vuxen skapar rutin: steg med bild, uppskattad tid, valfria steg, steg bara vissa dagar
+- [x] Rutin med "klar senast" (t.ex. 07:45)
+- [x] Fokusläge för barnet: ett steg i taget, stor Klar-knapp, nästa steg syns litet (först–sen)
+- [x] Synlig tid: kvartsprickar (1 prick = 15 min) fram till "klar senast"
+- [x] Om tiden inte räcker: föreslå att hoppa över valfria steg
+- [ ] Steg "Kolla packningen" visar dagens packlistor (steget finns, listorna kommer i Milestone 6)
+- [x] Uppläsning av steget (webbläsarens talsyntes, svenska)
+- [x] Rätt rutin visas överst i barnets Idag-vy när det är dags
+- [x] Vuxna ser läget live i sin dashboard
+- [x] Lugnt firande när rutinen är klar
+- [x] Färdiga rutinmallar i adminportalen (morgon, efter skolan, kväll, läggdags)
 
 ## Definition of Done
 

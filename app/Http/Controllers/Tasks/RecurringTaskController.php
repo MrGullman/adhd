@@ -172,11 +172,7 @@ class RecurringTaskController extends Controller
     {
         return [
             ...$this->taskFormOptions($family),
-            'weekdays' => collect(self::WEEKDAYS)->map(fn (string $name, int $day) => [
-                'value' => $day,
-                'label' => ucfirst($name),
-                'short' => ucfirst(mb_substr($name, 0, 3)),
-            ])->values(),
+            'weekdays' => $this->weekdayOptions(),
         ];
     }
 }

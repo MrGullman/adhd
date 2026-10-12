@@ -6,6 +6,9 @@ use App\Http\Controllers\Lists\ListController;
 use App\Http\Controllers\Lists\ListItemCompletionController;
 use App\Http\Controllers\Lists\ListItemController;
 use App\Http\Controllers\PictureController;
+use App\Http\Controllers\Routines\ChildRoutineController;
+use App\Http\Controllers\Routines\RoutineController;
+use App\Http\Controllers\Routines\RoutineTemplateController;
 use App\Http\Controllers\Tasks\RecurringTaskController;
 use App\Http\Controllers\Tasks\TaskCompletionController;
 use App\Http\Controllers\Tasks\TaskController;
@@ -33,6 +36,14 @@ Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function 
     Route::put('uppgifter/aterkommande/{recurringTask}', [RecurringTaskController::class, 'update'])->name('recurring-tasks.update');
     Route::delete('uppgifter/aterkommande/{recurringTask}', [RecurringTaskController::class, 'destroy'])->name('recurring-tasks.destroy');
 
+    Route::get('rutiner', [RoutineController::class, 'index'])->name('routines.index');
+    Route::get('rutiner/ny', [RoutineController::class, 'create'])->name('routines.create');
+    Route::post('rutiner', [RoutineController::class, 'store'])->name('routines.store');
+    Route::post('rutiner/mallar/{template}', [RoutineTemplateController::class, 'store'])->whereNumber('template')->name('routine-templates.copy');
+    Route::get('rutiner/{routine}/andra', [RoutineController::class, 'edit'])->name('routines.edit');
+    Route::put('rutiner/{routine}', [RoutineController::class, 'update'])->name('routines.update');
+    Route::delete('rutiner/{routine}', [RoutineController::class, 'destroy'])->name('routines.destroy');
+
     Route::get('uppgifter', [TaskController::class, 'index'])->name('tasks.index');
     Route::get('uppgifter/ny', [TaskController::class, 'create'])->name('tasks.create');
     Route::post('uppgifter', [TaskController::class, 'store'])->name('tasks.store');
@@ -58,6 +69,13 @@ Route::middleware(['auth', 'verified', 'family'])->group(function () {
 
 Route::middleware(['auth', 'family', 'role:child'])->group(function () {
     Route::get('handla', ChildShoppingListController::class)->name('child.shopping');
+
+    Route::get('min-dag/rutin/{routine}', [ChildRoutineController::class, 'show'])->name('child.routines.show');
+    Route::scopeBindings()->group(function () {
+        Route::post('min-dag/rutin/{routine}/steg/{step}', [ChildRoutineController::class, 'check'])->name('child.routines.steps.check');
+        Route::delete('min-dag/rutin/{routine}/steg/{step}', [ChildRoutineController::class, 'uncheck'])->name('child.routines.steps.uncheck');
+        Route::post('min-dag/rutin/{routine}/steg/{step}/hoppa', [ChildRoutineController::class, 'skip'])->name('child.routines.steps.skip');
+    });
 });
 
 // Picture files: for members and trusted devices such as the home display.

@@ -3,12 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Enums\FamilyRole;
+use App\Models\Family;
 use App\Models\Membership;
+use App\Models\Routine;
 use App\Models\Task;
 use App\Models\User;
 use App\Support\CurrentFamily;
 use App\Support\DayPlan;
 use App\Support\LocalTime;
+use App\Support\RoutineDay;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -34,6 +38,8 @@ class TodayController extends Controller
 
         return Inertia::render('today/Index', [
             'date' => $today,
+            // Read again every little while on the page, so the adults follow along live.
+            'routines' => $this->routines($family, LocalTime::now()),
             'currentPart' => $family->dayPartFor(LocalTime::now()->format('H:i'))->value,
             'groups' => DayPlan::for($family, $today)->groups(),
             'members' => $family->members()
@@ -81,6 +87,46 @@ class TodayController extends Controller
             'now' => $plan->now($currentPart),
             'groups' => $plan->groups(),
             'progress' => $plan->progress(),
+            'routines' => $this->routines($family, LocalTime::now(), $child),
         ]);
+    }
+
+    /**
+     * Today's routines per child: the ones it is time for first.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function routines(Family $family, CarbonImmutable $now, ?User $child = null): array
+    {
+        $summaries = [];
+
+        $routines = Routine::query()
+            ->with(['picture', 'steps', 'children.picture'])
+            ->when($child !== null, fn ($query) => $query->whereHas('children', fn ($query) => $query->whereKey($child?->id)))
+            ->orderBy('start_time')
+            ->orderBy('done_by')
+            ->get();
+
+        foreach ($routines as $routine) {
+            if (! $routine->runsOn($now)) {
+                continue;
+            }
+
+            foreach ($routine->children as $member) {
+                if ($child !== null && ! $member->is($child)) {
+                    continue;
+                }
+
+                $day = RoutineDay::for($routine, $member, $now->startOfDay());
+
+                if ($day->steps()->isNotEmpty()) {
+                    $summaries[] = $day->summary($family, $now);
+                }
+            }
+        }
+
+        usort($summaries, fn (array $a, array $b) => (int) $b['due'] <=> (int) $a['due']);
+
+        return $summaries;
     }
 }

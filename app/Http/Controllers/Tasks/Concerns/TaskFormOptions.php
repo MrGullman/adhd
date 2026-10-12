@@ -33,4 +33,20 @@ trait TaskFormOptions
             ]),
         ];
     }
+
+    /**
+     * Monday to Sunday as ISO weekdays, for choosing days.
+     *
+     * @return list<array{value: int, label: string, short: string}>
+     */
+    private function weekdayOptions(): array
+    {
+        $names = ['måndag', 'tisdag', 'onsdag', 'torsdag', 'fredag', 'lördag', 'söndag'];
+
+        return array_map(fn (string $name, int $index) => [
+            'value' => $index + 1,
+            'label' => ucfirst($name),
+            'short' => ucfirst(mb_substr($name, 0, 3)),
+        ], $names, array_keys($names));
+    }
 }

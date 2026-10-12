@@ -78,6 +78,7 @@ function addPicture(picture: PictureItem): void {
             </Form>
 
             <PicturePicker
+                :model-value="null"
                 size="child"
                 button-label="Välj bild"
                 @select="addPicture"
