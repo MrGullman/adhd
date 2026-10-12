@@ -4,11 +4,13 @@ namespace App\Display\Widgets;
 
 use App\Display\DisplayContext;
 use App\Models\DisplayWidget;
+use App\Models\Membership;
 use App\Models\Routine;
 use App\Models\RoutineStep;
 use App\Models\User;
 use App\Support\DayPlan;
 use App\Support\RoutineDay;
+use App\Support\SchoolLunch;
 
 /**
  * Barnets dag: what one child does now (a routine step with quarter dots, or
@@ -49,6 +51,9 @@ class ChildWidget implements DisplayWidgetType
             'routine' => $this->routine($context, $child),
             'task' => $this->task($context, $child),
             'activities' => $this->activities($context, $child),
+            'lunch' => (new SchoolLunch($context->family, $context->now))->forMenu(
+                $child->getRelation('pivot') instanceof Membership ? $child->getRelation('pivot')->school_menu_id : null,
+            ),
         ];
     }
 

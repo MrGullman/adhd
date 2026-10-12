@@ -9,6 +9,7 @@ import CompletionToggle from '@/components/CompletionToggle.vue';
 import DayPartLabel from '@/components/DayPartLabel.vue';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import PictureThumb from '@/components/PictureThumb.vue';
+import SchoolLunch from '@/components/SchoolLunch.vue';
 import { formatDay } from '@/lib/format';
 import { logout } from '@/routes';
 import { shopping, week as childWeek } from '@/routes/child';
@@ -17,6 +18,7 @@ import type {
     DayGroup,
     DayPart,
     RoutineSummary,
+    SchoolLunchData,
     TaskRowData,
 } from '@/types';
 
@@ -31,6 +33,7 @@ const props = defineProps<{
     activities: ActivityEntry[];
     packTomorrow: ActivityEntry[];
     tomorrow: ActivityEntry[];
+    lunch: SchoolLunchData | null;
 }>();
 
 const groups = computed(() =>
@@ -313,6 +316,14 @@ const allDone = computed(
                     </div>
                 </section>
             </div>
+
+            <section
+                v-if="lunch"
+                class="rounded-xl border-2 border-line bg-surface-raised p-4"
+                aria-label="Skollunch"
+            >
+                <SchoolLunch :lunch="lunch" size="child" />
+            </section>
 
             <!-- Imorgon: packa dagen innan, och det som händer -->
             <section

@@ -132,3 +132,10 @@ export type DisplayHeaderData = {
 };
 
 export type Density = 'large' | 'medium' | 'compact';
+
+export type SchoolLunchData = {
+    label: string;
+    date: string;
+    holiday: string | null;
+    courses: Array<{ name: string; option: string | null }>;
+};

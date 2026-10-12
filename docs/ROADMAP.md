@@ -62,8 +62,8 @@ Rekommenderad byggordning, så att familjen kan börja använda appen tidigt:
 8. Milestone 7 – Rutiner (klar)
 9. Milestone 11 – Hemskärm (klar, Raspberry Pi provas när den finns)
 10. Milestone 6 – Aktiviteter, händelser och packlistor (klar)
-11. Milestone 8 – Skolmat (nästa)
-12. Milestone 9 – Receptbank och skafferi
+11. Milestone 8 – Skolmat (klar)
+12. Milestone 9 – Receptbank och skafferi (nästa)
 13. Milestone 10 – Veckomatsedel och handlingslista
 
 Barnen testar varje vy när den är klar, och vi justerar innan vi bygger vidare.
@@ -318,14 +318,14 @@ Visa barnens skollunch från Matilda Menu.
 
 ## Tasks
 
-- [ ] school_menus tabell
-- [ ] school_meals tabell
-- [ ] Lägg till skola via Matilda-länk
-- [ ] Koppla familjemedlem till skola (family_user.school_menu_id)
-- [ ] MealProvider interface + MatildaMealProvider
-- [ ] Schemalagt kommando som hämtar denna och nästa vecka
-- [ ] Visa dagens skollunch per barn i Idag-vyn
-- [ ] Tester med Http::fake()
+- [x] school_menus tabell
+- [x] school_meals tabell
+- [x] Lägg till skola via Matilda-länk
+- [x] Koppla familjemedlem till skola (family_user.school_menu_id)
+- [x] MealProvider interface + MatildaMealProvider
+- [x] Schemalagt kommando som hämtar denna och nästa vecka
+- [x] Visa dagens skollunch per barn i Idag-vyn
+- [x] Tester med Http::fake()
 
 ## Definition of Done
 
@@ -404,8 +404,10 @@ En separat skärm hemma, likt DAKboard. Vårdnadshavarna väljer själva vad som
 - [x] Täthet per skärm: stor, mellan, kompakt (devices.settings.density)
 - [x] DisplayLayout utan navigation, pages/display/Index.vue
 - [x] Widgets: klocka/datum (alltid överst), barnets dag (rutinens steg eller nästa uppgift), dagens uppgifter, aktiviteter och packning, Imorgon, Veckan, handlingslista
-- [ ] Widgets för skollunch och middag ikväll/veckans mat (kommer med Milestone 8 och 10)
-- [ ] Byte till nästa dag vid tider familjen ställer in (förval: skollunch 15:00, middag 19:00), med skollunch- och middagswidgetarna
+- [x] Widget för skollunch
+- [ ] Widget för middag ikväll/veckans mat (kommer med Milestone 10)
+- [x] Byte till nästa dag för skollunch vid tid familjen ställer in (förval 15:00)
+- [ ] Byte till nästa dag för middag (förval 19:00), med middagswidgeten
 - [x] Mörkt tema kvällstid
 - [x] Automatisk uppdatering med usePoll
 

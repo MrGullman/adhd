@@ -1,8 +1,13 @@
 <script setup lang="ts">
-import { Check } from '@lucide/vue';
+import { Check, Utensils } from '@lucide/vue';
 import { computed } from 'vue';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
-import type { Member, PictureItem, TaskRowData } from '@/types';
+import type {
+    Member,
+    PictureItem,
+    SchoolLunchData,
+    TaskRowData,
+} from '@/types';
 import Thumb from './Thumb.vue';
 import WidgetCard from './WidgetCard.vue';
 
@@ -32,6 +37,7 @@ const props = defineProps<{
             picture: PictureItem | null;
             packed: boolean | null;
         }>;
+        lunch: SchoolLunchData | null;
     };
 }>();
 
@@ -156,6 +162,23 @@ const dots = computed(() => {
             </p>
 
             <ul class="mt-auto flex flex-col gap-3">
+                <li
+                    v-if="
+                        data.lunch &&
+                        (data.lunch.courses.length || data.lunch.holiday)
+                    "
+                    class="flex items-center gap-4 border-t border-line pt-3"
+                >
+                    <Utensils
+                        class="size-8 shrink-0 text-ink-muted"
+                        aria-hidden="true"
+                    />
+                    <span
+                        class="flex-1 font-display text-[1.4rem] leading-tight"
+                    >
+                        {{ data.lunch.courses[0]?.name ?? data.lunch.holiday }}
+                    </span>
+                </li>
                 <li
                     v-for="activity in data.activities"
                     :key="`${activity.when}-${activity.id}`"
