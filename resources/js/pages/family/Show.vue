@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { Form, Head, Link } from '@inertiajs/vue3';
+import { Monitor } from '@lucide/vue';
 import ChildController from '@/actions/App/Http/Controllers/Family/ChildController';
 import DayPartController from '@/actions/App/Http/Controllers/Family/DayPartController';
 import DeviceController from '@/actions/App/Http/Controllers/Family/DeviceController';
+import DisplayController from '@/actions/App/Http/Controllers/Family/DisplayController';
 import FamilyController from '@/actions/App/Http/Controllers/Family/FamilyController';
 import FamilyInvitationController from '@/actions/App/Http/Controllers/Family/FamilyInvitationController';
 import DayPartLabel from '@/components/DayPartLabel.vue';
@@ -55,6 +57,7 @@ defineProps<{
         isThisDevice: boolean;
     }>;
     thisDeviceIsTrusted: boolean;
+    displays: Array<{ id: number; name: string; lastSeenAt: string | null }>;
     dayParts: DayPartOption[];
     roles: Option[];
     avatarColors: Option[];
@@ -276,6 +279,59 @@ const selectClass =
                 </div>
                 <Button type="submit" class="w-fit" :disabled="processing">
                     Lägg till barn
+                </Button>
+            </Form>
+        </section>
+
+        <!-- Hemskärmar -->
+        <section
+            v-if="canManage"
+            class="flex flex-col gap-4"
+            aria-labelledby="hemskarmar"
+        >
+            <h2 id="hemskarmar" class="text-title">Hemskärmar</h2>
+            <p class="text-ink-muted">
+                En skärm hemma, till exempel i köket, som visar dagen för hela
+                familjen. Du väljer vad som syns.
+            </p>
+            <ul v-if="displays.length" class="flex flex-col gap-2">
+                <li v-for="display in displays" :key="display.id">
+                    <Link
+                        :href="DisplayController.edit(display.id)"
+                        class="flex items-center gap-3 rounded-lg border border-line bg-surface-raised p-3 hover:border-primary"
+                    >
+                        <Monitor class="size-6 shrink-0" aria-hidden="true" />
+                        <span class="min-w-0 flex-1">
+                            <span class="block font-bold">{{
+                                display.name
+                            }}</span>
+                            <span class="text-caption text-ink-muted">
+                                Senast visad
+                                {{ formatDateTime(display.lastSeenAt) }}
+                            </span>
+                        </span>
+                        <span class="font-bold text-primary">Redigera</span>
+                    </Link>
+                </li>
+            </ul>
+            <Form
+                v-bind="DisplayController.store.form()"
+                class="flex flex-wrap items-end gap-3 rounded-lg bg-surface-sunken p-4"
+                v-slot="{ errors, processing }"
+            >
+                <div class="grid min-w-60 flex-1 gap-2">
+                    <Label for="display-name">Ny hemskärm</Label>
+                    <Input
+                        id="display-name"
+                        name="name"
+                        required
+                        maxlength="100"
+                        default-value="Köket"
+                    />
+                    <InputError :message="errors.name" />
+                </div>
+                <Button type="submit" :disabled="processing">
+                    Skapa hemskärm
                 </Button>
             </Form>
         </section>

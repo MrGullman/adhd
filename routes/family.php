@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ChildSessionController;
+use App\Http\Controllers\DisplayController as HomeDisplayController;
 use App\Http\Controllers\Family\ActiveFamilyController;
 use App\Http\Controllers\Family\ChildAccessController;
 use App\Http\Controllers\Family\ChildController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\Family\ChildPairingController;
 use App\Http\Controllers\Family\ChildPinController;
 use App\Http\Controllers\Family\DayPartController;
 use App\Http\Controllers\Family\DeviceController;
+use App\Http\Controllers\Family\DisplayController;
 use App\Http\Controllers\Family\FamilyController;
 use App\Http\Controllers\Family\FamilyInvitationController;
 use App\Http\Controllers\Family\InvitationAcceptanceController;
@@ -41,6 +43,14 @@ Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function 
     Route::post('familj/barn/{child}/koppling', [ChildPairingController::class, 'store'])->whereNumber('child')->name('children.pairing.store');
 
     Route::post('familj/enheter', [DeviceController::class, 'store'])->name('devices.store');
+
+    Route::post('familj/hemskarmar', [DisplayController::class, 'store'])->name('displays.store');
+    Route::get('familj/hemskarmar/{device}', [DisplayController::class, 'edit'])->name('displays.edit');
+    Route::put('familj/hemskarmar/{device}', [DisplayController::class, 'update'])->name('displays.update');
+    Route::post('familj/hemskarmar/{device}/lank', [DisplayController::class, 'link'])->name('displays.link');
+    Route::post('familj/hemskarmar/{device}/widgets', [DisplayController::class, 'addWidget'])->name('displays.widgets.store');
+    Route::put('familj/hemskarmar/{device}/widgets', [DisplayController::class, 'layout'])->name('displays.layout');
+    Route::delete('familj/hemskarmar/{device}/widgets/{widget}', [DisplayController::class, 'removeWidget'])->name('displays.widgets.destroy');
     Route::delete('familj/enheter/{device}', [DeviceController::class, 'destroy'])->name('devices.destroy');
 });
 
@@ -61,3 +71,9 @@ Route::get('koppla/{token}', [ChildPairingController::class, 'show'])->name('dev
 Route::post('koppla/{token}', [ChildPairingController::class, 'update'])
     ->middleware('throttle:10,1')
     ->name('device-pairing.update');
+
+// The home display: a secret link instead of a login. Read-only.
+Route::get('display/{token}', [HomeDisplayController::class, 'show'])
+    ->middleware('display')
+    ->where('token', '[A-Za-z0-9]{40,128}')
+    ->name('display.show');

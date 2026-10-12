@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Family;
 
 use App\Enums\AvatarColor;
 use App\Enums\DayPart;
+use App\Enums\DeviceType;
 use App\Enums\FamilyRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Family\StoreFamilyRequest;
@@ -107,8 +108,20 @@ class FamilyController extends Controller
                         'expiresAt' => $invitation->expires_at->toIso8601String(),
                     ])
                 : [],
+            'displays' => $canManage
+                ? Device::query()
+                    ->where('type', DeviceType::Display)
+                    ->orderBy('name')
+                    ->get()
+                    ->map(fn (Device $device) => [
+                        'id' => $device->id,
+                        'name' => $device->name,
+                        'lastSeenAt' => $device->last_seen_at?->toIso8601String(),
+                    ])
+                : [],
             'devices' => $canManage
                 ? Device::query()
+                    ->where('type', '!=', DeviceType::Display)
                     ->with('user')
                     ->orderBy('name')
                     ->get()

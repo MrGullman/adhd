@@ -158,6 +158,56 @@ Det här gäller hela servern och alla projekt på den, så skriptet gör det in
 - fail2ban mot inloggningsförsök på SSH.
 - Stäng av lösenordsinloggning för SSH när alla som behöver logga in använder nyckel: `PasswordAuthentication no` i `/etc/ssh/sshd_config` och sedan `sudo systemctl reload ssh`.
 
+## Hemskärm på Raspberry Pi
+
+Skärmen är en vanlig webbsida på en hemlig länk. Raspberry Pi:n visar den i Chromium i helskärm. Det här är förberett men inte provat på en riktig Pi än.
+
+**Det här behövs:** Raspberry Pi 4 eller 5 (2 GB räcker), ett minneskort på minst 16 GB, en strömadapter, en skärm eller tv med HDMI och wifi eller nätverkskabel.
+
+### 1. Skapa skärmen i appen
+
+Familjen → Hemskärmar → Skapa hemskärm. Kopiera länken som visas (den visas bara en gång, annars "Skapa ny länk"). Välj widgets och storlek i redigeraren.
+
+### 2. Installera Raspberry Pi OS
+
+Använd Raspberry Pi Imager på datorn:
+
+- Välj **Raspberry Pi OS (64-bit)**, med skrivbord.
+- Under inställningar (kugghjulet): sätt användarnamn och lösenord, wifi, land **SE** och tidszon **Europe/Stockholm**, och slå på SSH.
+
+### 3. Starta Chromium i helskärm vid uppstart
+
+Logga in på Pi:n (med skärm och tangentbord, eller `ssh användare@raspberrypi.local`) och kör:
+
+```bash
+sudo apt-get update && sudo apt-get -y install chromium unclutter
+mkdir -p ~/.config/autostart
+cat > ~/.config/autostart/hemskarm.desktop <<'EOF2'
+[Desktop Entry]
+Type=Application
+Name=Hemskärm
+Exec=sh -c 'sleep 10; chromium --kiosk --noerrdialogs --disable-infobars --disable-session-crashed-bubble --check-for-update-interval=31536000 "LÄNKEN"'
+EOF2
+```
+
+Byt `LÄNKEN` mot länken från steg 1, med citattecknen kvar. Starta om med `sudo reboot`. Skärmen startar efter en kort stund. Muspekaren döljs av `unclutter`.
+
+### 4. Skärmen av på natten (valfritt)
+
+Stänger av bilden 22:00 och slår på den 06:00:
+
+```bash
+(crontab -l 2>/dev/null; echo "0 22 * * * wlr-randr --output HDMI-A-1 --off"; echo "0 6 * * * wlr-randr --output HDMI-A-1 --on") | crontab -
+```
+
+Namnet på utgången (`HDMI-A-1`) visas med `wlr-randr`. Fungerar på Raspberry Pi OS Bookworm och senare (Wayland).
+
+### Bra att veta
+
+- Skärmen uppdateras varje minut och byter till mörkt tema på kvällen.
+- Står Pi:n på ett nätverk som blockerar duckdns.org (t.ex. ett jobbnätverk) syns ingenting.
+- Ta bort skärmen i appen så slutar länken fungera direkt.
+
 ## Felsökning
 
 | Var | Kommando |

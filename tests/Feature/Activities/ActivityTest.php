@@ -202,6 +202,20 @@ class ActivityTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page->has('activities', 3));
     }
 
+    public function test_a_child_does_not_see_a_siblings_activity()
+    {
+        $sibling = User::factory()->child('7351')->inFamily($this->family, FamilyRole::Child)->create();
+        Activity::factory()->for($this->family)->concerning($sibling)->create(['name' => 'Syskonets simskola']);
+        Activity::factory()->for($this->family)->create(['type' => 'day_off', 'name' => 'Studiedag', 'time' => null]);
+
+        $this->actingAs($this->child)
+            ->get(route('child.home'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('activities', 1)
+                ->where('activities.0.name', 'Studiedag'),
+            );
+    }
+
     public function test_children_count_the_nights_until_someone_comes_home()
     {
         Activity::factory()->for($this->family)->concerning($this->parent)->create([

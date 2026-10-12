@@ -60,9 +60,9 @@ Rekommenderad byggordning, så att familjen kan börja använda appen tidigt:
 6. Milestone 4 – Bildstöd (klar)
 7. Milestone 5 – Idag-vy (klar)
 8. Milestone 7 – Rutiner (klar)
-9. Milestone 11 – Hemskärm (nästa)
+9. Milestone 11 – Hemskärm (klar, Raspberry Pi provas när den finns)
 10. Milestone 6 – Aktiviteter, händelser och packlistor (klar)
-11. Milestone 8 – Skolmat
+11. Milestone 8 – Skolmat (nästa)
 12. Milestone 9 – Receptbank och skafferi
 13. Milestone 10 – Veckomatsedel och handlingslista
 
@@ -394,19 +394,20 @@ En separat skärm hemma, likt DAKboard. Vårdnadshavarna väljer själva vad som
 
 ## Tasks
 
-- [ ] Hemskärm som enhet (devices, type display)
-- [ ] Skapa och återkalla skärmlänk i inställningar
-- [ ] Display-middleware (token → familj)
-- [ ] display_widgets tabell
-- [ ] DisplayWidget-klass per widget-typ
-- [ ] Redigerare i vårdnadshavarnas dashboard: dra och släpp med gridstack, ändra storlek, inställningar per widget
-- [ ] Förhandsvisning i redigeraren
-- [ ] Täthet per skärm: stor, mellan, kompakt (devices.settings.density)
-- [ ] DisplayLayout utan navigation, pages/display/Index.vue
-- [ ] Widgets: klocka/datum, skollunch, middag ikväll/veckans mat, dagens uppgifter, rutiner (varje barns pågående steg), aktiviteter och packning, Imorgon, Veckan, handlingslista
-- [ ] Byte till nästa dag vid tider familjen ställer in (förval: skollunch 15:00, middag 19:00)
-- [ ] Mörkt tema kvällstid
-- [ ] Automatisk uppdatering med usePoll
+- [x] Hemskärm som enhet (devices, type display)
+- [x] Skapa och återkalla skärmlänk i inställningar
+- [x] Display-middleware (token → familj)
+- [x] display_widgets tabell
+- [x] DisplayWidget-klass per widget-typ
+- [x] Redigerare i vårdnadshavarnas dashboard: dra och släpp med gridstack, ändra storlek, inställningar per widget
+- [x] Förhandsvisning i redigeraren
+- [x] Täthet per skärm: stor, mellan, kompakt (devices.settings.density)
+- [x] DisplayLayout utan navigation, pages/display/Index.vue
+- [x] Widgets: klocka/datum (alltid överst), barnets dag (rutinens steg eller nästa uppgift), dagens uppgifter, aktiviteter och packning, Imorgon, Veckan, handlingslista
+- [ ] Widgets för skollunch och middag ikväll/veckans mat (kommer med Milestone 8 och 10)
+- [ ] Byte till nästa dag vid tider familjen ställer in (förval: skollunch 15:00, middag 19:00), med skollunch- och middagswidgetarna
+- [x] Mörkt tema kvällstid
+- [x] Automatisk uppdatering med usePoll
 
 Widgets för kalender och poäng läggs till när de delarna byggs (version 2). Utkast: docs/mockups/.
 
@@ -444,7 +445,7 @@ Appen körs på en server så att familjen kan använda den på telefonerna och 
 - [x] Bilder på privat disk i delad mapp som överlever deployer
 - [x] Backup varje natt till en egen mapp på servern (spatie/laravel-backup, 14 dagar)
 - [ ] Testa återställning av en backup
-- [ ] Raspberry Pi: Chromium i kioskläge mot hemskärmslänken, skärmen av på natten (efter Milestone 11)
+- [ ] Raspberry Pi: Chromium i kioskläge mot hemskärmslänken, skärmen av på natten (instruktioner i DRIFT.md, inte provat på en Pi än)
 
 ## Definition of Done
 

@@ -1,0 +1,39 @@
+<script setup lang="ts">
+import type { DisplayWidgetItem } from '@/types';
+import ActivitiesWidget from './widgets/ActivitiesWidget.vue';
+import ChildWidget from './widgets/ChildWidget.vue';
+import ShoppingListWidget from './widgets/ShoppingListWidget.vue';
+import TasksWidget from './widgets/TasksWidget.vue';
+import WeekWidget from './widgets/WeekWidget.vue';
+
+defineProps<{ widget: DisplayWidgetItem }>();
+</script>
+
+<!-- En widget per typ (docs/ARCHITECTURE.md, Widgets i koden). -->
+<template>
+    <ChildWidget v-if="widget.type === 'child'" :data="widget.data as never" />
+    <TasksWidget
+        v-else-if="widget.type === 'tasks'"
+        :data="widget.data as never"
+    />
+    <ActivitiesWidget
+        v-else-if="widget.type === 'activities'"
+        title="Händer idag"
+        empty="Inget särskilt idag."
+        :data="widget.data as never"
+    />
+    <ActivitiesWidget
+        v-else-if="widget.type === 'tomorrow'"
+        title="Imorgon"
+        empty="En vanlig dag imorgon."
+        :data="widget.data as never"
+    />
+    <WeekWidget
+        v-else-if="widget.type === 'week'"
+        :data="widget.data as never"
+    />
+    <ShoppingListWidget
+        v-else-if="widget.type === 'shopping_list'"
+        :data="widget.data as never"
+    />
+</template>

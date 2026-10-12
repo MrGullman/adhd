@@ -14,6 +14,7 @@ void createInertiaApp({
             case name === 'Welcome':
             case name.startsWith('child-login/'):
             case name.startsWith('child/'):
+            case name === 'display/Index':
                 return null;
             case name.startsWith('auth/'):
             case name.startsWith('invitations/'):
