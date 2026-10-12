@@ -35,7 +35,7 @@ class TaskController extends Controller
         $user = $request->user();
 
         $tasks = Task::query()
-            ->with('assignee:id,name,avatar_color')
+            ->with(['picture', 'assignee:id,name,avatar_color,picture_id', 'assignee.picture'])
             ->whereDate('date', $date->toDateString())
             ->orderByRaw('time is null')
             ->orderBy('time')
@@ -104,6 +104,7 @@ class TaskController extends Controller
             'task' => [
                 'id' => $task->id,
                 'title' => $task->title,
+                'picture' => $task->picture?->toPicker(),
                 'assignedTo' => $task->assigned_to,
                 'date' => $task->date->toDateString(),
                 'dayPart' => $task->time === null ? $task->day_part?->value : null,
@@ -169,6 +170,7 @@ class TaskController extends Controller
             ->map(fn (Task $task) => [
                 'id' => $task->id,
                 'title' => $task->title,
+                'picture' => $task->picture?->toPicker(),
                 'time' => $task->shortTime(),
                 'completed' => $task->isCompleted(),
                 'recurring' => $task->isRecurring(),
@@ -176,6 +178,7 @@ class TaskController extends Controller
                     'id' => $task->assignee->id,
                     'name' => $task->assignee->name,
                     'avatarColor' => $task->assignee->avatar_color->value,
+                    'avatarUrl' => $task->assignee->avatarUrl(),
                 ],
             ])
             ->values()

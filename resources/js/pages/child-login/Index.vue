@@ -7,7 +7,12 @@ import ChildSessionController from '@/actions/App/Http/Controllers/ChildSessionC
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import { login } from '@/routes';
 
-type Child = { id: number; name: string; avatarColor: string };
+type Child = {
+    id: number;
+    name: string;
+    avatarColor: string;
+    avatarUrl?: string | null;
+};
 
 const props = defineProps<{
     device: { name: string; type: 'family' | 'child' } | null;
@@ -120,6 +125,7 @@ function submit(): void {
                     <FamilyAvatar
                         :name="child.name"
                         :color="child.avatarColor"
+                        :picture-url="child.avatarUrl"
                         size="lg"
                         :selected="selected?.id === child.id"
                     />

@@ -467,6 +467,11 @@ Modeller med bild får picture_id (nullable):
 - Familjens foton sparas på privat disk och visas via en route som kontrollerar behörighet (PicturePolicy, hemskärmen via enhetens token)
 - Uppladdade bilder skalas ner och konverteras till WebP i ett köjobb
 - Bildväljaren söker i galleriet och familjens foton
+- Uppladdade bilder vänds rätt, skalas ner till högst 600 px och sparas som WebP utan kameradata (t.ex. var fotot togs). Originalet tas bort.
+- Bilder visas via /bilder/{id}, för inloggade i familjen och betrodda enheter. Andra familjers foton ger 404.
+- Picture använder inte BelongsToFamily: VisiblePictureScope visar galleriet och den aktuella familjens foton. Utan aktuell familj (t.ex. i adminportalen) bara galleriet.
+- Adminportalen (/admin) använder appens vanliga inloggning. Adminkonton skapas bara på servern: php artisan admin:create (eget konto utan familj, hamnar direkt i adminportalen) eller users:admin <e-post> för ett befintligt konto.
+- Vuxna som kan ändra laddar upp familjens foton. Barn väljer bilder men laddar inte upp.
 
 ---
 

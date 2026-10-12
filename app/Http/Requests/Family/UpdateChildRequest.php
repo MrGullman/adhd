@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Family;
 
 use App\Enums\AvatarColor;
+use App\Rules\VisiblePicture;
 use App\Support\CurrentFamily;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -25,6 +26,7 @@ class UpdateChildRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:50'],
             'avatar_color' => ['required', Rule::enum(AvatarColor::class)],
+            'picture_id' => ['nullable', 'integer', new VisiblePicture],
         ];
     }
 
@@ -33,6 +35,6 @@ class UpdateChildRequest extends FormRequest
      */
     public function attributes(): array
     {
-        return ['name' => 'namn', 'avatar_color' => 'färg'];
+        return ['name' => 'namn', 'avatar_color' => 'färg', 'picture_id' => 'bild'];
     }
 }

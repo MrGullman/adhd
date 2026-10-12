@@ -5,6 +5,7 @@ use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', WelcomeController::class)->name('home');
+Route::inertia('bildkallor', 'PictureSources')->name('picture-sources');
 
 Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function () {
     Route::inertia('dashboard', 'Dashboard')->name('dashboard');

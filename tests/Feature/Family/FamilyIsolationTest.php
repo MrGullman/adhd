@@ -9,6 +9,7 @@ use App\Models\Family;
 use App\Models\FamilyInvitation;
 use App\Models\FamilyList;
 use App\Models\ListItem;
+use App\Models\Picture;
 use App\Models\RecurringTask;
 use App\Models\Task;
 use App\Models\User;
@@ -150,6 +151,20 @@ class FamilyIsolationTest extends TestCase
         $this->assertSame(['Vår vara'], ListItem::query()->pluck('name')->all());
         $this->assertSame(['Vår uppgift'], Task::query()->pluck('title')->all());
         $this->assertSame(['Vår återkommande'], RecurringTask::query()->pluck('title')->all());
+    }
+
+    public function test_pictures_are_the_gallery_and_the_current_familys_own_photos()
+    {
+        $family = Family::factory()->create();
+        Picture::factory()->create(['label' => 'Galleriet']);
+        Picture::factory()->ofFamily($family)->create(['label' => 'Vårt foto']);
+        Picture::factory()->ofFamily(Family::factory()->create())->create(['label' => 'Deras foto']);
+
+        $this->assertSame(['Galleriet'], Picture::query()->pluck('label')->all(), 'without a family only the gallery');
+
+        app(CurrentFamily::class)->set($family);
+
+        $this->assertSame(['Galleriet', 'Vårt foto'], Picture::query()->orderBy('label')->pluck('label')->all());
     }
 
     public function test_family_scoped_models_only_return_the_current_familys_rows()

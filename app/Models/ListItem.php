@@ -14,6 +14,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $family_id
  * @property int $list_id
+ * @property int|null $picture_id
  * @property string $name
  * @property int|null $added_by
  * @property Carbon|null $completed_at
@@ -21,7 +22,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'added_by'])]
+#[Fillable(['name', 'picture_id', 'added_by'])]
 class ListItem extends Model
 {
     /** @use HasFactory<ListItemFactory> */
@@ -45,6 +46,16 @@ class ListItem extends Model
     public function list(): BelongsTo
     {
         return $this->belongsTo(FamilyList::class, 'list_id');
+    }
+
+    /**
+     * Bildstöd.
+     *
+     * @return BelongsTo<Picture, $this>
+     */
+    public function picture(): BelongsTo
+    {
+        return $this->belongsTo(Picture::class);
     }
 
     /**

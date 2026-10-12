@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Enums\AvatarColor;
 use App\Enums\FamilyRole;
 use Database\Factories\UserFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -26,6 +28,8 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property int|null $active_family_id
  * @property string $name
  * @property AvatarColor $avatar_color
+ * @property int|null $picture_id
+ * @property bool $is_admin
  * @property string|null $email
  * @property Carbon|null $email_verified_at
  * @property string|null $password
@@ -41,7 +45,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  */
 #[Fillable(['name', 'email', 'password', 'avatar_color'])]
 #[Hidden(['password', 'pin', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
-class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
+class User extends Authenticatable implements FilamentUser, MustVerifyEmail, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
@@ -55,6 +59,7 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     {
         return [
             'avatar_color' => AvatarColor::class,
+            'is_admin' => 'boolean',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'pin' => 'encrypted',
@@ -72,6 +77,29 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             ->using(Membership::class)
             ->withPivot('role')
             ->withTimestamps();
+    }
+
+    /**
+     * The avatar picture, e.g. a child's own photo. Without one the initial is shown.
+     *
+     * @return BelongsTo<Picture, $this>
+     */
+    public function picture(): BelongsTo
+    {
+        return $this->belongsTo(Picture::class);
+    }
+
+    public function avatarUrl(): ?string
+    {
+        return $this->picture?->url();
+    }
+
+    /**
+     * Only admins reach the admin portal, and only with a verified e-mail.
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->is_admin && $this->email !== null && $this->email_verified_at !== null;
     }
 
     /**

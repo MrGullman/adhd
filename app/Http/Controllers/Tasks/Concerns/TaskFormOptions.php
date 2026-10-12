@@ -17,12 +17,14 @@ trait TaskFormOptions
     {
         return [
             'members' => $family->members()
+                ->with('picture')
                 ->orderBy('name')
-                ->get(['users.id', 'users.name', 'users.avatar_color'])
+                ->get(['users.id', 'users.name', 'users.avatar_color', 'users.picture_id'])
                 ->map(fn (User $member) => [
                     'id' => $member->id,
                     'name' => $member->name,
                     'avatarColor' => $member->avatar_color->value,
+                    'avatarUrl' => $member->avatarUrl(),
                 ]),
             'dayParts' => collect(DayPart::cases())->map(fn (DayPart $part) => [
                 'value' => $part->value,

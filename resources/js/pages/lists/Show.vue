@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Form, Head, Link } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import CompletedListItemsController from '@/actions/App/Http/Controllers/Lists/CompletedListItemsController';
 import ListController from '@/actions/App/Http/Controllers/Lists/ListController';
 import ListItemCompletionController from '@/actions/App/Http/Controllers/Lists/ListItemCompletionController';
@@ -8,16 +8,20 @@ import ListItemController from '@/actions/App/Http/Controllers/Lists/ListItemCon
 import CompletionToggle from '@/components/CompletionToggle.vue';
 import DoneChip from '@/components/DoneChip.vue';
 import InputError from '@/components/InputError.vue';
+import PicturePicker from '@/components/PicturePicker.vue';
+import PictureThumb from '@/components/PictureThumb.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { index as listsIndex } from '@/routes/lists';
+import type { PictureItem } from '@/types';
 
 const props = defineProps<{
     list: { id: number; name: string; isShopping: boolean };
     items: Array<{
         id: number;
         name: string;
+        picture: PictureItem | null;
         addedBy: string | null;
         completed: boolean;
     }>;
@@ -38,6 +42,16 @@ defineOptions({
 
 const open = computed(() => props.items.filter((item) => !item.completed));
 const done = computed(() => props.items.filter((item) => item.completed));
+
+// A picture can name the item, e.g. choosing the milk picture writes "Mjölk".
+const itemName = ref('');
+const itemPicture = ref<PictureItem | null>(null);
+
+function onPicture(picture: PictureItem): void {
+    if (itemName.value.trim() === '') {
+        itemName.value = picture.label;
+    }
+}
 </script>
 
 <template>
@@ -55,23 +69,35 @@ const done = computed(() => props.items.filter((item) => item.completed));
             v-if="can.addItems"
             v-bind="ListItemController.store.form(list.id)"
             :options="{ preserveScroll: true }"
-            reset-on-success
-            class="flex flex-wrap items-end gap-3"
+            class="flex flex-col gap-3 rounded-lg bg-surface-sunken p-3"
             v-slot="{ errors, processing }"
+            @success="
+                itemName = '';
+                itemPicture = null;
+            "
         >
-            <div class="grid min-w-60 flex-1 gap-2">
-                <Label for="item-name" class="sr-only">Vad behövs?</Label>
-                <Input
-                    id="item-name"
-                    name="name"
-                    required
-                    maxlength="100"
-                    autocomplete="off"
-                    placeholder="Vad behövs?"
-                />
-                <InputError :message="errors.name" />
+            <div class="flex flex-wrap items-end gap-3">
+                <div class="grid min-w-60 flex-1 gap-2">
+                    <Label for="item-name" class="sr-only">Vad behövs?</Label>
+                    <Input
+                        id="item-name"
+                        v-model="itemName"
+                        name="name"
+                        required
+                        maxlength="100"
+                        autocomplete="off"
+                        placeholder="Vad behövs?"
+                    />
+                    <InputError :message="errors.name" />
+                </div>
+                <Button type="submit" :disabled="processing">Lägg till</Button>
             </div>
-            <Button type="submit" :disabled="processing">Lägg till</Button>
+            <PicturePicker
+                v-model="itemPicture"
+                name="picture_id"
+                button-label="Välj bild (valfritt)"
+                @select="onPicture"
+            />
         </Form>
 
         <section class="flex flex-col gap-2" aria-label="Kvar att göra">
@@ -95,9 +121,14 @@ const done = computed(() => props.items.filter((item) => item.completed));
                         "
                         :label="item.name"
                     />
+                    <PictureThumb
+                        v-if="item.picture"
+                        :picture="item.picture"
+                        :class="!can.addItems && 'ml-2'"
+                    />
                     <div
                         class="min-w-0 flex-1 py-2"
-                        :class="!can.addItems && 'pl-3'"
+                        :class="!can.addItems && !item.picture && 'pl-3'"
                     >
                         <p class="font-bold break-words">{{ item.name }}</p>
                         <p
@@ -152,6 +183,11 @@ const done = computed(() => props.items.filter((item) => item.completed));
                             ])
                         "
                         :label="item.name"
+                    />
+                    <PictureThumb
+                        v-if="item.picture"
+                        :picture="item.picture"
+                        class="opacity-60"
                     />
                     <p
                         class="min-w-0 flex-1 py-2 break-words text-ink-muted"

@@ -40,7 +40,7 @@ class RecurringTaskController extends Controller
         $user = $request->user();
 
         $recurringTasks = RecurringTask::query()
-            ->with('assignee:id,name,avatar_color')
+            ->with(['picture', 'assignee:id,name,avatar_color,picture_id', 'assignee.picture'])
             ->orderBy('title')
             ->get();
 
@@ -48,12 +48,14 @@ class RecurringTaskController extends Controller
             'recurringTasks' => $recurringTasks->map(fn (RecurringTask $recurring) => [
                 'id' => $recurring->id,
                 'title' => $recurring->title,
+                'picture' => $recurring->picture?->toPicker(),
                 'schedule' => $this->describe($recurring),
                 'ended' => $recurring->ends_on !== null && $recurring->ends_on->toDateString() < LocalTime::today(),
                 'assignee' => $recurring->assignee === null ? null : [
                     'id' => $recurring->assignee->id,
                     'name' => $recurring->assignee->name,
                     'avatarColor' => $recurring->assignee->avatar_color->value,
+                    'avatarUrl' => $recurring->assignee->avatarUrl(),
                 ],
             ]),
             'canCreate' => $user->can('create', RecurringTask::class),
@@ -100,6 +102,7 @@ class RecurringTaskController extends Controller
             'recurringTask' => [
                 'id' => $recurringTask->id,
                 'title' => $recurringTask->title,
+                'picture' => $recurringTask->picture?->toPicker(),
                 'assignedTo' => $recurringTask->assigned_to,
                 'frequency' => $recurringTask->frequency->value,
                 'weekdays' => $recurringTask->weekdays ?? [],

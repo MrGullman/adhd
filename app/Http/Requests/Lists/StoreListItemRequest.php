@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Lists;
 
+use App\Rules\VisiblePicture;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -21,6 +22,7 @@ class StoreListItemRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:100'],
+            'picture_id' => ['nullable', 'integer', new VisiblePicture],
         ];
     }
 
@@ -29,6 +31,6 @@ class StoreListItemRequest extends FormRequest
      */
     public function attributes(): array
     {
-        return ['name' => 'vara'];
+        return ['name' => 'vara', 'picture_id' => 'bild'];
     }
 }

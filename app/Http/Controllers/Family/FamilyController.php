@@ -65,7 +65,7 @@ class FamilyController extends Controller
         $user = $request->user();
         $canManage = $user->can('manageMembers', $family);
 
-        $members = $family->members()->orderBy('name')->get();
+        $members = $family->members()->with('picture')->orderBy('name')->get();
 
         return Inertia::render('family/Show', [
             'family' => ['id' => $family->id, 'name' => $family->name],
@@ -77,6 +77,7 @@ class FamilyController extends Controller
                     'name' => $member->name,
                     'email' => $member->email,
                     'avatarColor' => $member->avatar_color->value,
+                    'avatarUrl' => $member->avatarUrl(),
                     'role' => $member->memberRole()?->value,
                     'roleLabel' => $member->memberRole()?->label(),
                     'isYou' => $member->is($user),
@@ -88,6 +89,7 @@ class FamilyController extends Controller
                     'id' => $child->id,
                     'name' => $child->name,
                     'avatarColor' => $child->avatar_color->value,
+                    'avatarUrl' => $child->avatarUrl(),
                     'loginEnabled' => $child->loginEnabled(),
                 ])
                 ->values(),

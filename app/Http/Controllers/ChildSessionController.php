@@ -50,6 +50,7 @@ class ChildSessionController extends Controller
                     'id' => $child->id,
                     'name' => $child->name,
                     'avatarColor' => $child->avatar_color->value,
+                    'avatarUrl' => $child->avatarUrl(),
                 ])
                 ->values(),
         ]);
@@ -124,7 +125,7 @@ class ChildSessionController extends Controller
      */
     private function children(Device $device): Collection
     {
-        $query = $device->family->children()->orderBy('name');
+        $query = $device->family->children()->with('picture')->orderBy('name');
 
         if ($device->type === DeviceType::Child) {
             $query->whereKey($device->user_id);

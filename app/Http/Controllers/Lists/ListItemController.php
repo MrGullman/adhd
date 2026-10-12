@@ -20,6 +20,7 @@ class ListItemController extends Controller
     {
         $list->items()->create([
             'name' => $request->string('name')->toString(),
+            'picture_id' => $request->filled('picture_id') ? $request->integer('picture_id') : null,
             'added_by' => $request->user()?->id,
         ]);
 
@@ -28,7 +29,10 @@ class ListItemController extends Controller
 
     public function update(UpdateListItemRequest $request, FamilyList $list, ListItem $item): RedirectResponse
     {
-        $item->update(['name' => $request->string('name')->toString()]);
+        $item->update([
+            'name' => $request->string('name')->toString(),
+            'picture_id' => $request->filled('picture_id') ? $request->integer('picture_id') : null,
+        ]);
 
         return back();
     }

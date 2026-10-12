@@ -55,6 +55,8 @@ class ChildController extends Controller
                 'id' => $child->id,
                 'name' => $child->name,
                 'avatarColor' => $child->avatar_color->value,
+                'avatarUrl' => $child->avatarUrl(),
+                'picture' => $child->picture?->toPicker(),
                 // Parents may see the code so that they can tell the child.
                 'pin' => $child->pin,
                 'loginEnabled' => $child->loginEnabled(),
@@ -95,6 +97,7 @@ class ChildController extends Controller
             'name' => $request->validated('name'),
             'avatar_color' => $request->enum('avatar_color', AvatarColor::class),
         ]);
+        $child->forceFill(['picture_id' => $request->validated('picture_id')])->save();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Sparat.']);
 

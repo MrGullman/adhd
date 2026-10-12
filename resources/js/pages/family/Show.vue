@@ -29,6 +29,7 @@ defineProps<{
         name: string;
         email: string;
         avatarColor: string;
+        avatarUrl?: string | null;
         roleLabel: string;
         isYou: boolean;
     }>;
@@ -36,6 +37,7 @@ defineProps<{
         id: number;
         name: string;
         avatarColor: string;
+        avatarUrl?: string | null;
         loginEnabled: boolean;
     }>;
     invitations: Array<{
@@ -83,6 +85,7 @@ const selectClass =
                     <FamilyAvatar
                         :name="adult.name"
                         :color="adult.avatarColor"
+                        :picture-url="adult.avatarUrl"
                         size="sm"
                     />
                     <div class="min-w-0 flex-1">
@@ -196,6 +199,7 @@ const selectClass =
                         <FamilyAvatar
                             :name="child.name"
                             :color="child.avatarColor"
+                            :picture-url="child.avatarUrl"
                         />
                         <div class="flex flex-col">
                             <span class="font-display text-child-label">

@@ -4,7 +4,7 @@ import RecurringTaskController from '@/actions/App/Http/Controllers/Tasks/Recurr
 import TaskController from '@/actions/App/Http/Controllers/Tasks/TaskController';
 import TaskForm from '@/components/TaskForm.vue';
 import { Button } from '@/components/ui/button';
-import type { DayPartOption, Member } from '@/types';
+import type { DayPartOption, Member, PictureItem } from '@/types';
 
 defineOptions({
     layout: (props: { task: { id: number; title: string } }) => ({
@@ -24,6 +24,7 @@ defineProps<{
     task: {
         id: number;
         title: string;
+        picture: PictureItem | null;
         assignedTo: number | null;
         date: string;
         dayPart: string | null;

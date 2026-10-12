@@ -4,6 +4,8 @@ import { Plus, Repeat } from '@lucide/vue';
 import RecurringTaskController from '@/actions/App/Http/Controllers/Tasks/RecurringTaskController';
 import TaskController from '@/actions/App/Http/Controllers/Tasks/TaskController';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
+import PictureThumb from '@/components/PictureThumb.vue';
+import type { PictureItem } from '@/types';
 
 defineOptions({
     layout: {
@@ -18,9 +20,15 @@ defineProps<{
     recurringTasks: Array<{
         id: number;
         title: string;
+        picture: PictureItem | null;
         schedule: string;
         ended: boolean;
-        assignee: { id: number; name: string; avatarColor: string } | null;
+        assignee: {
+            id: number;
+            name: string;
+            avatarColor: string;
+            avatarUrl?: string | null;
+        } | null;
     }>;
     canCreate: boolean;
 }>();
@@ -70,7 +78,12 @@ defineProps<{
                     class="flex min-h-tap-adult items-center gap-3 rounded-lg border border-line bg-surface-raised p-3"
                     :class="canCreate && 'hover:border-primary'"
                 >
+                    <PictureThumb
+                        v-if="recurring.picture"
+                        :picture="recurring.picture"
+                    />
                     <Repeat
+                        v-else
                         class="size-5 shrink-0 text-ink-muted"
                         aria-hidden="true"
                     />
@@ -90,6 +103,7 @@ defineProps<{
                         v-if="recurring.assignee"
                         :name="recurring.assignee.name"
                         :color="recurring.assignee.avatarColor"
+                        :picture-url="recurring.assignee.avatarUrl"
                         size="sm"
                     />
                     <span v-if="recurring.assignee" class="sr-only">
