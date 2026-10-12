@@ -52,12 +52,12 @@ Milestone 0–12.
 
 Rekommenderad byggordning, så att familjen kan börja använda appen tidigt:
 
-1. Milestone 0 – Setup
-2. Milestone 1 – Familjer och konton
-3. Milestone 12 – Drift (tidigt, så att servern och Raspberry Pi:n testas från början)
-4. Milestone 2 – Uppgifter och listor
-5. Milestone 3 – Återkommande uppgifter
-6. Milestone 4 – Bildstöd
+1. Milestone 0 – Setup (klar)
+2. Milestone 1 – Familjer och konton (klar)
+3. Milestone 12 – Drift (tidigt, så att servern och Raspberry Pi:n testas från början) (i drift, några tester och Raspberry Pi kvar)
+4. Milestone 2 – Uppgifter och listor (klar)
+5. Milestone 3 – Återkommande uppgifter (klar)
+6. Milestone 4 – Bildstöd (nästa)
 7. Milestone 5 – Idag-vy
 8. Milestone 7 – Rutiner
 9. Milestone 11 – Hemskärm
@@ -429,19 +429,22 @@ Appen körs på en server så att familjen kan använda den på telefonerna och 
 ## Tasks
 
 - [x] Driftpaket i repot: deploy.php, deploy-flöde i GitHub Actions, serverskript, backupschema och runbook ([DRIFT.md](DRIFT.md))
-- [ ] Debian 12: lägg till Ondřej Surýs paketförråd för PHP 8.4 och MariaDB:s paketförråd för 12.3
+- [x] Debian 12 med PHP 8.4 från Ondřej Surýs paketförråd (fanns redan på servern)
 - [x] Stäng registreringen: REGISTRATION_ENABLED=false (andra vuxna går med via inbjudan)
 - [x] Server: egen användare npf-familjen (servern delas med andra projekt), inloggning bara med SSH-nyckel
-- [ ] Nginx, PHP 8.4, MariaDB 12.3 LTS
+- [x] Nginx och PHP 8.4 (egen sajt och egen PHP-FPM-pool på den delade servern)
+- [ ] MariaDB: servern har 10.11, som delas med andra projekt. Beslut: köra på 10.11 eller uppgradera till 12.3
 - [x] DuckDNS-adress (servern står hos en leverantör med fast IP, så ingen uppdatering eller NAT loopback behövs)
 - [x] HTTPS med Let's Encrypt
 - [x] GitHub Actions: deploy vid push till main med Deployer 8, om testerna går igenom
-- [ ] Zero-downtime-deploy och rollback
-- [ ] Köworker (systemd) och scheduler (cron)
+- [x] Zero-downtime-deploy
+- [ ] Testa rollback (dep rollback)
+- [x] Köworker (systemd) och scheduler (cron)
 - [x] E-post via Gmail SMTP med applösenord (separat Gmail-konto för appen)
 - [x] Bilder på privat disk i delad mapp som överlever deployer
-- [ ] Backup varje natt till en egen mapp på servern (spatie/laravel-backup, 14 dagar)
-- [ ] Raspberry Pi: Chromium i kioskläge mot hemskärmslänken, skärmen av på natten
+- [x] Backup varje natt till en egen mapp på servern (spatie/laravel-backup, 14 dagar)
+- [ ] Testa återställning av en backup
+- [ ] Raspberry Pi: Chromium i kioskläge mot hemskärmslänken, skärmen av på natten (efter Milestone 11)
 
 ## Definition of Done
 
