@@ -139,3 +139,10 @@ export type SchoolLunchData = {
     holiday: string | null;
     courses: Array<{ name: string; option: string | null }>;
 };
+
+export type IngredientOption = {
+    id: number;
+    name: string;
+    unit: string | null;
+    picture: PictureItem | null;
+};

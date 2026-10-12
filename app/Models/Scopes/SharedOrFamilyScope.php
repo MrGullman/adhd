@@ -8,14 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
 
 /**
- * Pictures a family may see: the shared gallery and the family's own photos.
- * Without a current family (e.g. in the admin portal) only the gallery.
+ * Shared rows (family_id null, kept up in the admin portal) and the current
+ * family's own: the picture gallery and the family's photos, the basic list
+ * of ingredients and the family's own. Without a current family (e.g. in the
+ * admin portal) only the shared rows.
  *
  * @template TModel of Model
  *
  * @implements Scope<TModel>
  */
-class VisiblePictureScope implements Scope
+class SharedOrFamilyScope implements Scope
 {
     /**
      * @param  Builder<covariant TModel>  $builder

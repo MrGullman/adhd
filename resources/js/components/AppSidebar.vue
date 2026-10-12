@@ -3,6 +3,7 @@ import { Link } from '@inertiajs/vue3';
 import {
     CalendarDays,
     CalendarRange,
+    ChefHat,
     ClipboardList,
     LayoutGrid,
     ListOrdered,
@@ -26,6 +27,7 @@ import { dashboard, tomorrow, week } from '@/routes';
 import { index as activitiesIndex } from '@/routes/activities';
 import { show as familyShow } from '@/routes/family';
 import { index as listsIndex } from '@/routes/lists';
+import { index as recipesIndex } from '@/routes/recipes';
 import { index as routinesIndex } from '@/routes/routines';
 import { index as tasksIndex } from '@/routes/tasks';
 import type { NavItem } from '@/types';
@@ -60,6 +62,11 @@ const mainNavItems: NavItem[] = [
         title: 'Aktiviteter',
         href: activitiesIndex(),
         icon: CalendarDays,
+    },
+    {
+        title: 'Mat',
+        href: recipesIndex(),
+        icon: ChefHat,
     },
     {
         title: 'Listor',

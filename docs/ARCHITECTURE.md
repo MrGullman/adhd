@@ -481,7 +481,7 @@ Modeller med bild får picture_id (nullable):
 - Bildväljaren söker i galleriet och familjens foton
 - Uppladdade bilder vänds rätt, skalas ner till högst 600 px och sparas som WebP utan kameradata (t.ex. var fotot togs). Originalet tas bort.
 - Bilder visas via /bilder/{id}, för inloggade i familjen och betrodda enheter. Andra familjers foton ger 404.
-- Picture använder inte BelongsToFamily: VisiblePictureScope visar galleriet och den aktuella familjens foton. Utan aktuell familj (t.ex. i adminportalen) bara galleriet.
+- Picture använder inte BelongsToFamily: SharedOrFamilyScope visar galleriet och den aktuella familjens foton. Utan aktuell familj (t.ex. i adminportalen) bara galleriet.
 - Adminportalen (/admin) använder appens vanliga inloggning. Adminkonton skapas bara på servern: php artisan admin:create (eget konto utan familj, hamnar direkt i adminportalen) eller users:admin <e-post> för ett befintligt konto.
 - Vuxna som kan ändra laddar upp familjens foton. Barn väljer bilder men laddar inte upp.
 
@@ -773,6 +773,15 @@ list_items (handlingslistan) får också:
 - Om veckomatsedeln ändras: "Uppdatera handlingslistan" lägger till det som tillkommit och tar bort varor från måltider som strukits, om de inte är avbockade. Varor som familjen lagt till själv rörs aldrig.
 - Barn ser veckomatsedeln med bild ("Middag ikväll" i Idag-vyn)
 - Barn kan lägga till på handlingslistan, genom att skriva eller välja en bild. Vuxna ser vem som lagt till.
+
+I version 1 (Milestone 9):
+
+- Grundlistan (ingredients med family_id null, drygt 100 varor med butiksavdelning och vanlig enhet) läggs in av migreringen och underhålls i adminportalen under Mat → Grundlista.
+- Ingredient använder SharedOrFamilyScope, samma som Picture: grundlistan och familjens egna.
+- Ett namn som inte finns blir familjens egen vara. Namn jämförs utan hänsyn till versaler, så "mjölk" blir grundlistans Mjölk.
+- Ett skafferi har en rad per vara. Att lägga till samma vara igen uppdaterar raden.
+- Matförslag i Milestone 9: en vara som finns hemma räknas som tillräcklig oavsett mängd. Mängder och enheter jämförs när handlingslistan räknas ut (Milestone 10).
+- Butiksavdelningar i gångordning: Frukt & grönt, Bröd, Mejeri, Kött & fisk, Skafferi, Frys, Dryck, Hushåll, Övrigt.
 
 ---
 
