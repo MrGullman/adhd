@@ -8,18 +8,21 @@ import ChildPinController from '@/actions/App/Http/Controllers/Family/ChildPinCo
 import DeviceController from '@/actions/App/Http/Controllers/Family/DeviceController';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import InputError from '@/components/InputError.vue';
+import PicturePicker from '@/components/PicturePicker.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { formatDateTime, possessive } from '@/lib/format';
 import { show as familyShow } from '@/routes/family';
-import type { Option } from '@/types';
+import type { Option, PictureItem } from '@/types';
 
 const props = defineProps<{
     child: {
         id: number;
         name: string;
         avatarColor: string;
+        avatarUrl?: string | null;
+        picture: PictureItem | null;
         pin: string | null;
         loginEnabled: boolean;
         failedPinAttempts: number;
@@ -43,6 +46,7 @@ defineOptions({
 const page = usePage();
 const pairing = computed(() => page.flash.pairing);
 const showPin = ref(false);
+const avatarPicture = ref<PictureItem | null>(props.child.picture);
 </script>
 
 <template>
@@ -50,7 +54,11 @@ const showPin = ref(false);
 
     <div class="mx-auto flex w-full max-w-3xl flex-col gap-10 p-4 md:p-8">
         <header class="flex items-center gap-4">
-            <FamilyAvatar :name="child.name" :color="child.avatarColor" />
+            <FamilyAvatar
+                :name="child.name"
+                :color="child.avatarColor"
+                :picture-url="child.avatarUrl"
+            />
             <div>
                 <h1 class="text-heading font-semibold">{{ child.name }}</h1>
                 <p
@@ -319,6 +327,19 @@ const showPin = ref(false);
                         {{ color.label }}
                     </label>
                 </fieldset>
+                <div class="grid gap-2">
+                    <span class="text-sm font-medium">Bild (valfritt)</span>
+                    <p class="text-caption text-ink-muted">
+                        Till exempel ett foto på barnet. Visas i stället för
+                        bokstaven.
+                    </p>
+                    <PicturePicker
+                        v-model="avatarPicture"
+                        name="picture_id"
+                        button-label="Välj bild"
+                    />
+                    <InputError :message="errors.picture_id" />
+                </div>
                 <Button
                     variant="outline"
                     type="submit"

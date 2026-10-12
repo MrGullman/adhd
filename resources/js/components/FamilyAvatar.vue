@@ -7,6 +7,8 @@ const props = withDefaults(
         name: string;
         color: AvatarColor | string;
         size?: 'sm' | 'md' | 'lg';
+        /** The member's own picture. Without one the initial is shown. */
+        pictureUrl?: string | null;
         selected?: boolean;
     }>(),
     { size: 'md', selected: false },
@@ -34,13 +36,21 @@ const initial = computed(() => props.name.trim().charAt(0).toUpperCase());
     <span
         class="inline-grid shrink-0 place-items-center rounded-full font-display font-semibold"
         :class="[
-            colors[color] ?? colors.teal,
+            pictureUrl
+                ? 'overflow-hidden bg-surface-sunken'
+                : (colors[color] ?? colors.teal),
             sizes[size],
             selected &&
                 'ring-4 ring-primary ring-offset-4 ring-offset-surface-raised',
         ]"
         aria-hidden="true"
     >
-        {{ initial }}
+        <img
+            v-if="pictureUrl"
+            :src="pictureUrl"
+            alt=""
+            class="size-full rounded-full object-cover"
+        />
+        <template v-else>{{ initial }}</template>
     </span>
 </template>

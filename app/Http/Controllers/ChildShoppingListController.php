@@ -20,6 +20,7 @@ class ChildShoppingListController extends Controller
         Gate::authorize('view', $list);
 
         $items = $list->items()
+            ->with('picture')
             ->orderByRaw('completed_at is not null')
             ->orderByDesc('completed_at')
             ->orderBy('id')
@@ -30,6 +31,7 @@ class ChildShoppingListController extends Controller
             'items' => $items->map(fn (ListItem $item) => [
                 'id' => $item->id,
                 'name' => $item->name,
+                'picture' => $item->picture?->toPicker(),
                 'completed' => $item->isCompleted(),
             ]),
         ]);

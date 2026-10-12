@@ -21,6 +21,7 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property int $family_id
+ * @property int|null $picture_id
  * @property string $title
  * @property int|null $assigned_to
  * @property DayPart|null $day_part
@@ -34,7 +35,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['title', 'assigned_to', 'day_part', 'time', 'frequency', 'weekdays', 'week_interval', 'starts_on', 'ends_on', 'created_by'])]
+#[Fillable(['title', 'picture_id', 'assigned_to', 'day_part', 'time', 'frequency', 'weekdays', 'week_interval', 'starts_on', 'ends_on', 'created_by'])]
 class RecurringTask extends Model
 {
     /** @use HasFactory<RecurringTaskFactory> */
@@ -63,6 +64,16 @@ class RecurringTask extends Model
     public function assignee(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    /**
+     * Bildstöd.
+     *
+     * @return BelongsTo<Picture, $this>
+     */
+    public function picture(): BelongsTo
+    {
+        return $this->belongsTo(Picture::class);
     }
 
     /**

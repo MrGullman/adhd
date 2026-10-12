@@ -1,15 +1,32 @@
 <script setup lang="ts">
-import { Form, Head, Link } from '@inertiajs/vue3';
+import { Form, Head, Link, router } from '@inertiajs/vue3';
 import { ArrowLeft, Plus } from '@lucide/vue';
 import ListItemCompletionController from '@/actions/App/Http/Controllers/Lists/ListItemCompletionController';
 import ListItemController from '@/actions/App/Http/Controllers/Lists/ListItemController';
 import CompletionToggle from '@/components/CompletionToggle.vue';
+import PicturePicker from '@/components/PicturePicker.vue';
+import PictureThumb from '@/components/PictureThumb.vue';
 import { home as childHome } from '@/routes/child';
+import type { PictureItem } from '@/types';
 
-defineProps<{
+const props = defineProps<{
     list: { id: number };
-    items: Array<{ id: number; name: string; completed: boolean }>;
+    items: Array<{
+        id: number;
+        name: string;
+        picture: PictureItem | null;
+        completed: boolean;
+    }>;
 }>();
+
+// Children who do not write yet add an item by choosing its picture.
+function addPicture(picture: PictureItem): void {
+    router.post(
+        ListItemController.store.url(props.list.id),
+        { name: picture.label, picture_id: picture.id },
+        { preserveScroll: true },
+    );
+}
 </script>
 
 <!-- Barnets handlingslista: lägg till det som saknas och bocka av. Stora tryckytor, korta texter. -->
@@ -60,6 +77,12 @@ defineProps<{
                 </p>
             </Form>
 
+            <PicturePicker
+                size="child"
+                button-label="Välj bild"
+                @select="addPicture"
+            />
+
             <p v-if="!items.length" class="text-child-label text-ink-muted">
                 Listan är tom.
             </p>
@@ -85,6 +108,12 @@ defineProps<{
                         "
                         :label="item.name"
                         size="child"
+                    />
+                    <PictureThumb
+                        v-if="item.picture"
+                        :picture="item.picture"
+                        size="md"
+                        :class="item.completed && 'opacity-60'"
                     />
                     <span
                         class="min-w-0 flex-1 font-display text-child-label break-words"

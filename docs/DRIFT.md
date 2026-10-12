@@ -82,6 +82,14 @@ sudo sed -i 's/^REGISTRATION_ENABLED=.*/REGISTRATION_ENABLED=false/' /var/www/np
 sudo -u npf-familjen php8.4 /var/www/npf-familjen/current/artisan optimize
 ```
 
+## Bli admin för bildgalleriet
+
+Adminportalen finns på https://npf-familjen.duckdns.org/admin. Där laddar du upp bilder till galleriet som alla familjer kan välja från. Gör ditt konto till admin:
+
+```bash
+sudo -u npf-familjen php8.4 /var/www/npf-familjen/current/artisan users:admin din@epost.se
+```
+
 ## 7. E-post via Gmail
 
 Använd ett separat Gmail-konto för appen. Ett applösenord ger åtkomst till hela brevlådan.

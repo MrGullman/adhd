@@ -3,10 +3,11 @@ import { Form } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import InputError from '@/components/InputError.vue';
+import PicturePicker from '@/components/PicturePicker.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { DayPartOption, Member } from '@/types';
+import type { DayPartOption, Member, PictureItem } from '@/types';
 import type { RouteFormDefinition } from '@/wayfinder';
 
 const props = defineProps<{
@@ -16,6 +17,7 @@ const props = defineProps<{
     submitLabel: string;
     task?: {
         title: string;
+        picture: PictureItem | null;
         assignedTo: number | null;
         date: string;
         dayPart: string | null;
@@ -24,6 +26,7 @@ const props = defineProps<{
     date?: string;
 }>();
 
+const picture = ref<PictureItem | null>(props.task?.picture ?? null);
 // With a time the part of the day is chosen automatically, so the choice is hidden.
 const time = ref(props.task?.time ?? '');
 
@@ -48,6 +51,12 @@ const selectClass =
                 placeholder="Till exempel Borsta tänderna"
             />
             <InputError :message="errors.title" />
+        </div>
+
+        <div class="grid gap-2">
+            <span class="text-sm font-medium">Bild (valfritt)</span>
+            <PicturePicker v-model="picture" name="picture_id" />
+            <InputError :message="errors.picture_id" />
         </div>
 
         <fieldset class="grid gap-2">
@@ -80,6 +89,7 @@ const selectClass =
                     <FamilyAvatar
                         :name="member.name"
                         :color="member.avatarColor"
+                        :picture-url="member.avatarUrl"
                         size="sm"
                     />
                     {{ member.name }}

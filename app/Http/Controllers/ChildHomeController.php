@@ -21,6 +21,7 @@ class ChildHomeController extends Controller
             'child' => [
                 'name' => $child->name,
                 'avatarColor' => $child->avatar_color->value,
+                'avatarUrl' => $child->avatarUrl(),
             ],
         ]);
     }

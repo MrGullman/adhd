@@ -5,6 +5,7 @@ use App\Http\Controllers\Lists\CompletedListItemsController;
 use App\Http\Controllers\Lists\ListController;
 use App\Http\Controllers\Lists\ListItemCompletionController;
 use App\Http\Controllers\Lists\ListItemController;
+use App\Http\Controllers\PictureController;
 use App\Http\Controllers\Tasks\RecurringTaskController;
 use App\Http\Controllers\Tasks\TaskCompletionController;
 use App\Http\Controllers\Tasks\TaskController;
@@ -42,6 +43,9 @@ Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function 
 
 // Adults and children: children add to the shopping list and tick off their own tasks.
 Route::middleware(['auth', 'verified', 'family'])->group(function () {
+    Route::get('bilder', [PictureController::class, 'index'])->name('pictures.index');
+    Route::post('bilder', [PictureController::class, 'store'])->middleware('throttle:30,1')->name('pictures.store');
+
     Route::scopeBindings()->group(function () {
         Route::post('listor/{list}/varor', [ListItemController::class, 'store'])->name('list-items.store');
         Route::post('listor/{list}/varor/{item}/klar', [ListItemCompletionController::class, 'store'])->name('list-items.completion.store');
@@ -55,3 +59,6 @@ Route::middleware(['auth', 'verified', 'family'])->group(function () {
 Route::middleware(['auth', 'family', 'role:child'])->group(function () {
     Route::get('handla', ChildShoppingListController::class)->name('child.shopping');
 });
+
+// Picture files: for members and trusted devices such as the home display.
+Route::get('bilder/{picture}', [PictureController::class, 'show'])->whereNumber('picture')->name('pictures.show');

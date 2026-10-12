@@ -6,6 +6,7 @@ use App\Enums\DayPart;
 use App\Enums\Frequency;
 use App\Models\Family;
 use App\Models\RecurringTask;
+use App\Rules\VisiblePicture;
 use App\Support\CurrentFamily;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -27,6 +28,7 @@ class StoreRecurringTaskRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:100'],
+            'picture_id' => ['nullable', 'integer', new VisiblePicture],
             'assigned_to' => [
                 'nullable',
                 'integer',
@@ -50,6 +52,7 @@ class StoreRecurringTaskRequest extends FormRequest
     {
         return [
             'title' => 'uppgift',
+            'picture_id' => 'bild',
             'assigned_to' => 'vem',
             'frequency' => 'hur ofta',
             'weekdays' => 'veckodagar',
@@ -90,6 +93,7 @@ class StoreRecurringTaskRequest extends FormRequest
 
         return [
             'title' => $this->string('title')->toString(),
+            'picture_id' => $this->filled('picture_id') ? $this->integer('picture_id') : null,
             'assigned_to' => $this->filled('assigned_to') ? $this->integer('assigned_to') : null,
             'frequency' => $this->enum('frequency', Frequency::class),
             'weekdays' => $weekly ? $weekdays : null,

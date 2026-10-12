@@ -58,7 +58,7 @@ class ListController extends Controller
         $user = $request->user();
 
         $items = $list->items()
-            ->with('adder:id,name')
+            ->with(['picture', 'adder:id,name'])
             ->orderByRaw('completed_at is not null')
             ->orderByDesc('completed_at')
             ->orderBy('id')
@@ -73,6 +73,7 @@ class ListController extends Controller
             'items' => $items->map(fn (ListItem $item) => [
                 'id' => $item->id,
                 'name' => $item->name,
+                'picture' => $item->picture?->toPicker(),
                 'addedBy' => $item->adder?->name,
                 'completed' => $item->isCompleted(),
             ]),

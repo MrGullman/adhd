@@ -57,8 +57,8 @@ Rekommenderad byggordning, så att familjen kan börja använda appen tidigt:
 3. Milestone 12 – Drift (tidigt, så att servern och Raspberry Pi:n testas från början) (i drift, några tester och Raspberry Pi kvar)
 4. Milestone 2 – Uppgifter och listor (klar)
 5. Milestone 3 – Återkommande uppgifter (klar)
-6. Milestone 4 – Bildstöd (nästa)
-7. Milestone 5 – Idag-vy
+6. Milestone 4 – Bildstöd (klar)
+7. Milestone 5 – Idag-vy (nästa)
 8. Milestone 7 – Rutiner
 9. Milestone 11 – Hemskärm
 10. Milestone 6 – Aktiviteter, händelser och packlistor
@@ -206,17 +206,17 @@ Allt viktigt ska gå att förstå utan att läsa: uppgifter, listor och familjem
 
 ## Tasks
 
-- [ ] pictures och picture_categories tabeller
-- [ ] picture_id på tasks, recurring_tasks, list_items och users (avatar)
-- [ ] is_admin på users
-- [ ] Installera Filament 5, adminportal på /admin (bara admin)
-- [ ] Admin: massuppladdning till galleriet, kategorier, etiketter, sökord
-- [ ] Köjobb: skala ner och konvertera till WebP
-- [ ] Bildväljare: galleri och familjens foton
-- [ ] Ladda upp eget foto (mobilkamera)
-- [ ] Admin: importera Mulberry Symbols med svenska etiketter (valfritt)
-- [ ] Sida med bildkällor
-- [ ] Visa bild + kort text i listor och uppgifter
+- [x] pictures och picture_categories tabeller
+- [x] picture_id på tasks, recurring_tasks, list_items och users (avatar)
+- [x] is_admin på users
+- [x] Installera Filament 5, adminportal på /admin (bara admin)
+- [x] Admin: massuppladdning till galleriet, kategorier, etiketter, sökord
+- [x] Köjobb: skala ner och konvertera till WebP
+- [x] Bildväljare: galleri och familjens foton
+- [x] Ladda upp eget foto (mobilkamera)
+- [ ] Admin: importera Mulberry Symbols med svenska etiketter (valfritt, inte gjort)
+- [x] Sida med bildkällor
+- [x] Visa bild + kort text i listor och uppgifter
 
 ## Definition of Done
 

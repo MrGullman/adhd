@@ -5,6 +5,7 @@ namespace App\Http\Requests\Tasks;
 use App\Enums\DayPart;
 use App\Models\Family;
 use App\Models\Task;
+use App\Rules\VisiblePicture;
 use App\Support\CurrentFamily;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -26,6 +27,7 @@ class StoreTaskRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:100'],
+            'picture_id' => ['nullable', 'integer', new VisiblePicture],
             'assigned_to' => [
                 'nullable',
                 'integer',
@@ -44,6 +46,7 @@ class StoreTaskRequest extends FormRequest
     {
         return [
             'title' => 'uppgift',
+            'picture_id' => 'bild',
             'assigned_to' => 'vem',
             'date' => 'dag',
             'day_part' => 'del av dagen',
@@ -55,7 +58,7 @@ class StoreTaskRequest extends FormRequest
      * The validated task. With a time, the part of the day follows from the
      * family's day parts.
      *
-     * @return array{title: string, assigned_to: int|null, date: string, day_part: DayPart|null, time: string|null}
+     * @return array{title: string, picture_id: int|null, assigned_to: int|null, date: string, day_part: DayPart|null, time: string|null}
      */
     public function task(Family $family): array
     {
@@ -63,6 +66,7 @@ class StoreTaskRequest extends FormRequest
 
         return [
             'title' => $this->string('title')->toString(),
+            'picture_id' => $this->filled('picture_id') ? $this->integer('picture_id') : null,
             'assigned_to' => $this->filled('assigned_to') ? $this->integer('assigned_to') : null,
             'date' => $this->string('date')->toString(),
             'day_part' => $time !== null

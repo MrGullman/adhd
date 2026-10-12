@@ -98,6 +98,7 @@ class GenerateRecurringTasks
     {
         $task = new Task([
             'title' => $recurring->title,
+            'picture_id' => $recurring->picture_id,
             'assigned_to' => $recurring->assigned_to,
             'date' => $date->toDateString(),
             'day_part' => $recurring->time !== null ? $family->dayPartFor($recurring->time) : $recurring->day_part,

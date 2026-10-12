@@ -9,8 +9,9 @@ import CompletionToggle from '@/components/CompletionToggle.vue';
 import DayPartLabel from '@/components/DayPartLabel.vue';
 import DoneChip from '@/components/DoneChip.vue';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
+import PictureThumb from '@/components/PictureThumb.vue';
 import { formatDay } from '@/lib/format';
-import type { DayPart } from '@/types';
+import type { DayPart, PictureItem } from '@/types';
 
 defineOptions({
     layout: {
@@ -21,10 +22,16 @@ defineOptions({
 type TaskRow = {
     id: number;
     title: string;
+    picture: PictureItem | null;
     time: string | null;
     completed: boolean;
     recurring: boolean;
-    assignee: { id: number; name: string; avatarColor: string } | null;
+    assignee: {
+        id: number;
+        name: string;
+        avatarColor: string;
+        avatarUrl?: string | null;
+    } | null;
 };
 
 const props = defineProps<{
@@ -182,6 +189,11 @@ const navClass =
                             >
                                 {{ task.time }}
                             </span>
+                            <PictureThumb
+                                v-if="task.picture"
+                                :picture="task.picture"
+                                :class="task.completed && 'opacity-60'"
+                            />
                             <span
                                 class="min-w-0 flex-1 font-bold break-words"
                                 :class="
@@ -202,6 +214,7 @@ const navClass =
                             v-if="task.assignee"
                             :name="task.assignee.name"
                             :color="task.assignee.avatarColor"
+                            :picture-url="task.assignee.avatarUrl"
                             size="sm"
                             :title="task.assignee.name"
                         />
