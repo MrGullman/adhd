@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Tasks;
 
 use App\Enums\DayPart;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Tasks\Concerns\TaskFormOptions;
 use App\Http\Requests\Tasks\StoreTaskRequest;
 use App\Http\Requests\Tasks\UpdateTaskRequest;
-use App\Models\Family;
 use App\Models\Task;
 use App\Models\User;
 use App\Support\CurrentFamily;
@@ -21,6 +21,8 @@ use Inertia\Response;
 
 class TaskController extends Controller
 {
+    use TaskFormOptions;
+
     /**
      * One day's tasks, grouped by part of the day and sorted by time.
      */
@@ -76,7 +78,7 @@ class TaskController extends Controller
         $family = $current->getOrFail();
 
         return Inertia::render('tasks/Create', [
-            ...$this->formOptions($family),
+            ...$this->taskFormOptions($family),
             'date' => $this->dateFrom($request->query('dag'))->toDateString(),
         ]);
     }
@@ -98,7 +100,7 @@ class TaskController extends Controller
         Gate::authorize('update', $task);
 
         return Inertia::render('tasks/Edit', [
-            ...$this->formOptions($current->getOrFail()),
+            ...$this->taskFormOptions($current->getOrFail()),
             'task' => [
                 'id' => $task->id,
                 'title' => $task->title,
@@ -106,13 +108,17 @@ class TaskController extends Controller
                 'date' => $task->date->toDateString(),
                 'dayPart' => $task->time === null ? $task->day_part?->value : null,
                 'time' => $task->shortTime(),
+                'recurring' => $task->isRecurring(),
             ],
         ]);
     }
 
     public function update(UpdateTaskRequest $request, CurrentFamily $current, Task $task): RedirectResponse
     {
-        $task->update($request->task($current->getOrFail()));
+        $task->fill($request->task($current->getOrFail()));
+        // A day of a recurring task changed by hand keeps its changes.
+        $task->customized = $task->isRecurring();
+        $task->save();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => "{$task->title} är sparad."]);
 
@@ -123,9 +129,16 @@ class TaskController extends Controller
     {
         Gate::authorize('delete', $task);
 
-        $task->delete();
+        if ($task->isRecurring()) {
+            // Kept as a skipped day, so that it is not created again.
+            $task->delete();
+            $message = "{$task->title} hoppas över den här dagen.";
+        } else {
+            $task->forceDelete();
+            $message = "{$task->title} är borttagen.";
+        }
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => "{$task->title} är borttagen."]);
+        Inertia::flash('toast', ['type' => 'success', 'message' => $message]);
 
         return to_route('tasks.index', ['dag' => $task->date->toDateString()]);
     }
@@ -158,6 +171,7 @@ class TaskController extends Controller
                 'title' => $task->title,
                 'time' => $task->shortTime(),
                 'completed' => $task->isCompleted(),
+                'recurring' => $task->isRecurring(),
                 'assignee' => $task->assignee === null ? null : [
                     'id' => $task->assignee->id,
                     'name' => $task->assignee->name,
@@ -166,29 +180,5 @@ class TaskController extends Controller
             ])
             ->values()
             ->all();
-    }
-
-    /**
-     * Who a task can be given to and the parts of the day, for the task form.
-     *
-     * @return array<string, mixed>
-     */
-    private function formOptions(Family $family): array
-    {
-        return [
-            'members' => $family->members()
-                ->orderBy('name')
-                ->get(['users.id', 'users.name', 'users.avatar_color'])
-                ->map(fn (User $member) => [
-                    'id' => $member->id,
-                    'name' => $member->name,
-                    'avatarColor' => $member->avatar_color->value,
-                ]),
-            'dayParts' => collect(DayPart::cases())->map(fn (DayPart $part) => [
-                'value' => $part->value,
-                'label' => $part->label(),
-                'start' => $family->dayParts()[$part->value],
-            ]),
-        ];
     }
 }

@@ -5,6 +5,7 @@ use App\Http\Controllers\Lists\CompletedListItemsController;
 use App\Http\Controllers\Lists\ListController;
 use App\Http\Controllers\Lists\ListItemCompletionController;
 use App\Http\Controllers\Lists\ListItemController;
+use App\Http\Controllers\Tasks\RecurringTaskController;
 use App\Http\Controllers\Tasks\TaskCompletionController;
 use App\Http\Controllers\Tasks\TaskController;
 use Illuminate\Support\Facades\Route;
@@ -23,6 +24,13 @@ Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function 
         Route::put('listor/{list}/varor/{item}', [ListItemController::class, 'update'])->name('list-items.update');
         Route::delete('listor/{list}/varor/{item}', [ListItemController::class, 'destroy'])->name('list-items.destroy');
     });
+
+    Route::get('uppgifter/aterkommande', [RecurringTaskController::class, 'index'])->name('recurring-tasks.index');
+    Route::get('uppgifter/aterkommande/ny', [RecurringTaskController::class, 'create'])->name('recurring-tasks.create');
+    Route::post('uppgifter/aterkommande', [RecurringTaskController::class, 'store'])->name('recurring-tasks.store');
+    Route::get('uppgifter/aterkommande/{recurringTask}/andra', [RecurringTaskController::class, 'edit'])->name('recurring-tasks.edit');
+    Route::put('uppgifter/aterkommande/{recurringTask}', [RecurringTaskController::class, 'update'])->name('recurring-tasks.update');
+    Route::delete('uppgifter/aterkommande/{recurringTask}', [RecurringTaskController::class, 'destroy'])->name('recurring-tasks.destroy');
 
     Route::get('uppgifter', [TaskController::class, 'index'])->name('tasks.index');
     Route::get('uppgifter/ny', [TaskController::class, 'create'])->name('tasks.create');

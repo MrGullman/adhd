@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import { ChevronLeft, ChevronRight, Plus } from '@lucide/vue';
+import { ChevronLeft, ChevronRight, Plus, Repeat } from '@lucide/vue';
 import { computed } from 'vue';
+import RecurringTaskController from '@/actions/App/Http/Controllers/Tasks/RecurringTaskController';
 import TaskCompletionController from '@/actions/App/Http/Controllers/Tasks/TaskCompletionController';
 import TaskController from '@/actions/App/Http/Controllers/Tasks/TaskController';
 import CompletionToggle from '@/components/CompletionToggle.vue';
@@ -22,6 +23,7 @@ type TaskRow = {
     title: string;
     time: string | null;
     completed: boolean;
+    recurring: boolean;
     assignee: { id: number; name: string; avatarColor: string } | null;
 };
 
@@ -111,6 +113,13 @@ const navClass =
                     Till idag
                 </Link>
                 <Link
+                    :href="RecurringTaskController.index()"
+                    class="flex min-h-tap-adult items-center gap-2 rounded-full border border-line px-4 font-bold hover:border-primary"
+                >
+                    <Repeat class="size-5" aria-hidden="true" />
+                    Återkommande
+                </Link>
+                <Link
                     v-if="canCreate"
                     :href="TaskController.create({ query: { dag: date } })"
                     class="flex min-h-tap-adult items-center gap-2 rounded-full bg-primary px-5 font-bold text-on-primary"
@@ -182,6 +191,11 @@ const navClass =
                             >
                                 {{ task.title }}
                             </span>
+                            <Repeat
+                                v-if="task.recurring"
+                                class="size-4 shrink-0 text-ink-muted"
+                                aria-label="Återkommande"
+                            />
                         </component>
                         <DoneChip v-if="task.completed" />
                         <FamilyAvatar

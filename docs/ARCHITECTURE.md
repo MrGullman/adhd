@@ -247,6 +247,32 @@ tasks
 - När familjen ändrar dagsdelarna flyttas kommande uppgifter med klockslag (från idag och framåt). Passerade dagar lämnas orörda.
 - Uppgifter utan del av dagen och klockslag visas under "Under dagen".
 
+## Återkommande uppgifter
+
+recurring_tasks
+
+- family_id
+- title, assigned_to, day_part, time (som tasks)
+- frequency (daily, weekly)
+- weekdays (ISO-veckodagar, 1 = måndag, för weekly)
+- week_interval (1 = varje vecka, 2 = varannan vecka, räknat från veckan med starts_on)
+- starts_on, ends_on (nullable)
+- created_by
+
+tasks får:
+
+- recurring_task_id (nullable, unikt tillsammans med date, så att samma dag aldrig skapas två gånger)
+- customized (dagen är ändrad för hand)
+- deleted_at (en överhoppad dag ligger kvar som borttagen och skapas inte igen)
+
+Regler:
+
+- Kommandot tasks:generate-recurring körs 00:05 svensk tid och skapar uppgifterna en vecka framåt (idag + 6 dagar), så att Imorgon och Veckan kan planeras. Det körs också direkt när en återkommande uppgift sparas.
+- Kommandot går igenom familjerna en i taget som aktuell familj, så familjefiltreringen gäller som på en sida.
+- Att ta bort en enskild dag betyder "hoppa över den här dagen".
+- En ändring av en återkommande uppgift gäller från imorgon. Idag, avbockade dagar, dagar som ändrats för hand och överhoppade dagar lämnas orörda.
+- Att ta bort en återkommande uppgift tar bort de kommande dagarna som ingen har rört. Idag och det som varit finns kvar.
+
 ---
 
 # Dagbok
