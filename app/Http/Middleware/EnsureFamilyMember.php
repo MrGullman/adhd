@@ -7,6 +7,7 @@ use App\Support\CurrentFamily;
 use Closure;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -23,7 +24,8 @@ class EnsureFamilyMember
             $user = $request->user();
 
             if ($user instanceof User && $user->is_admin) {
-                return redirect()->to(Filament::getPanel('admin')->getUrl());
+                // The admin portal is not an Inertia page, so it needs a full page load.
+                return Inertia::location(Filament::getPanel('admin')->getUrl());
             }
 
             return redirect()->route('family.create');
