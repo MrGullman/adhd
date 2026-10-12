@@ -6,6 +6,7 @@ use App\Http\Controllers\Family\ChildAccessController;
 use App\Http\Controllers\Family\ChildController;
 use App\Http\Controllers\Family\ChildPairingController;
 use App\Http\Controllers\Family\ChildPinController;
+use App\Http\Controllers\Family\DayPartController;
 use App\Http\Controllers\Family\DeviceController;
 use App\Http\Controllers\Family\FamilyController;
 use App\Http\Controllers\Family\FamilyInvitationController;
@@ -21,6 +22,7 @@ Route::middleware(['auth', 'verified', 'role:adult'])->group(function () {
 Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function () {
     Route::get('familj', [FamilyController::class, 'show'])->name('family.show');
     Route::put('familj', [FamilyController::class, 'update'])->name('family.update');
+    Route::put('familj/dagsdelar', [DayPartController::class, 'update'])->name('family.day-parts.update');
     Route::post('familjer/{family}/aktiv', [ActiveFamilyController::class, 'update'])->name('active-family.update');
 
     Route::post('familj/inbjudningar', [FamilyInvitationController::class, 'store'])

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Family;
 
 use App\Enums\AvatarColor;
+use App\Enums\DayPart;
 use App\Enums\FamilyRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Family\StoreFamilyRequest;
@@ -119,6 +120,11 @@ class FamilyController extends Controller
                     ])
                 : [],
             'thisDeviceIsTrusted' => $current->device() !== null,
+            'dayParts' => collect(DayPart::cases())->map(fn (DayPart $part) => [
+                'value' => $part->value,
+                'label' => $part->label(),
+                'start' => $family->dayParts()[$part->value],
+            ]),
             'roles' => collect(FamilyRole::adultRoles())
                 ->map(fn (FamilyRole $role) => ['value' => $role->value, 'label' => $role->label()]),
             'avatarColors' => collect(AvatarColor::cases())

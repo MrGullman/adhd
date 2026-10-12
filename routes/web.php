@@ -15,4 +15,5 @@ Route::middleware(['auth', 'family', 'role:child'])->group(function () {
 });
 
 require __DIR__.'/family.php';
+require __DIR__.'/everyday.php';
 require __DIR__.'/settings.php';

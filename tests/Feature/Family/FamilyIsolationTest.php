@@ -7,6 +7,9 @@ use App\Enums\FamilyRole;
 use App\Models\Device;
 use App\Models\Family;
 use App\Models\FamilyInvitation;
+use App\Models\FamilyList;
+use App\Models\ListItem;
+use App\Models\Task;
 use App\Models\User;
 use App\Support\CurrentFamily;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -64,6 +67,71 @@ class FamilyIsolationTest extends TestCase
             ->assertNotFound();
 
         $this->assertDatabaseHas('family_invitations', ['id' => $otherInvitation->id]);
+    }
+
+    public function test_a_parent_cannot_open_or_change_another_familys_list()
+    {
+        $parent = User::factory()->inFamily(Family::factory()->create())->create();
+        $otherList = FamilyList::factory()->create(['name' => 'Deras lista']);
+        $otherItem = ListItem::factory()->for($otherList, 'list')->create(['name' => 'Deras vara']);
+
+        $this->actingAs($parent)->get(route('lists.show', $otherList->id))->assertNotFound();
+        $this->actingAs($parent)->put(route('lists.update', $otherList->id), ['name' => 'Vår nu'])->assertNotFound();
+        $this->actingAs($parent)->post(route('list-items.store', $otherList->id), ['name' => 'Mjölk'])->assertNotFound();
+        $this->actingAs($parent)
+            ->post(route('list-items.completion.store', [$otherList->id, $otherItem->id]))
+            ->assertNotFound();
+
+        $this->assertDatabaseHas('lists', ['id' => $otherList->id, 'name' => 'Deras lista']);
+        $this->assertDatabaseMissing('list_items', ['name' => 'Mjölk']);
+        $this->assertNull($otherItem->fresh()?->completed_at);
+    }
+
+    public function test_a_child_cannot_add_to_another_familys_shopping_list()
+    {
+        $child = User::factory()->child()->inFamily(Family::factory()->create(), FamilyRole::Child)->create();
+        $otherShoppingList = FamilyList::query()->withoutGlobalScopes()
+            ->where('family_id', Family::factory()->create()->id)
+            ->firstOrFail();
+
+        $this->actingAs($child)
+            ->post(route('list-items.store', $otherShoppingList->id), ['name' => 'Godis'])
+            ->assertNotFound();
+
+        $this->assertDatabaseMissing('list_items', ['name' => 'Godis']);
+    }
+
+    public function test_a_parent_cannot_change_tick_off_or_remove_another_familys_task()
+    {
+        $parent = User::factory()->inFamily(Family::factory()->create())->create();
+        $otherTask = Task::factory()->create(['title' => 'Deras uppgift']);
+
+        $this->actingAs($parent)->get(route('tasks.edit', $otherTask->id))->assertNotFound();
+        $this->actingAs($parent)
+            ->put(route('tasks.update', $otherTask->id), ['title' => 'Vår nu', 'date' => '2026-10-14'])
+            ->assertNotFound();
+        $this->actingAs($parent)->post(route('tasks.completion.store', $otherTask->id))->assertNotFound();
+        $this->actingAs($parent)->delete(route('tasks.destroy', $otherTask->id))->assertNotFound();
+
+        $this->assertDatabaseHas('tasks', ['id' => $otherTask->id, 'title' => 'Deras uppgift', 'completed_at' => null]);
+    }
+
+    public function test_lists_items_and_tasks_only_return_the_current_familys_rows()
+    {
+        $family = Family::factory()->create();
+        $list = FamilyList::factory()->for($family)->create(['name' => 'Vår lista']);
+        ListItem::factory()->for($list, 'list')->create(['name' => 'Vår vara']);
+        Task::factory()->for($family)->create(['title' => 'Vår uppgift']);
+
+        $otherList = FamilyList::factory()->create(['name' => 'Deras lista']);
+        ListItem::factory()->for($otherList, 'list')->create(['name' => 'Deras vara']);
+        Task::factory()->create(['title' => 'Deras uppgift']);
+
+        app(CurrentFamily::class)->set($family);
+
+        $this->assertSame(['Handlingslista', 'Vår lista'], FamilyList::query()->orderBy('name')->pluck('name')->all());
+        $this->assertSame(['Vår vara'], ListItem::query()->pluck('name')->all());
+        $this->assertSame(['Vår uppgift'], Task::query()->pluck('title')->all());
     }
 
     public function test_family_scoped_models_only_return_the_current_familys_rows()

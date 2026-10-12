@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
+import { ShoppingCart } from '@lucide/vue';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import { logout } from '@/routes';
+import { shopping } from '@/routes/child';
 
 defineProps<{
     child: { name: string; avatarColor: string };
@@ -20,6 +22,13 @@ defineProps<{
         <p class="text-child-label text-ink-muted">
             Här kommer din dag att synas.
         </p>
+        <Link
+            :href="shopping()"
+            class="flex h-tap-child items-center gap-3 rounded-full bg-primary px-10 font-display text-child-label font-semibold text-on-primary"
+        >
+            <ShoppingCart class="size-8" aria-hidden="true" />
+            Handla
+        </Link>
         <Link
             :href="logout()"
             as="button"

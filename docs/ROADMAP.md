@@ -159,15 +159,15 @@ Familjen ska kunna dela uppgifter och listor.
 
 ## Tasks
 
-- [ ] lists tabell (t.ex. handlingslista)
-- [ ] list_items tabell (med added_by)
-- [ ] tasks tabell med del av dagen och/eller klockslag
-- [ ] Dagsdelar per familj (standard: morgon 06, förmiddag 09, eftermiddag 12, kväll 17)
-- [ ] Lists UI
-- [ ] Tasks UI
-- [ ] Tilldela uppgift till familjemedlem
-- [ ] Ändra och ta bort uppgifter
-- [ ] Barn kan lägga till på handlingslistan
+- [x] lists tabell (t.ex. handlingslista)
+- [x] list_items tabell (med added_by)
+- [x] tasks tabell med del av dagen och/eller klockslag
+- [x] Dagsdelar per familj (standard: morgon 06, förmiddag 09, eftermiddag 12, kväll 17)
+- [x] Lists UI
+- [x] Tasks UI
+- [x] Tilldela uppgift till familjemedlem
+- [x] Ändra och ta bort uppgifter
+- [x] Barn kan lägga till på handlingslistan
 
 ## Definition of Done
 

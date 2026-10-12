@@ -208,6 +208,47 @@ En vårdnadshavare aktiverar och återkallar enheter. Token sparas i en långliv
 
 ---
 
+# Uppgifter och listor
+
+## Tabeller
+
+lists (modellen heter FamilyList, eftersom List är ett reserverat ord i PHP)
+
+- family_id
+- type (shopping, general)
+- name
+- created_by
+
+list_items
+
+- family_id
+- list_id
+- name
+- added_by
+- completed_at, completed_by
+
+tasks
+
+- family_id
+- title
+- assigned_to (nullable: null = hela familjen)
+- date (dagen i Sverige)
+- day_part (nullable)
+- time (nullable, klockslaget i Sverige)
+- completed_at, completed_by
+- created_by
+
+## Regler
+
+- Varje familj har exakt en handlingslista (type shopping). Den skapas med familjen och kan döpas om och tömmas, men inte tas bort.
+- Barn ser och ändrar bara handlingslistan: lägga till och bocka av. Ta bort och döpa om gör vuxna som kan ändra.
+- tasks.date och tasks.time är kalenderdag och klockslag i Sverige, inte tidpunkter. Simskolan 17:15 är 17:15 både på sommar- och vintertid. Tidsstämplar (completed_at m.fl.) lagras i UTC.
+- En uppgift med klockslag får alltid sin del av dagen från klockslaget. Tider före morgonen räknas som morgon.
+- När familjen ändrar dagsdelarna flyttas kommande uppgifter med klockslag (från idag och framåt). Passerade dagar lämnas orörda.
+- Uppgifter utan del av dagen och klockslag visas under "Under dagen".
+
+---
+
 # Dagbok
 
 Dagboken är för vårdnadshavare: anteckningar om ett eller flera av familjens barn.
