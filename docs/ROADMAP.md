@@ -58,8 +58,8 @@ Rekommenderad byggordning, så att familjen kan börja använda appen tidigt:
 4. Milestone 2 – Uppgifter och listor (klar)
 5. Milestone 3 – Återkommande uppgifter (klar)
 6. Milestone 4 – Bildstöd (klar)
-7. Milestone 5 – Idag-vy (nästa)
-8. Milestone 7 – Rutiner
+7. Milestone 5 – Idag-vy (klar)
+8. Milestone 7 – Rutiner (nästa)
 9. Milestone 11 – Hemskärm
 10. Milestone 6 – Aktiviteter, händelser och packlistor
 11. Milestone 8 – Skolmat
@@ -234,13 +234,13 @@ Visa dagens uppgifter. Barnen ser vad de ska göra idag, vårdnadshavarna ser he
 
 ## Tasks
 
-- [ ] TodayController
-- [ ] pages/today/Index.vue
-- [ ] Filtrera uppgifter för idag (Europe/Stockholm)
-- [ ] Gruppera efter del av dagen, sortera på klockslag
-- [ ] Barnets vy: dagens uppgifter med bildstöd och stora knappar
-- [ ] Barnets vy på läsplatta: "Nu" och dagens lista bredvid varandra i liggande läge
-- [ ] Vårdnadshavarnas dashboard: hela familjens dag
+- [x] TodayController
+- [x] pages/today/Index.vue
+- [x] Filtrera uppgifter för idag (Europe/Stockholm)
+- [x] Gruppera efter del av dagen, sortera på klockslag
+- [x] Barnets vy: dagens uppgifter med bildstöd och stora knappar
+- [x] Barnets vy på läsplatta: "Nu" och dagens lista bredvid varandra i liggande läge
+- [x] Vårdnadshavarnas dashboard: hela familjens dag
 
 ## Definition of Done
 

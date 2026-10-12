@@ -559,6 +559,14 @@ activity_confirmations (barnet svarar "ja, jag har packat" samma dag)
 - Barn ser sin egen vecka, vuxna ser allas
 - Imorgon och Veckan finns i appen och som widgets på hemskärmen
 
+Idag i version 1 (Milestone 5):
+
+- Vuxna (/dashboard) ser hela familjens dag, grupperad efter del av dagen, och kan visa en person i taget. Varje barn visas med "3 av 5 klara".
+- Barnet (/min-dag) ser bara sina egna uppgifter. Uppgifter för hela familjen visas för vuxna.
+- "Nu" är den första uppgiften som inte är klar i den aktuella delen av dagen eller senare. Missade uppgifter från tidigare delar av dagen trycks inte fram igen, de syns lugnt i listan.
+- Aktuell del av dagen räknas ut från klockan i Sverige och familjens dagsdelar.
+- På läsplatta i liggande läge (md och landscape) visas "Nu" och listan bredvid varandra.
+
 ---
 
 # Rutiner
