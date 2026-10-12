@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Pictures;
 
+use App\Filament\Concerns\AuthorizesAdmins;
 use App\Filament\Resources\Pictures\Pages\EditPicture;
 use App\Filament\Resources\Pictures\Pages\ListPictures;
 use App\Filament\Resources\Pictures\Schemas\PictureForm;
@@ -20,6 +21,8 @@ use UnitEnum;
  */
 class PictureResource extends Resource
 {
+    use AuthorizesAdmins;
+
     protected static ?string $model = Picture::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPhoto;

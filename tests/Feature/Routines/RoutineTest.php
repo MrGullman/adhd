@@ -3,6 +3,7 @@
 namespace Tests\Feature\Routines;
 
 use App\Enums\FamilyRole;
+use App\Filament\Resources\RoutineTemplates\Pages\EditRoutineTemplate;
 use App\Filament\Resources\RoutineTemplates\Pages\ListRoutineTemplates;
 use App\Models\Family;
 use App\Models\Routine;
@@ -248,6 +249,27 @@ class RoutineTest extends TestCase
         Livewire::test(ListRoutineTemplates::class)
             ->assertCanSeeTableRecords(Routine::templates()->get())
             ->assertCanNotSeeTableRecords([$familyRoutine]);
+    }
+
+    public function test_an_admin_without_a_family_changes_a_template()
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $template = Routine::templates()->where('name', 'Läggdags')->firstOrFail();
+
+        $this->actingAs($admin);
+
+        Livewire::test(ListRoutineTemplates::class)
+            ->assertActionVisible('create')
+            ->assertTableActionVisible('edit', $template);
+
+        Livewire::test(EditRoutineTemplate::class, ['record' => $template->getKey()])
+            ->fillForm(['name' => 'Kvällsrutin för små'])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $template = Routine::templates()->findOrFail($template->id);
+        $this->assertSame('Kvällsrutin för små', $template->name);
+        $this->assertNull($template->family_id);
     }
 
     public function test_a_family_routine_cannot_be_copied_as_a_template()

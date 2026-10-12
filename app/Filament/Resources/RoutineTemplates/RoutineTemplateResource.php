@@ -4,6 +4,7 @@ namespace App\Filament\Resources\RoutineTemplates;
 
 use App\Enums\DayPart;
 use App\Enums\StepType;
+use App\Filament\Concerns\AuthorizesAdmins;
 use App\Filament\Resources\RoutineTemplates\Pages\CreateRoutineTemplate;
 use App\Filament\Resources\RoutineTemplates\Pages\EditRoutineTemplate;
 use App\Filament\Resources\RoutineTemplates\Pages\ListRoutineTemplates;
@@ -30,6 +31,8 @@ use UnitEnum;
  */
 class RoutineTemplateResource extends Resource
 {
+    use AuthorizesAdmins;
+
     protected static ?string $model = Routine::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedListBullet;
