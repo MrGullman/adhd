@@ -75,6 +75,37 @@ class AdminPortalTest extends TestCase
         $this->assertSame($label, StorePicture::labelFromFileName($fileName));
     }
 
+    public function test_a_separate_admin_account_is_created_on_the_server()
+    {
+        $this->artisan('admin:create')
+            ->expectsQuestion('Namn', 'Admin')
+            ->expectsQuestion('E-post', 'admin@exempel.se')
+            ->expectsQuestion('Lösenord (minst 8 tecken)', 'ett-langt-losenord-77')
+            ->expectsQuestion('Samma lösenord igen', 'ett-langt-losenord-77')
+            ->assertSuccessful();
+
+        $admin = User::query()->where('email', 'admin@exempel.se')->firstOrFail();
+        $this->assertTrue($admin->is_admin);
+        $this->assertNotNull($admin->email_verified_at);
+        $this->assertSame(0, $admin->families()->count());
+
+        // Without a family the admin goes to the admin portal, not to "Skapa familj".
+        $this->actingAs($admin)->get(route('dashboard'))->assertRedirect('/admin');
+        $this->actingAs($admin)->get('/admin')->assertOk();
+    }
+
+    public function test_an_admin_account_needs_a_valid_password()
+    {
+        $this->artisan('admin:create')
+            ->expectsQuestion('Namn', 'Admin')
+            ->expectsQuestion('E-post', 'admin@exempel.se')
+            ->expectsQuestion('Lösenord (minst 8 tecken)', 'kort')
+            ->expectsQuestion('Samma lösenord igen', 'kort')
+            ->assertFailed();
+
+        $this->assertDatabaseMissing('users', ['email' => 'admin@exempel.se']);
+    }
+
     public function test_an_admin_is_made_on_the_server_with_a_command()
     {
         $user = User::factory()->create(['email' => 'vuxen@exempel.se']);
