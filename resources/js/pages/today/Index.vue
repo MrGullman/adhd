@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import { Head, Link, usePage, usePoll } from '@inertiajs/vue3';
 import { Plus } from '@lucide/vue';
 import { computed, ref } from 'vue';
 import TaskController from '@/actions/App/Http/Controllers/Tasks/TaskController';
@@ -8,7 +8,7 @@ import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import TaskRow from '@/components/TaskRow.vue';
 import { formatDay } from '@/lib/format';
 import { dashboard } from '@/routes';
-import type { DayGroup, DayPart, Member } from '@/types';
+import type { DayGroup, DayPart, Member, RoutineSummary } from '@/types';
 
 defineOptions({
     layout: {
@@ -23,7 +23,11 @@ const props = defineProps<{
     members: Array<
         Member & { isChild: boolean; total: number; completed: number }
     >;
+    routines: RoutineSummary[];
 }>();
+
+// The adults follow the children's routines and tasks live.
+usePoll(15000, { only: ['routines', 'groups', 'members'] });
 
 const page = usePage();
 const canEdit = computed(() => page.props.family?.canEdit ?? false);
@@ -122,6 +126,53 @@ const chip =
                 Hela familjen
             </button>
         </nav>
+
+        <section
+            v-if="routines.length"
+            class="flex flex-col gap-3"
+            aria-labelledby="rutiner"
+        >
+            <h2 id="rutiner" class="text-title">Rutiner</h2>
+            <ul class="grid gap-2 sm:grid-cols-2">
+                <li
+                    v-for="routine in routines"
+                    :key="`${routine.id}-${routine.child.id}`"
+                    class="flex items-center gap-3 rounded-lg border bg-surface-raised p-3"
+                    :class="routine.due ? 'border-primary' : 'border-line'"
+                >
+                    <FamilyAvatar
+                        :name="routine.child.name"
+                        :color="routine.child.avatarColor"
+                        :picture-url="routine.child.avatarUrl"
+                        size="sm"
+                    />
+                    <div class="min-w-0 flex-1">
+                        <p class="truncate font-bold">
+                            {{ routine.child.name }} · {{ routine.name }}
+                        </p>
+                        <p class="truncate text-caption text-ink-muted">
+                            <template v-if="routine.completed"> Klar </template>
+                            <template v-else>
+                                {{ routine.progress.completed }} av
+                                {{ routine.progress.total }}
+                                <template v-if="routine.currentStep">
+                                    · Nu: {{ routine.currentStep }}
+                                </template>
+                                <template v-if="routine.doneBy">
+                                    · klar {{ routine.doneBy }}
+                                </template>
+                            </template>
+                        </p>
+                    </div>
+                    <span
+                        v-if="routine.completed"
+                        class="shrink-0 rounded-full bg-success-soft px-3 py-0.5 text-caption font-bold"
+                    >
+                        Klar
+                    </span>
+                </li>
+            </ul>
+        </section>
 
         <p v-if="!visibleGroups.length" class="text-ink-muted">
             Inga uppgifter idag.

@@ -36,3 +36,42 @@ export type DayGroup = {
     start: string | null;
     tasks: TaskRowData[];
 };
+
+export type RoutineSummary = {
+    id: number;
+    name: string;
+    picture: PictureItem | null;
+    doneBy: string | null;
+    dayPart: DayPart | null;
+    progress: { total: number; completed: number };
+    completed: boolean;
+    due: boolean;
+    currentStep: string | null;
+    child: Member;
+};
+
+export type RoutineStepItem = {
+    id: number;
+    label: string;
+    picture: PictureItem | null;
+    minutes: number | null;
+    type: 'step' | 'packlist';
+    optional: boolean;
+    done: boolean;
+    skipped: boolean;
+};
+
+export type RoutineFocus = {
+    id: number;
+    name: string;
+    ordered: boolean;
+    doneBy: string | null;
+    minutesLeft: number | null;
+    minutesNeeded: number;
+    progress: { total: number; completed: number };
+    completed: boolean;
+    currentStepId: number | null;
+    nextStepId: number | null;
+    skippable: number[];
+    steps: RoutineStepItem[];
+};

@@ -643,6 +643,16 @@ routine_step_checks
 
 Mallar kopieras till familjen. Familjens rutiner delas aldrig tillbaka.
 
+Regler i koden:
+
+- Routine filtreras på aktuell familj (FamilyScope) men får aldrig family_id automatiskt, så att en mall förblir utan familj även när en admin som också är förälder skapar den. Mallar läses bara via Routine::templates().
+- Mallarna (morgon, efter skolan, kväll, läggdags) läggs in av migreringen och ändras i adminportalen under Rutiner.
+- En körning (routine_runs) skapas när barnet bockar av första steget och blir klar när alla dagens steg är gjorda eller överhoppade.
+- Steg behåller sitt id när rutinen ändras, så att det barnet redan gjort idag finns kvar.
+- "Dags" betyder: rutinens del av dagen är nu, eller den har startat och "klar senast" har inte passerat med mer än en timme.
+- Om de återstående stegen tar längre tid än det som är kvar till "klar senast" föreslås de valfria stegen. Bara valfria steg kan hoppas över.
+- Vuxnas Idag läses om var 15:e sekund (Inertia usePoll), så att läget syns nästan live.
+
 ---
 
 # Adminportal

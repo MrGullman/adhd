@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { ClipboardList, LayoutGrid, ListTodo, Users } from '@lucide/vue';
+import {
+    ClipboardList,
+    LayoutGrid,
+    ListOrdered,
+    ListTodo,
+    Users,
+} from '@lucide/vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
@@ -16,6 +22,7 @@ import {
 import { dashboard } from '@/routes';
 import { show as familyShow } from '@/routes/family';
 import { index as listsIndex } from '@/routes/lists';
+import { index as routinesIndex } from '@/routes/routines';
 import { index as tasksIndex } from '@/routes/tasks';
 import type { NavItem } from '@/types';
 
@@ -29,6 +36,11 @@ const mainNavItems: NavItem[] = [
         title: 'Uppgifter',
         href: tasksIndex(),
         icon: ListTodo,
+    },
+    {
+        title: 'Rutiner',
+        href: routinesIndex(),
+        icon: ListOrdered,
     },
     {
         title: 'Listor',

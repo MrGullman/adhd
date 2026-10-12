@@ -41,6 +41,18 @@ class AdminPortalTest extends TestCase
             ->assertCanNotSeeTableRecords([$familyPhoto]);
     }
 
+    public function test_an_admin_without_a_family_can_edit_gallery_pictures()
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $picture = Picture::factory()->create();
+
+        $this->actingAs($admin);
+
+        Livewire::test(ListPictures::class)
+            ->assertActionVisible('upload')
+            ->assertTableActionVisible('edit', $picture);
+    }
+
     public function test_an_uploaded_gallery_picture_is_converted_and_shared()
     {
         Storage::fake(Picture::DISK);

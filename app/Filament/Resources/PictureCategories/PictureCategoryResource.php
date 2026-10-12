@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PictureCategories;
 
+use App\Filament\Concerns\AuthorizesAdmins;
 use App\Filament\Resources\PictureCategories\Pages\CreatePictureCategory;
 use App\Filament\Resources\PictureCategories\Pages\EditPictureCategory;
 use App\Filament\Resources\PictureCategories\Pages\ListPictureCategories;
@@ -17,6 +18,8 @@ use UnitEnum;
 
 class PictureCategoryResource extends Resource
 {
+    use AuthorizesAdmins;
+
     protected static ?string $model = PictureCategory::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;

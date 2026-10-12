@@ -121,7 +121,7 @@ const chip =
             :value="model?.id ?? ''"
         />
 
-        <template v-if="model && name">
+        <template v-if="model">
             <PictureThumb :picture="model" size="md" />
             <div class="flex flex-col gap-1">
                 <span class="font-bold">{{ model.label }}</span>
