@@ -23,7 +23,7 @@ class EnsureFamilyMember
             $user = $request->user();
 
             if ($user instanceof User && $user->is_admin) {
-                return redirect(Filament::getPanel('admin')->getUrl());
+                return redirect()->to(Filament::getPanel('admin')->getUrl());
             }
 
             return redirect()->route('family.create');
