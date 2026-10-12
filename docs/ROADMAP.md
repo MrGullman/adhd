@@ -61,7 +61,7 @@ Rekommenderad byggordning, så att familjen kan börja använda appen tidigt:
 7. Milestone 5 – Idag-vy (klar)
 8. Milestone 7 – Rutiner (klar)
 9. Milestone 11 – Hemskärm (nästa)
-10. Milestone 6 – Aktiviteter, händelser och packlistor
+10. Milestone 6 – Aktiviteter, händelser och packlistor (klar)
 11. Milestone 8 – Skolmat
 12. Milestone 9 – Receptbank och skafferi
 13. Milestone 10 – Veckomatsedel och handlingslista
@@ -258,16 +258,16 @@ Barnen ser vad som händer idag, imorgon och i veckan, inklusive när en föräl
 
 ## Tasks
 
-- [ ] activities (med type, end_date, visible_to_children, unusual), activity_participants och activity_items tabeller
-- [ ] activity_item_checks och activity_confirmations tabeller
-- [ ] Vuxen skapar aktivitet (en gång eller varje vecka) och packlista med bilder
-- [ ] Händelser för vuxna och barn: bortrest, hämtning, annorlunda dag
-- [ ] "Visa för barnen" på händelser som rör vuxna
-- [ ] Nedräkning i nätter när någon är bortrest ("2 sömnar kvar")
-- [ ] Dagen innan: "Packa till simskolan imorgon" i barnets Idag-vy, bocka av varje sak
-- [ ] Samma dag: "Har du packat till simskolan?" med samma bilder
-- [ ] Vuxna ser om barnet har packat
-- [ ] Imorgon-vy och Veckan-vy (bara det stora och det som är annorlunda)
+- [x] activities (med type, end_date, visible_to_children, unusual), activity_participants och activity_items tabeller
+- [x] activity_item_checks och activity_confirmations tabeller
+- [x] Vuxen skapar aktivitet (en gång eller varje vecka) och packlista med bilder
+- [x] Händelser för vuxna och barn: bortrest, hämtning, annorlunda dag
+- [x] "Visa för barnen" på händelser som rör vuxna
+- [x] Nedräkning i nätter när någon är bortrest ("2 sömnar kvar")
+- [x] Dagen innan: "Packa till simskolan imorgon" i barnets Idag-vy, bocka av varje sak
+- [x] Samma dag: "Har du packat till simskolan?" med samma bilder
+- [x] Vuxna ser om barnet har packat
+- [x] Imorgon-vy och Veckan-vy (bara det stora och det som är annorlunda)
 
 ## Definition of Done
 
@@ -294,7 +294,7 @@ Barnen klarar sina rutiner (morgon, efter skolan, kväll) steg för steg med bil
 - [x] Fokusläge för barnet: ett steg i taget, stor Klar-knapp, nästa steg syns litet (först–sen)
 - [x] Synlig tid: kvartsprickar (1 prick = 15 min) fram till "klar senast"
 - [x] Om tiden inte räcker: föreslå att hoppa över valfria steg
-- [ ] Steg "Kolla packningen" visar dagens packlistor (steget finns, listorna kommer i Milestone 6)
+- [x] Steg "Kolla packningen" visar dagens packlistor
 - [x] Uppläsning av steget (webbläsarens talsyntes, svenska)
 - [x] Rätt rutin visas överst i barnets Idag-vy när det är dags
 - [x] Vuxna ser läget live i sin dashboard

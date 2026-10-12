@@ -4,6 +4,7 @@ namespace Tests\Feature\Family;
 
 use App\Enums\DeviceType;
 use App\Enums\FamilyRole;
+use App\Models\Activity;
 use App\Models\Device;
 use App\Models\Family;
 use App\Models\FamilyInvitation;
@@ -145,6 +146,22 @@ class FamilyIsolationTest extends TestCase
         $this->actingAs($parent)->delete(route('routines.destroy', $other->id))->assertNotFound();
 
         $this->assertDatabaseHas('routines', ['id' => $other->id, 'name' => 'Deras rutin']);
+    }
+
+    public function test_a_family_cannot_change_or_pack_for_another_familys_activity()
+    {
+        $parent = User::factory()->inFamily(Family::factory()->create())->create();
+        $child = User::factory()->child()->inFamily(Family::factory()->create(), FamilyRole::Child)->create();
+        $other = Activity::factory()->withItems(['Badbyxor'])->create(['name' => 'Deras simskola']);
+
+        $this->actingAs($parent)->get(route('activities.edit', $other->id))->assertNotFound();
+        $this->actingAs($parent)->delete(route('activities.destroy', $other->id))->assertNotFound();
+        $this->actingAs($child)
+            ->post(route('child.activities.confirm', [$other->id, $other->date?->toDateString()]))
+            ->assertNotFound();
+
+        $this->assertDatabaseHas('activities', ['id' => $other->id]);
+        $this->assertDatabaseCount('activity_confirmations', 0);
     }
 
     public function test_routines_are_the_current_familys_and_never_templates()

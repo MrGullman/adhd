@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 import {
+    CalendarDays,
+    CalendarRange,
     ClipboardList,
     LayoutGrid,
     ListOrdered,
     ListTodo,
+    Sunrise,
     Users,
 } from '@lucide/vue';
 import AppLogo from '@/components/AppLogo.vue';
@@ -19,7 +22,8 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
+import { dashboard, tomorrow, week } from '@/routes';
+import { index as activitiesIndex } from '@/routes/activities';
 import { show as familyShow } from '@/routes/family';
 import { index as listsIndex } from '@/routes/lists';
 import { index as routinesIndex } from '@/routes/routines';
@@ -33,6 +37,16 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
+        title: 'Imorgon',
+        href: tomorrow(),
+        icon: Sunrise,
+    },
+    {
+        title: 'Veckan',
+        href: week(),
+        icon: CalendarRange,
+    },
+    {
         title: 'Uppgifter',
         href: tasksIndex(),
         icon: ListTodo,
@@ -41,6 +55,11 @@ const mainNavItems: NavItem[] = [
         title: 'Rutiner',
         href: routinesIndex(),
         icon: ListOrdered,
+    },
+    {
+        title: 'Aktiviteter',
+        href: activitiesIndex(),
+        icon: CalendarDays,
     },
     {
         title: 'Listor',

@@ -3,12 +3,19 @@ import { Head, Link, usePage, usePoll } from '@inertiajs/vue3';
 import { Plus } from '@lucide/vue';
 import { computed, ref } from 'vue';
 import TaskController from '@/actions/App/Http/Controllers/Tasks/TaskController';
+import ActivityCard from '@/components/ActivityCard.vue';
 import DayPartLabel from '@/components/DayPartLabel.vue';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import TaskRow from '@/components/TaskRow.vue';
 import { formatDay } from '@/lib/format';
 import { dashboard } from '@/routes';
-import type { DayGroup, DayPart, Member, RoutineSummary } from '@/types';
+import type {
+    ActivityEntry,
+    DayGroup,
+    DayPart,
+    Member,
+    RoutineSummary,
+} from '@/types';
 
 defineOptions({
     layout: {
@@ -24,10 +31,11 @@ const props = defineProps<{
         Member & { isChild: boolean; total: number; completed: number }
     >;
     routines: RoutineSummary[];
+    activities: ActivityEntry[];
 }>();
 
 // The adults follow the children's routines and tasks live.
-usePoll(15000, { only: ['routines', 'groups', 'members'] });
+usePoll(15000, { only: ['routines', 'groups', 'members', 'activities'] });
 
 const page = usePage();
 const canEdit = computed(() => page.props.family?.canEdit ?? false);
@@ -126,6 +134,19 @@ const chip =
                 Hela familjen
             </button>
         </nav>
+
+        <section
+            v-if="activities.length"
+            class="flex flex-col gap-3"
+            aria-labelledby="hander"
+        >
+            <h2 id="hander" class="text-title">Händer idag</h2>
+            <ul class="flex flex-col gap-2">
+                <li v-for="activity in activities" :key="activity.id">
+                    <ActivityCard :activity="activity" />
+                </li>
+            </ul>
+        </section>
 
         <section
             v-if="routines.length"
