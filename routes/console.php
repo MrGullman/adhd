@@ -14,3 +14,6 @@ Schedule::command('backup:run')->dailyAt('02:30')->timezone('Europe/Stockholm');
 
 // Återkommande uppgifter skapas en vecka framåt, strax efter midnatt svensk tid.
 Schedule::command('tasks:generate-recurring')->dailyAt('00:05')->timezone('Europe/Stockholm')->withoutOverlapping();
+
+// Skolmaten för denna och nästa vecka, varje morgon innan barnen vaknar.
+Schedule::command('school-meals:fetch')->dailyAt('05:30')->timezone('Europe/Stockholm')->withoutOverlapping();

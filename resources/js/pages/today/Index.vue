@@ -6,6 +6,7 @@ import TaskController from '@/actions/App/Http/Controllers/Tasks/TaskController'
 import ActivityCard from '@/components/ActivityCard.vue';
 import DayPartLabel from '@/components/DayPartLabel.vue';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
+import SchoolLunch from '@/components/SchoolLunch.vue';
 import TaskRow from '@/components/TaskRow.vue';
 import { formatDay } from '@/lib/format';
 import { dashboard } from '@/routes';
@@ -15,6 +16,7 @@ import type {
     DayPart,
     Member,
     RoutineSummary,
+    SchoolLunchData,
 } from '@/types';
 
 defineOptions({
@@ -32,6 +34,7 @@ const props = defineProps<{
     >;
     routines: RoutineSummary[];
     activities: ActivityEntry[];
+    lunches: Array<SchoolLunchData & { child: Member }>;
 }>();
 
 // The adults follow the children's routines and tasks live.
@@ -146,6 +149,26 @@ const chip =
                     <ActivityCard :activity="activity" />
                 </li>
             </ul>
+        </section>
+
+        <section
+            v-if="lunches.length"
+            class="grid gap-2 sm:grid-cols-2"
+            aria-label="Skollunch"
+        >
+            <div
+                v-for="lunch in lunches"
+                :key="lunch.child.id"
+                class="flex gap-3 rounded-lg border border-line bg-surface-raised p-3"
+            >
+                <FamilyAvatar
+                    :name="lunch.child.name"
+                    :color="lunch.child.avatarColor"
+                    :picture-url="lunch.child.avatarUrl"
+                    size="sm"
+                />
+                <SchoolLunch :lunch="lunch" />
+            </div>
         </section>
 
         <section

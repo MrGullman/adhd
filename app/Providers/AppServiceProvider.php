@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Meals\MatildaMealProvider;
+use App\Meals\MealProvider;
 use App\Support\CurrentFamily;
 use Carbon\CarbonImmutable;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -20,6 +22,9 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->scoped(CurrentFamily::class);
+
+        // School meals come from Matilda's public menu (docs/ARCHITECTURE.md, Skolmat).
+        $this->app->bind(MealProvider::class, MatildaMealProvider::class);
     }
 
     /**

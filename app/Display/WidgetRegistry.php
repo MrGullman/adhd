@@ -5,6 +5,7 @@ namespace App\Display;
 use App\Display\Widgets\ActivitiesWidget;
 use App\Display\Widgets\ChildWidget;
 use App\Display\Widgets\DisplayWidgetType;
+use App\Display\Widgets\SchoolMealsWidget;
 use App\Display\Widgets\ShoppingListWidget;
 use App\Display\Widgets\TasksWidget;
 use App\Display\Widgets\TomorrowWidget;
@@ -12,8 +13,8 @@ use App\Display\Widgets\WeekWidget;
 use App\Models\DisplayWidget;
 
 /**
- * The widgets a home display can have. School lunch and dinner come with
- * Milestone 8 and 10, calendar and points in version 2.
+ * The widgets a home display can have. Dinner comes with Milestone 10,
+ * calendar and points in version 2.
  */
 class WidgetRegistry
 {
@@ -25,6 +26,7 @@ class WidgetRegistry
         return [
             new ChildWidget,
             new TasksWidget,
+            new SchoolMealsWidget,
             new ActivitiesWidget,
             new TomorrowWidget,
             new WeekWidget,

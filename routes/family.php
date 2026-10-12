@@ -13,6 +13,7 @@ use App\Http\Controllers\Family\DisplayController;
 use App\Http\Controllers\Family\FamilyController;
 use App\Http\Controllers\Family\FamilyInvitationController;
 use App\Http\Controllers\Family\InvitationAcceptanceController;
+use App\Http\Controllers\Family\SchoolMenuController;
 use Illuminate\Support\Facades\Route;
 
 // Adults without a family create one first.
@@ -43,6 +44,11 @@ Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function 
     Route::post('familj/barn/{child}/koppling', [ChildPairingController::class, 'store'])->whereNumber('child')->name('children.pairing.store');
 
     Route::post('familj/enheter', [DeviceController::class, 'store'])->name('devices.store');
+
+    Route::post('familj/skolor', [SchoolMenuController::class, 'store'])->name('school-menus.store');
+    Route::delete('familj/skolor/{schoolMenu}', [SchoolMenuController::class, 'destroy'])->name('school-menus.destroy');
+    Route::put('familj/skolor/byte', [SchoolMenuController::class, 'switchTime'])->name('school-menus.switch');
+    Route::put('familj/medlemmar/{member}/skola', [SchoolMenuController::class, 'assign'])->whereNumber('member')->name('school-menus.assign');
 
     Route::post('familj/hemskarmar', [DisplayController::class, 'store'])->name('displays.store');
     Route::get('familj/hemskarmar/{device}', [DisplayController::class, 'edit'])->name('displays.edit');

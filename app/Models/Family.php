@@ -101,7 +101,7 @@ class Family extends Model
     {
         return $this->belongsToMany(User::class)
             ->using(Membership::class)
-            ->withPivot('role')
+            ->withPivot('role', 'school_menu_id')
             ->withTimestamps();
     }
 
@@ -127,6 +127,19 @@ class Family extends Model
     public function addMember(User $user, FamilyRole $role): void
     {
         $this->members()->attach($user, ['role' => $role->value]);
+    }
+
+    /**
+     * The school a member eats at, if any.
+     */
+    public function schoolMenuIdOf(User $member): ?int
+    {
+        $id = Membership::query()
+            ->where('family_id', $this->id)
+            ->where('user_id', $member->id)
+            ->value('school_menu_id');
+
+        return $id === null ? null : (int) $id;
     }
 
     /**

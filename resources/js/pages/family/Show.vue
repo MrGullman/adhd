@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { Form, Head, Link } from '@inertiajs/vue3';
+import { Form, Head, Link, router } from '@inertiajs/vue3';
 import { Monitor } from '@lucide/vue';
 import ChildController from '@/actions/App/Http/Controllers/Family/ChildController';
 import DayPartController from '@/actions/App/Http/Controllers/Family/DayPartController';
 import DeviceController from '@/actions/App/Http/Controllers/Family/DeviceController';
 import DisplayController from '@/actions/App/Http/Controllers/Family/DisplayController';
+import SchoolMenuController from '@/actions/App/Http/Controllers/Family/SchoolMenuController';
 import FamilyController from '@/actions/App/Http/Controllers/Family/FamilyController';
 import FamilyInvitationController from '@/actions/App/Http/Controllers/Family/FamilyInvitationController';
 import DayPartLabel from '@/components/DayPartLabel.vue';
@@ -41,6 +42,7 @@ defineProps<{
         avatarColor: string;
         avatarUrl?: string | null;
         loginEnabled: boolean;
+        schoolMenuId: number | null;
     }>;
     invitations: Array<{
         id: number;
@@ -58,6 +60,8 @@ defineProps<{
     }>;
     thisDeviceIsTrusted: boolean;
     displays: Array<{ id: number; name: string; lastSeenAt: string | null }>;
+    schoolMenus: Array<{ id: number; name: string; fetchedAt: string | null }>;
+    lunchSwitch: string;
     dayParts: DayPartOption[];
     roles: Option[];
     avatarColors: Option[];
@@ -279,6 +283,159 @@ const selectClass =
                 </div>
                 <Button type="submit" class="w-fit" :disabled="processing">
                     Lägg till barn
+                </Button>
+            </Form>
+        </section>
+
+        <!-- Skolmat -->
+        <section
+            v-if="canManage"
+            class="flex flex-col gap-4"
+            aria-labelledby="skolmat"
+        >
+            <h2 id="skolmat" class="text-title">Skolmat</h2>
+            <p class="text-ink-muted">
+                Skollunchen hämtas från skolans meny på Matilda varje morgon och
+                visas för varje barn.
+            </p>
+
+            <ul v-if="schoolMenus.length" class="flex flex-col gap-2">
+                <li
+                    v-for="menu in schoolMenus"
+                    :key="menu.id"
+                    class="flex flex-wrap items-center gap-3 rounded-lg border border-line bg-surface-raised p-3"
+                >
+                    <div class="min-w-0 flex-1">
+                        <p class="font-bold">{{ menu.name }}</p>
+                        <p class="text-caption text-ink-muted">
+                            {{
+                                menu.fetchedAt
+                                    ? `Hämtad ${formatDateTime(menu.fetchedAt)}`
+                                    : 'Hämtas strax'
+                            }}
+                        </p>
+                    </div>
+                    <Form
+                        v-bind="SchoolMenuController.destroy.form(menu.id)"
+                        v-slot="{ processing }"
+                    >
+                        <Button
+                            variant="ghost"
+                            type="submit"
+                            :disabled="processing"
+                        >
+                            Ta bort
+                        </Button>
+                    </Form>
+                </li>
+            </ul>
+
+            <div
+                v-if="schoolMenus.length && children.length"
+                class="grid gap-2 sm:grid-cols-2"
+            >
+                <label
+                    v-for="child in children"
+                    :key="child.id"
+                    class="flex flex-col gap-2 rounded-lg border border-line bg-surface-raised p-3"
+                >
+                    <span class="flex items-center gap-3">
+                        <FamilyAvatar
+                            :name="child.name"
+                            :color="child.avatarColor"
+                            :picture-url="child.avatarUrl"
+                            size="sm"
+                        />
+                        <span class="font-bold">{{ child.name }} äter på</span>
+                    </span>
+                    <select
+                        :class="selectClass"
+                        :aria-label="`Skola för ${child.name}`"
+                        :value="child.schoolMenuId ?? ''"
+                        @change="
+                            router.put(
+                                SchoolMenuController.assign.url(child.id),
+                                {
+                                    school_menu_id:
+                                        ($event.target as HTMLSelectElement)
+                                            .value || null,
+                                },
+                                { preserveScroll: true },
+                            )
+                        "
+                    >
+                        <option value="">Ingen skollunch</option>
+                        <option
+                            v-for="menu in schoolMenus"
+                            :key="menu.id"
+                            :value="menu.id"
+                        >
+                            {{ menu.name }}
+                        </option>
+                    </select>
+                </label>
+            </div>
+
+            <Form
+                v-bind="SchoolMenuController.store.form()"
+                class="grid gap-3 rounded-lg bg-surface-sunken p-4"
+                reset-on-success
+                v-slot="{ errors, processing }"
+            >
+                <p class="font-bold">Lägg till skola</p>
+                <p class="text-caption text-ink-muted">
+                    Öppna skolans meny på menu.matildaplatform.com och kopiera
+                    adressen. Den ser ut som
+                    menu.matildaplatform.com/meals/week/…
+                </p>
+                <div class="grid gap-2">
+                    <Label for="school-link">Länk till menyn</Label>
+                    <Input
+                        id="school-link"
+                        name="link"
+                        type="url"
+                        required
+                        placeholder="https://menu.matildaplatform.com/meals/week/…"
+                    />
+                    <InputError :message="errors.link" />
+                </div>
+                <div class="grid gap-2">
+                    <Label for="school-name">Namn (valfritt)</Label>
+                    <Input
+                        id="school-name"
+                        name="name"
+                        maxlength="100"
+                        placeholder="Tas annars från länken"
+                    />
+                    <InputError :message="errors.name" />
+                </div>
+                <Button type="submit" class="w-fit" :disabled="processing">
+                    Lägg till skola
+                </Button>
+            </Form>
+
+            <Form
+                v-if="schoolMenus.length"
+                v-bind="SchoolMenuController.switchTime.form()"
+                class="flex flex-wrap items-end gap-3"
+                v-slot="{ errors, processing }"
+            >
+                <div class="grid gap-2">
+                    <Label for="lunch-switch">
+                        Visa morgondagens lunch från klockan
+                    </Label>
+                    <Input
+                        id="lunch-switch"
+                        name="time"
+                        type="time"
+                        :default-value="lunchSwitch"
+                        required
+                        class="w-32"
+                    />
+                    <InputError :message="errors.time" />
+                </div>
+                <Button variant="outline" type="submit" :disabled="processing">
+                    Spara
                 </Button>
             </Form>
         </section>

@@ -848,6 +848,14 @@ MealProvider
 
 Tester använder Http::fake(), aldrig riktiga anrop.
 
+I version 1 (Milestone 8):
+
+- En skola läggs till med Matilda-länken. Namnet tas ur länken (…/meals/week/{distributorId}_{namn}) och kan ändras. Ingen kontakt med Matilda medan sidan visas: menyn hämtas i ett köjobb och sedan av school-meals:fetch kl. 05:30 varje morgon.
+- Hämtningen gäller måndag denna vecka till söndag nästa vecka (14 dagar).
+- Skollunchen visas i vuxnas Idag, barnets Min dag, barnkortet på hemskärmen och widgeten Skollunch.
+- Efter families.settings.school_lunch_switch (förval 15:00) visas nästa skoldags lunch: "Skollunch imorgon", eller till exempel "Skollunch måndag" på fredag eftermiddag.
+- Skolnamn och distributorId för familjens riktiga skolor finns bara i databasen, aldrig i kod, tester eller dokument.
+
 ---
 
 # Kalender

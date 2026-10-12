@@ -12,8 +12,11 @@ use App\Http\Requests\Family\UpdateFamilyRequest;
 use App\Models\Device;
 use App\Models\Family;
 use App\Models\FamilyInvitation;
+use App\Models\Membership;
+use App\Models\SchoolMenu;
 use App\Models\User;
 use App\Support\CurrentFamily;
+use App\Support\SchoolLunch;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -92,6 +95,7 @@ class FamilyController extends Controller
                     'avatarColor' => $child->avatar_color->value,
                     'avatarUrl' => $child->avatarUrl(),
                     'loginEnabled' => $child->loginEnabled(),
+                    'schoolMenuId' => $child->getRelation('pivot') instanceof Membership ? $child->getRelation('pivot')->school_menu_id : null,
                 ])
                 ->values(),
             'invitations' => $canManage
@@ -108,6 +112,14 @@ class FamilyController extends Controller
                         'expiresAt' => $invitation->expires_at->toIso8601String(),
                     ])
                 : [],
+            'schoolMenus' => $canManage
+                ? SchoolMenu::query()->orderBy('name')->get()->map(fn (SchoolMenu $menu) => [
+                    'id' => $menu->id,
+                    'name' => $menu->name,
+                    'fetchedAt' => $menu->fetched_at?->toIso8601String(),
+                ])
+                : [],
+            'lunchSwitch' => $family->settings['school_lunch_switch'] ?? SchoolLunch::DEFAULT_SWITCH,
             'displays' => $canManage
                 ? Device::query()
                     ->where('type', DeviceType::Display)

@@ -14,6 +14,7 @@ use App\Support\CurrentFamily;
 use App\Support\DayPlan;
 use App\Support\LocalTime;
 use App\Support\RoutineDay;
+use App\Support\SchoolLunch;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -44,6 +45,7 @@ class TodayController extends Controller
         return Inertia::render('today/Index', [
             'date' => $today,
             'activities' => $calendar->on($now)->map(fn (Activity $activity) => $calendar->present($activity, $now))->values(),
+            'lunches' => $this->lunches($family),
             // Read again every little while on the page, so the adults follow along live.
             'routines' => $this->routines($family, LocalTime::now()),
             'currentPart' => $family->dayPartFor(LocalTime::now()->format('H:i'))->value,
@@ -95,7 +97,30 @@ class TodayController extends Controller
             'progress' => $plan->progress(),
             'routines' => $this->routines($family, LocalTime::now(), $child),
             ...$this->childActivities($child),
+            'lunch' => SchoolLunch::now($family)->forMenu($family->schoolMenuIdOf($child)),
         ]);
+    }
+
+    /**
+     * Each child's school lunch, today or after school the next school day's.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function lunches(Family $family): array
+    {
+        $lunch = SchoolLunch::now($family);
+        $result = [];
+
+        foreach ($family->children()->with('picture')->orderBy('name')->get() as $child) {
+            $pivot = $child->getRelation('pivot');
+            $meal = $lunch->forMenu($pivot instanceof Membership ? $pivot->school_menu_id : null);
+
+            if ($meal !== null) {
+                $result[] = ['child' => ['id' => $child->id, 'name' => $child->name, 'avatarColor' => $child->avatar_color->value, 'avatarUrl' => $child->avatarUrl()], ...$meal];
+            }
+        }
+
+        return $result;
     }
 
     /**

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property int $family_id
  * @property int $user_id
  * @property FamilyRole $role
+ * @property int|null $school_menu_id
  */
 class Membership extends Pivot
 {

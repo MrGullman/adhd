@@ -2,6 +2,7 @@
 import type { DisplayWidgetItem } from '@/types';
 import ActivitiesWidget from './widgets/ActivitiesWidget.vue';
 import ChildWidget from './widgets/ChildWidget.vue';
+import SchoolMealsWidget from './widgets/SchoolMealsWidget.vue';
 import ShoppingListWidget from './widgets/ShoppingListWidget.vue';
 import TasksWidget from './widgets/TasksWidget.vue';
 import WeekWidget from './widgets/WeekWidget.vue';
@@ -26,6 +27,10 @@ defineProps<{ widget: DisplayWidgetItem }>();
         v-else-if="widget.type === 'tomorrow'"
         title="Imorgon"
         empty="En vanlig dag imorgon."
+        :data="widget.data as never"
+    />
+    <SchoolMealsWidget
+        v-else-if="widget.type === 'school_meals'"
         :data="widget.data as never"
     />
     <WeekWidget
