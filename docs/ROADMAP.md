@@ -542,13 +542,13 @@ Appen kan installeras på telefonen och skickar påminnelser.
 
 ## Tasks
 
-- [ ] PWA med vite-plugin-pwa (manifest, service worker, ikon)
-- [ ] Web Push med laravel-notification-channels/webpush (VAPID-nycklar)
-- [ ] Guide: lägg till på hemskärmen (krävs för push på iPhone)
-- [ ] Påminnelser för uppgifter med tid, kalenderhändelser och när en rutin ska starta
-- [ ] Påminnelse om packning dagen innan en aktivitet
-- [ ] Barn får påminnelser på sin egen enhet
-- [ ] Tysta timmar per användare
+- [x] PWA med eget manifest och egen liten service worker (public/sw.js), ikoner 192/512
+- [x] Web Push med laravel-notification-channels/webpush (VAPID-nycklar)
+- [x] Guide: lägg till på hemskärmen (krävs för push på iPhone)
+- [x] Påminnelser för uppgifter med tid, kalenderhändelser och när en rutin ska starta
+- [x] Påminnelse om packning dagen innan en aktivitet
+- [x] Barn får påminnelser på sin egen enhet
+- [x] Tysta timmar per användare
 
 ## Definition of Done
 

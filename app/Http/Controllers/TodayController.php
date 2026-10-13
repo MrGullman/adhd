@@ -110,6 +110,7 @@ class TodayController extends Controller
             'lunch' => SchoolLunch::now($family)->forMenu($family->schoolMenuIdOf($child)),
             'dinner' => Dinner::next($family, LocalTime::now()),
             'points' => Points::settings($family)['enabled'] ? Points::balance($child) : null,
+            'vapidPublicKey' => $child->reminders_enabled ? config('webpush.vapid.public_key') : null,
         ]);
     }
 

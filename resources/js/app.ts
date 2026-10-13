@@ -4,6 +4,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { initializeFlashToast } from '@/lib/flashToast';
+import { registerServiceWorker } from '@/lib/push';
 
 const appName = import.meta.env.VITE_APP_NAME || 'NPF-familjen';
 
@@ -46,3 +47,6 @@ initializeTheme();
 
 // This will listen for flash toast data from the server...
 initializeFlashToast();
+
+// Installable app and push reminders (public/sw.js).
+registerServiceWorker();

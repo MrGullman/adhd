@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\AvatarColor;
 use App\Enums\FamilyRole;
+use Carbon\CarbonInterface;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -19,6 +20,7 @@ use Illuminate\Support\Carbon;
 use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use NotificationChannels\WebPush\HasPushSubscriptions;
 
 /**
  * Adults log in with e-mail and password. Children have no e-mail or password
@@ -36,6 +38,9 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property string|null $pin
  * @property int $failed_pin_attempts
  * @property Carbon|null $login_disabled_at
+ * @property bool $reminders_enabled
+ * @property string|null $quiet_from
+ * @property string|null $quiet_until
  * @property string|null $two_factor_secret
  * @property string|null $two_factor_recovery_codes
  * @property Carbon|null $two_factor_confirmed_at
@@ -48,7 +53,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 class User extends Authenticatable implements FilamentUser, MustVerifyEmail, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+    use HasFactory, HasPushSubscriptions, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
     /**
      * The same defaults as the database, so that a user just created has them too.
@@ -57,6 +62,9 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail, Pas
      */
     protected $attributes = [
         'avatar_color' => 'teal',
+        'reminders_enabled' => true,
+        'quiet_from' => '20:00:00',
+        'quiet_until' => '07:00:00',
     ];
 
     /**
@@ -69,6 +77,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail, Pas
         return [
             'avatar_color' => AvatarColor::class,
             'is_admin' => 'boolean',
+            'reminders_enabled' => 'boolean',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'pin' => 'encrypted',
@@ -155,6 +164,25 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail, Pas
     /**
      * Compare a child's code in constant time.
      */
+    /**
+     * Whether reminders wait at a time in Sweden, e.g. quiet 20:00–07:00.
+     */
+    public function isQuietAt(CarbonInterface $localTime): bool
+    {
+        if ($this->quiet_from === null || $this->quiet_until === null) {
+            return false;
+        }
+
+        $time = $localTime->format('H:i');
+        $from = substr($this->quiet_from, 0, 5);
+        $until = substr($this->quiet_until, 0, 5);
+
+        // Over midnight, e.g. 20:00–07:00.
+        return $from <= $until
+            ? $time >= $from && $time < $until
+            : $time >= $from || $time < $until;
+    }
+
     public function matchesPin(string $pin): bool
     {
         return $this->pin !== null && hash_equals($this->pin, $pin);

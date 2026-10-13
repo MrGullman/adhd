@@ -8,6 +8,7 @@ use App\Http\Controllers\Family\ChildAccessController;
 use App\Http\Controllers\Family\ChildController;
 use App\Http\Controllers\Family\ChildPairingController;
 use App\Http\Controllers\Family\ChildPinController;
+use App\Http\Controllers\Family\ChildReminderController;
 use App\Http\Controllers\Family\DayPartController;
 use App\Http\Controllers\Family\DeviceController;
 use App\Http\Controllers\Family\DisplayController;
@@ -42,6 +43,7 @@ Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function 
     Route::post('familj/barn/{child}/kod', [ChildPinController::class, 'store'])->whereNumber('child')->name('children.pin.store');
     Route::post('familj/barn/{child}/inloggning', [ChildAccessController::class, 'store'])->whereNumber('child')->name('children.access.store');
     Route::delete('familj/barn/{child}/inloggning', [ChildAccessController::class, 'destroy'])->whereNumber('child')->name('children.access.destroy');
+    Route::put('familj/barn/{child}/paminnelser', [ChildReminderController::class, 'update'])->whereNumber('child')->name('children.reminders.update');
     Route::post('familj/barn/{child}/koppling', [ChildPairingController::class, 'store'])->whereNumber('child')->name('children.pairing.store');
 
     Route::post('familj/enheter', [DeviceController::class, 'store'])->name('devices.store');

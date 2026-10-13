@@ -20,3 +20,6 @@ Schedule::command('school-meals:fetch')->dailyAt('05:30')->timezone('Europe/Stoc
 
 // Familjernas kalendrar (iCal-länkar) läses var 15:e minut.
 Schedule::command('calendars:sync')->everyFifteenMinutes()->withoutOverlapping();
+
+// Påminnelser som push-notiser (uppgifter, rutiner, kalender och packning).
+Schedule::command('reminders:send')->everyMinute()->withoutOverlapping();

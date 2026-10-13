@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Settings\ProfileController;
+use App\Http\Controllers\Settings\ReminderController;
 use App\Http\Controllers\Settings\SecurityController;
 use Illuminate\Auth\Middleware\RequirePassword;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +25,9 @@ Route::middleware(['auth', 'verified', 'role:adult'])->group(function () {
         ->name('user-password.update');
 
     Route::inertia('settings/appearance', 'settings/Appearance')->name('appearance.edit');
+
+    Route::get('settings/paminnelser', [ReminderController::class, 'edit'])->name('reminders.edit');
+    Route::put('settings/paminnelser', [ReminderController::class, 'update'])->name('reminders.update');
 });
 
 Route::get('.well-known/passkey-endpoints', function () {
