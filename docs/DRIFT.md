@@ -140,6 +140,18 @@ Testa återställningen en gång när servern är klar, så vet du att den funge
 
 Backupen ligger på samma server. Den skyddar mot misstag och trasiga uppdateringar, men inte om servern går sönder. Ladda gärna ner en kopia ibland.
 
+### Spara APP_KEY säkert
+
+Dagboken och barnens koder är krypterade med appens nyckel, `APP_KEY` i `/var/www/npf-familjen/shared/.env`. Backupen innehåller databasen men inte `.env`. Försvinner nyckeln går dagboken inte att läsa, inte ens från en backup.
+
+Spara nyckeln på ett säkert ställe utanför servern, t.ex. i din lösenordshanterare:
+
+```bash
+sudo grep ^APP_KEY= /var/www/npf-familjen/shared/.env
+```
+
+Byt aldrig nyckeln på en server som redan används.
+
 ## 9. Gå tillbaka till förra versionen
 
 Från din dator, med deploy-nyckeln:

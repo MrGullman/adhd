@@ -466,12 +466,12 @@ Vårdnadshavarnas anteckningar om ett eller flera barn.
 
 ## Tasks
 
-- [ ] journal_entries tabell
-- [ ] journal_entry_child tabell (vilka barn anteckningen gäller)
-- [ ] Kryptera innehållet (encrypted cast)
-- [ ] JournalPolicy: bara vuxna
-- [ ] Journal page
-- [ ] Historik, filtrera per barn
+- [x] journal_entries tabell
+- [x] journal_entry_child tabell (vilka barn anteckningen gäller)
+- [x] Kryptera innehållet (encrypted cast)
+- [x] JournalPolicy: bara vårdnadshavare (parent), enligt ARCHITECTURE.md
+- [x] Journal page
+- [x] Historik, filtrera per barn
 
 ## Definition of Done
 

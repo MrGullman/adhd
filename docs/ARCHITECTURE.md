@@ -295,6 +295,13 @@ journal_entry_child
 - journal_entry_id
 - user_id (barnet)
 
+I version 2 (Milestone 13):
+
+- /dagbok är skyddad både av rollen (role:parent) och av JournalEntryPolicy. Andra vuxna får 403, barn skickas till sin egen sida.
+- Sökningen sker efter att anteckningarna dekrypterats, eftersom krypterad text inte går att söka i databasen.
+- Båda vårdnadshavarna kan ändra och ta bort anteckningar. Den som skrev visas.
+- Krypteringen använder APP_KEY. Nyckeln måste sparas säkert utanför servern (DRIFT.md).
+
 ---
 
 # Community Data
