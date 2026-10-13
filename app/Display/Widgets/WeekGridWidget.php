@@ -173,7 +173,7 @@ class WeekGridWidget implements DisplayWidgetType
     }
 
     /**
-     * A row per school menu the chosen children have. With more than one
+     * A row per school menu the chosen children have, with every dish of the day. With more than one
      * school, the school's name tells them apart.
      *
      * @param  Collection<int, CarbonImmutable>  $days
@@ -210,9 +210,12 @@ class WeekGridWidget implements DisplayWidgetType
                         return [];
                     }
 
-                    $name = $meal->holiday_name ?? ($meal->courses[0]['name'] ?? null);
+                    // A holiday instead of lunch, otherwise every dish (often "Lunch 1" and "Lunch 2").
+                    $names = $meal->holiday_name !== null
+                        ? [$meal->holiday_name]
+                        : array_map(fn (array $course) => $course['name'], $meal->courses);
 
-                    return $name === null ? [] : [['id' => $meal->id, 'name' => $name, 'picture' => null, 'time' => null]];
+                    return array_map(fn (string $name) => ['id' => $meal->id, 'name' => $name, 'picture' => null, 'time' => null], $names);
                 })->all(),
             ];
         })->all());

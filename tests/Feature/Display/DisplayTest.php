@@ -223,7 +223,7 @@ class DisplayTest extends TestCase
         Activity::factory()->for($this->family)->create(['name' => 'Utflykt', 'date' => '2026-10-18', 'visible_to_children' => true]);
         MealPlanEntry::factory()->for($this->family)->create(['date' => '2026-10-14', 'title' => 'Tacos']);
         $menu = SchoolMenu::factory()->for($this->family)->create();
-        $menu->meals()->create(['date' => '2026-10-12', 'meal_name' => 'Lunch', 'courses' => [['name' => 'Fiskgratäng', 'option' => null]], 'fetched_at' => now()]);
+        $menu->meals()->create(['date' => '2026-10-12', 'meal_name' => 'Lunch', 'courses' => [['name' => 'Fiskgratäng', 'option' => 'Lunch 1'], ['name' => 'Linsgryta', 'option' => 'Lunch 2']], 'fetched_at' => now()]);
         $this->family->children()->updateExistingPivot($this->child->id, ['school_menu_id' => $menu->id]);
 
         $this->get(route('display.show', $token))
@@ -241,7 +241,8 @@ class DisplayTest extends TestCase
                 ->where('widgets.0.data.rows.3.label', 'Middag')
                 ->where('widgets.0.data.rows.3.cells.2.0.name', 'Tacos')
                 ->where('widgets.0.data.rows.4.label', 'Skolmat')
-                ->where('widgets.0.data.rows.4.cells.0.0.name', 'Fiskgratäng'),
+                ->where('widgets.0.data.rows.4.cells.0.0.name', 'Fiskgratäng')
+                ->where('widgets.0.data.rows.4.cells.0.1.name', 'Linsgryta'),
             );
     }
 
