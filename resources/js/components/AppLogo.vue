@@ -1,15 +1,18 @@
 <script setup lang="ts">
+import logoUrl from '../../images/logo-wide.png';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
 </script>
 
+<!-- Hela logotypen. När sidomenyn är ihopfälld visas bara symbolen. -->
 <template>
-    <AppLogoIcon class="size-8 shrink-0" />
-    <div class="ml-1 grid flex-1 text-left">
-        <span class="truncate font-display text-lg leading-tight font-semibold">
-            <span class="text-primary">NPF</span>-<span
-                class="text-orange-strong"
-                >familjen</span
-            >
-        </span>
-    </div>
+    <img
+        :src="logoUrl"
+        alt="NPF-familjen"
+        width="600"
+        height="372"
+        class="h-auto w-48 max-w-full object-contain group-data-[collapsible=icon]:hidden"
+    />
+    <AppLogoIcon
+        class="hidden size-8 shrink-0 group-data-[collapsible=icon]:block"
+    />
 </template>

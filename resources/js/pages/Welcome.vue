@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import logoUrl from '../../images/logo-320.png';
+import logoUrl from '../../images/logo-wide.png';
 import { dashboard, login, pictureSources, privacy } from '@/routes';
 </script>
 
@@ -13,9 +13,9 @@ import { dashboard, login, pictureSources, privacy } from '@/routes';
         <img
             :src="logoUrl"
             alt="NPF-familjen"
-            width="200"
-            height="200"
-            class="size-50 rounded-xl"
+            width="600"
+            height="372"
+            class="h-auto w-80"
         />
 
         <div class="flex max-w-md flex-col items-center gap-3 text-center">

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Form, Head } from '@inertiajs/vue3';
-import logoUrl from '../../../images/logo-320.png';
+import logoUrl from '../../../images/logo-wide.png';
 import ChildPairingController from '@/actions/App/Http/Controllers/Family/ChildPairingController';
 
 defineProps<{
@@ -15,7 +15,13 @@ defineProps<{
     <main
         class="flex min-h-svh flex-col items-center justify-center gap-8 bg-surface px-4 py-8 text-center text-ink"
     >
-        <img :src="logoUrl" alt="NPF-familjen" class="size-24" />
+        <img
+            :src="logoUrl"
+            alt="NPF-familjen"
+            width="600"
+            height="372"
+            class="h-auto w-56"
+        />
 
         <template v-if="childName">
             <h1 class="text-heading font-semibold">

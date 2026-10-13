@@ -120,8 +120,11 @@ const mainNavItems = computed(() =>
         <SidebarHeader>
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton size="lg" as-child>
-                        <Link :href="dashboard()">
+                    <SidebarMenuButton size="lg" class="h-auto py-1" as-child>
+                        <Link
+                            :href="dashboard()"
+                            aria-label="NPF-familjen, Idag"
+                        >
                             <AppLogo />
                         </Link>
                     </SidebarMenuButton>
