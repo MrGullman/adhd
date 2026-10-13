@@ -636,40 +636,35 @@ Admin har överblick över familjer och konton och kan stänga av ett konto elle
 
 ## Mål
 
-Appen följer med barnet när det blir äldre. Barnens del passar idag bäst för ungefär 5–10 år. Ett barn på 10–14 år behöver ofta samma struktur, men tycker att stora bilder, "Min dag" och stjärnor känns barnsliga och vill bestämma mer själv. Vårdnadshavare väljer läge per barn, eftersom mognad och behov hos barn med NPF ofta inte följer åldern.
+Appen följer med barnet när det blir äldre. Läget Barn passar ungefär 5–10 år. Ett barn på 10–14 år behöver ofta samma struktur, men tycker att stora bilder, "Min dag" och stjärnor känns barnsliga och vill bestämma mer själv. Vårdnadshavare väljer läge per barn, eftersom mognad och behov hos barn med NPF ofta inte följer åldern.
 
-## Två lägen
+Lägena heter **Barn** och **Ungdom**. Reglerna står i STYLEGUIDE.md under "Barnens visningslägen".
 
-| | Liten (som idag) | Större |
-| --- | --- | --- |
-| Passar ungefär | 5–10 år | 10–14 år |
-| Text | minst 22px, högst tre ord, börjar med verbet | minst 18px, vanlig kort text |
-| Bilder | stora, alltid med ord | små ikoner, kan stängas av |
-| Tryckytor | minst 64px | minst 48px (som vuxna) |
-| Startsidan | "Hej Alva!", Nu först, en sak i taget | "Idag" med dagens lista och tider, veckan nära till hands |
-| Rutiner | fokusläge, ett steg i taget | checklista, alla steg synliga |
-| Poäng och belöningar | på (om familjen använder dem) | kan stängas av för just det barnet |
-| Egna saker | bocka av | lägga in egna uppgifter och saker på listor |
+## Beslutat
 
-Hemskärmen visar alla barn som idag, oavsett läge.
+- Ungdom: text minst 18px (`youth-label`), tryckytor 48px, typsnittet `body` i listor och text, Fredoka bara i rubriker
+- Bildstöd är på från början i Ungdom, och vårdnadshavare kan stänga av det per barn
+- Rutiner är en checklista i Ungdom, och fokusläget kan väljas
+- Hemskärmen ser likadan ut oavsett läge
 
 ## Tasks
 
-- [ ] Läge per barn: users.child_view (small, large). Det följer barnet, även om barnet senare finns i två familjer (växelvis boende).
-- [ ] Vårdnadshavare väljer läge på barnets sida, med en förhandsvisning av hur Min dag ser ut i båda lägena
-- [ ] STYLEGUIDE.md och tokens.json: regler och storlekar för läget Större (föreslaget minst 18px text och 48px tryckytor, beslutas innan bygget)
-- [ ] Min dag, Min vecka, rutinen och handlingslistan i läget Större
-- [ ] Rutiner som checklista i läget Större (fokusläget finns kvar som val)
+- [x] STYLEGUIDE.md och tokens.json: regler för läget Ungdom (`youth-label`, `picture-xs`)
+- [ ] Läge per barn: users.child_view (child, youth). Det följer barnet, även om barnet senare finns i två familjer (växelvis boende).
+- [ ] Bildstöd av eller på per barn i läget Ungdom (users.child_pictures)
+- [ ] Vårdnadshavare väljer läge och bildstöd på barnets sida, med en förhandsvisning av Min dag i båda lägena
+- [ ] Tokens i app.css: `youth-label` och `picture-xs`
+- [ ] Min dag, Min vecka, Mina poäng och handlingslistan i läget Ungdom
+- [ ] Rutin som checklista i läget Ungdom, med knapp till fokusläget
 - [ ] Poäng och belöningar av eller på per barn (family_user, eftersom det är familjens beslut)
-- [ ] Barn i läget Större kan lägga in egna uppgifter till sig själva. Vuxna ser dem i Idag och kan ändra och ta bort dem.
-- [ ] Påminnelser och tysta timmar som idag
+- [ ] Barn i läget Ungdom kan lägga in egna uppgifter till sig själva. Vuxna ser dem i Idag och kan ändra och ta bort dem.
 - [ ] Tester: läget ändrar bara barnets egna vyer, bara vårdnadshavare byter läge, ett barn kan bara lägga in uppgifter till sig själv, isolationstest för nya fält
 
 ## Definition of Done
 
-- Ett barn i läget Större ser en lugn, vuxnare vy med samma struktur
+- Ett barn i läget Ungdom ser en lugn, vuxnare vy med samma struktur
 - Vårdnadshavare byter läge per barn och ser direkt hur det blir
-- Ett barn kan stänga av ingenting själv: läge och belöningar bestäms av vårdnadshavare
+- Barnet kan inte byta läge eller stänga av belöningar själv
 
 ---
 
