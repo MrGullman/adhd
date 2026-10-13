@@ -3,6 +3,7 @@
 namespace App\Display;
 
 use App\Display\Widgets\ActivitiesWidget;
+use App\Display\Widgets\CalendarWidget;
 use App\Display\Widgets\ChildWidget;
 use App\Display\Widgets\DisplayWidgetType;
 use App\Display\Widgets\MealPlanWidget;
@@ -16,7 +17,7 @@ use App\Display\Widgets\WeekWidget;
 use App\Models\DisplayWidget;
 
 /**
- * The widgets a home display can have. The calendar comes in version 2.
+ * The widgets a home display can have.
  */
 class WidgetRegistry
 {
@@ -34,6 +35,7 @@ class WidgetRegistry
             new TomorrowWidget,
             new WeekWidget,
             new WeekGridWidget,
+            new CalendarWidget,
             new ShoppingListWidget,
             new PointsWidget,
         ];

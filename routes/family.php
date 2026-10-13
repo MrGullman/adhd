@@ -3,6 +3,7 @@
 use App\Http\Controllers\ChildSessionController;
 use App\Http\Controllers\DisplayController as HomeDisplayController;
 use App\Http\Controllers\Family\ActiveFamilyController;
+use App\Http\Controllers\Family\CalendarController;
 use App\Http\Controllers\Family\ChildAccessController;
 use App\Http\Controllers\Family\ChildController;
 use App\Http\Controllers\Family\ChildPairingController;
@@ -49,6 +50,12 @@ Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function 
     Route::delete('familj/skolor/{schoolMenu}', [SchoolMenuController::class, 'destroy'])->name('school-menus.destroy');
     Route::put('familj/skolor/byte', [SchoolMenuController::class, 'switchTime'])->name('school-menus.switch');
     Route::put('familj/medlemmar/{member}/skola', [SchoolMenuController::class, 'assign'])->whereNumber('member')->name('school-menus.assign');
+
+    Route::get('familj/kalendrar', [CalendarController::class, 'index'])->name('calendars.index');
+    Route::post('familj/kalendrar', [CalendarController::class, 'store'])->middleware('throttle:10,1')->name('calendars.store');
+    Route::put('familj/kalendrar/{calendar}', [CalendarController::class, 'update'])->middleware('throttle:10,1')->name('calendars.update');
+    Route::delete('familj/kalendrar/{calendar}', [CalendarController::class, 'destroy'])->name('calendars.destroy');
+    Route::post('familj/kalendrar/{calendar}/las-in', [CalendarController::class, 'sync'])->middleware('throttle:6,1')->name('calendars.sync');
 
     Route::post('familj/hemskarmar', [DisplayController::class, 'store'])->name('displays.store');
     Route::get('familj/hemskarmar/{device}', [DisplayController::class, 'edit'])->name('displays.edit');

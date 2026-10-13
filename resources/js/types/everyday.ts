@@ -156,3 +156,15 @@ export type MealEntry = {
     portions: number;
     label?: string;
 };
+
+export type CalendarEventEntry = {
+    id: number;
+    title: string;
+    time: string | null;
+    endTime: string | null;
+    allDay: boolean;
+    location: string | null;
+    calendar: string | null;
+    owner: Member | null;
+    picture: PictureItem | null;
+};

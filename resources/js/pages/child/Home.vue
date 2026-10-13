@@ -4,6 +4,7 @@ import { CalendarDays, Check, LogOut, ShoppingCart, Star } from '@lucide/vue';
 import { computed } from 'vue';
 import ChildRoutineController from '@/actions/App/Http/Controllers/Routines/ChildRoutineController';
 import TaskCompletionController from '@/actions/App/Http/Controllers/Tasks/TaskCompletionController';
+import CalendarEventRow from '@/components/CalendarEventRow.vue';
 import ChildActivity from '@/components/ChildActivity.vue';
 import CompletionToggle from '@/components/CompletionToggle.vue';
 import DayPartLabel from '@/components/DayPartLabel.vue';
@@ -17,6 +18,7 @@ import { shopping, week as childWeek } from '@/routes/child';
 import { index as childRewards } from '@/routes/child/rewards';
 import type {
     ActivityEntry,
+    CalendarEventEntry,
     DayGroup,
     DayPart,
     RoutineSummary,
@@ -34,6 +36,7 @@ const props = defineProps<{
     progress: { total: number; completed: number };
     routines: RoutineSummary[];
     activities: ActivityEntry[];
+    calendarEvents: CalendarEventEntry[];
     packTomorrow: ActivityEntry[];
     tomorrow: ActivityEntry[];
     lunch: SchoolLunchData | null;
@@ -100,7 +103,7 @@ const allDone = computed(
 
             <!-- Händer idag, med frågan om packningen -->
             <section
-                v-if="activities.length"
+                v-if="activities.length || calendarEvents.length"
                 class="flex flex-col gap-3"
                 aria-labelledby="idag"
             >
@@ -115,6 +118,12 @@ const allDone = computed(
                     :key="activity.id"
                     :activity="activity"
                     mode="today"
+                />
+                <CalendarEventRow
+                    v-for="event in calendarEvents"
+                    :key="`k${event.id}`"
+                    :event="event"
+                    child
                 />
             </section>
 

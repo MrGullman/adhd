@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { Form, Head, Link, router } from '@inertiajs/vue3';
-import { Monitor } from '@lucide/vue';
+import { CalendarDays, Monitor } from '@lucide/vue';
 import ChildController from '@/actions/App/Http/Controllers/Family/ChildController';
 import DayPartController from '@/actions/App/Http/Controllers/Family/DayPartController';
 import DeviceController from '@/actions/App/Http/Controllers/Family/DeviceController';
+import CalendarController from '@/actions/App/Http/Controllers/Family/CalendarController';
 import DisplayController from '@/actions/App/Http/Controllers/Family/DisplayController';
 import SchoolMenuController from '@/actions/App/Http/Controllers/Family/SchoolMenuController';
 import FamilyController from '@/actions/App/Http/Controllers/Family/FamilyController';
@@ -438,6 +439,27 @@ const selectClass =
                     Spara
                 </Button>
             </Form>
+        </section>
+
+        <!-- Kalendrar -->
+        <section
+            v-if="canManage"
+            class="flex flex-col gap-4"
+            aria-labelledby="kalendrar"
+        >
+            <h2 id="kalendrar" class="text-title">Kalendrar</h2>
+            <p class="text-ink-muted">
+                Visa familjens kalendrar från Google, iPhone eller Outlook i
+                appen och på hemskärmen.
+            </p>
+            <Link
+                :href="CalendarController.index()"
+                class="flex items-center gap-3 rounded-lg border border-line bg-surface-raised p-3 hover:border-primary"
+            >
+                <CalendarDays class="size-6 shrink-0" aria-hidden="true" />
+                <span class="min-w-0 flex-1 font-bold">Kalendrar</span>
+                <span class="font-bold text-primary">Hantera</span>
+            </Link>
         </section>
 
         <!-- Hemskärmar -->

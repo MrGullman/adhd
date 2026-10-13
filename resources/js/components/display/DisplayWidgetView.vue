@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { DisplayWidgetItem } from '@/types';
 import ActivitiesWidget from './widgets/ActivitiesWidget.vue';
+import CalendarWidget from './widgets/CalendarWidget.vue';
 import ChildWidget from './widgets/ChildWidget.vue';
 import MealPlanWidget from './widgets/MealPlanWidget.vue';
 import PointsWidget from './widgets/PointsWidget.vue';
@@ -54,6 +55,10 @@ defineProps<{ widget: DisplayWidgetItem }>();
     />
     <WeekGridWidget
         v-else-if="widget.type === 'week_grid'"
+        :data="widget.data as never"
+    />
+    <CalendarWidget
+        v-else-if="widget.type === 'calendar'"
         :data="widget.data as never"
     />
 </template>

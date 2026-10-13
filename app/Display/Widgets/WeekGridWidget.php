@@ -2,8 +2,10 @@
 
 namespace App\Display\Widgets;
 
+use App\Calendar\FamilyCalendar;
 use App\Display\DisplayContext;
 use App\Models\Activity;
+use App\Models\CalendarEvent;
 use App\Models\DisplayWidget;
 use App\Models\MealPlanEntry;
 use App\Models\Membership;
@@ -17,7 +19,8 @@ use Illuminate\Support\Collection;
 
 /**
  * Veckoschema: like the whiteboard at home. A row per chosen family member
- * with their activities each day, and rows for dinner and school lunch.
+ * with their activities and calendar events each day, and rows for dinner
+ * and school lunch.
  * Only what everyone at home may see (DisplayContext::activitiesOn).
  */
 class WeekGridWidget implements DisplayWidgetType
@@ -57,6 +60,13 @@ class WeekGridWidget implements DisplayWidgetType
                 || $activity->participants->contains(fn (User $user) => in_array($user->id, $childIds, true)))->values(),
         ])->all();
 
+        // Calendar events that everyone at home may see, not already shown as an activity.
+        $calendars = FamilyCalendar::between($monday, $monday->addDays(6));
+        /** @var array<string, Collection<int, CalendarEvent>> $events */
+        $events = $days->mapWithKeys(fn (CarbonImmutable $day) => [
+            $day->toDateString() => $calendars->on($day, 'display', $visible[$day->toDateString()]->map(fn (Activity $activity) => $activity->name)->all()),
+        ])->all();
+
         $members = $this->members($context, $widget);
         $rows = [];
 
@@ -65,20 +75,32 @@ class WeekGridWidget implements DisplayWidgetType
                 'key' => 'member-'.$member->id,
                 'member' => DisplayContext::member($member),
                 'label' => $member->name,
-                'cells' => $days->map(fn (CarbonImmutable $day) => $visible[$day->toDateString()]
-                    ->filter(fn (Activity $activity) => $activity->participants->contains(fn (User $user) => $user->is($member)))
-                    ->map(fn (Activity $activity) => $this->item($activity))
-                    ->values()
-                    ->all())->all(),
+                'cells' => $days->map(fn (CarbonImmutable $day) => $this->sorted([
+                    ...$visible[$day->toDateString()]
+                        ->filter(fn (Activity $activity) => $activity->participants->contains(fn (User $user) => $user->is($member)))
+                        ->map(fn (Activity $activity) => $this->item($activity))
+                        ->all(),
+                    ...$events[$day->toDateString()]
+                        ->filter(fn (CalendarEvent $event) => $calendars->ownerId($event) === $member->id)
+                        ->map(fn (CalendarEvent $event) => $this->eventItem($calendars, $event, $day))
+                        ->all(),
+                ]))->all(),
             ];
         }
 
-        // Things without anyone in particular, e.g. "Utflykt", are for everyone.
-        $everyone = $days->map(fn (CarbonImmutable $day) => $visible[$day->toDateString()]
-            ->filter(fn (Activity $activity) => $activity->participants->isEmpty())
-            ->map(fn (Activity $activity) => $this->item($activity))
-            ->values()
-            ->all());
+        // Things without anyone in particular, e.g. "Utflykt" or the family
+        // calendar, are for everyone.
+        $everyone = $days->map(fn (CarbonImmutable $day) => $this->sorted([
+            ...$visible[$day->toDateString()]
+                ->filter(fn (Activity $activity) => $activity->participants->isEmpty())
+                ->map(fn (Activity $activity) => $this->item($activity))
+                ->all(),
+            ...$events[$day->toDateString()]
+                ->filter(fn (CalendarEvent $event) => $calendars->ownerId($event) === null
+                    || ! $members->contains(fn (User $member) => $member->id === $calendars->ownerId($event)))
+                ->map(fn (CalendarEvent $event) => $this->eventItem($calendars, $event, $day))
+                ->all(),
+        ]));
 
         if ($everyone->contains(fn (array $cell) => $cell !== [])) {
             $rows[] = ['key' => 'everyone', 'member' => null, 'label' => 'Alla', 'cells' => $everyone->all()];
@@ -143,6 +165,34 @@ class WeekGridWidget implements DisplayWidgetType
             'picture' => $activity->picture?->toPicker(),
             'time' => $activity->shortTime(),
         ];
+    }
+
+    /**
+     * @return array{id: int, name: string, picture: array<string, mixed>|null, time: string|null}
+     */
+    private function eventItem(FamilyCalendar $calendars, CalendarEvent $event, CarbonImmutable $day): array
+    {
+        $presented = $calendars->present($event, $day);
+
+        return [
+            'id' => $event->id,
+            'name' => $presented['title'],
+            'picture' => $presented['picture'],
+            'time' => $presented['time'] ?? ($presented['endTime'] !== null ? '→ '.$presented['endTime'] : null),
+        ];
+    }
+
+    /**
+     * All-day first, then by time.
+     *
+     * @param  array<int, array{id: int, name: string, picture: array<string, mixed>|null, time: string|null}>  $items
+     * @return list<array{id: int, name: string, picture: array<string, mixed>|null, time: string|null}>
+     */
+    private function sorted(array $items): array
+    {
+        usort($items, fn (array $a, array $b) => [$a['time'] !== null, $a['time']] <=> [$b['time'] !== null, $b['time']]);
+
+        return $items;
     }
 
     /**
