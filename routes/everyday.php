@@ -9,6 +9,7 @@ use App\Http\Controllers\Food\MealPlanController;
 use App\Http\Controllers\Food\PantryController;
 use App\Http\Controllers\Food\RecipeController;
 use App\Http\Controllers\Food\SuggestionController;
+use App\Http\Controllers\JournalController;
 use App\Http\Controllers\Lists\CompletedListItemsController;
 use App\Http\Controllers\Lists\ListController;
 use App\Http\Controllers\Lists\ListItemCompletionController;
@@ -91,6 +92,14 @@ Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function 
     Route::get('uppgifter/{task}/andra', [TaskController::class, 'edit'])->name('tasks.edit');
     Route::put('uppgifter/{task}', [TaskController::class, 'update'])->name('tasks.update');
     Route::delete('uppgifter/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
+});
+
+// Dagboken: parents only. Other adults and children never reach it.
+Route::middleware(['auth', 'verified', 'family', 'role:parent'])->group(function () {
+    Route::get('dagbok', [JournalController::class, 'index'])->name('journal.index');
+    Route::post('dagbok', [JournalController::class, 'store'])->name('journal.store');
+    Route::put('dagbok/{entry}', [JournalController::class, 'update'])->whereNumber('entry')->name('journal.update');
+    Route::delete('dagbok/{entry}', [JournalController::class, 'destroy'])->whereNumber('entry')->name('journal.destroy');
 });
 
 // Adults and children: children add to the shopping list and tick off their own tasks.

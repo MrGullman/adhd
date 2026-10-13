@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import {
     CalendarDays,
     CalendarRange,
     ChefHat,
     ClipboardList,
+    NotebookPen,
     LayoutGrid,
     ListOrdered,
     ListTodo,
@@ -30,9 +31,13 @@ import { index as listsIndex } from '@/routes/lists';
 import { index as mealPlanIndex } from '@/routes/meal-plan';
 import { index as routinesIndex } from '@/routes/routines';
 import { index as tasksIndex } from '@/routes/tasks';
+import { computed } from 'vue';
+import { index as journalIndex } from '@/routes/journal';
 import type { NavItem } from '@/types';
 
-const mainNavItems: NavItem[] = [
+const page = usePage();
+
+const allItems: NavItem[] = [
     {
         title: 'Idag',
         href: dashboard(),
@@ -74,11 +79,24 @@ const mainNavItems: NavItem[] = [
         icon: ClipboardList,
     },
     {
+        title: 'Dagbok',
+        href: journalIndex(),
+        icon: NotebookPen,
+    },
+    {
         title: 'Familjen',
         href: familyShow(),
         icon: Users,
     },
 ];
+
+// Dagboken is for parents only.
+const mainNavItems = computed(() =>
+    allItems.filter(
+        (item) =>
+            item.title !== 'Dagbok' || (page.props.family?.canManage ?? false),
+    ),
+);
 </script>
 
 <template>
