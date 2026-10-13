@@ -5,6 +5,7 @@ import { computed, ref } from 'vue';
 import TaskController from '@/actions/App/Http/Controllers/Tasks/TaskController';
 import ActivityCard from '@/components/ActivityCard.vue';
 import DayPartLabel from '@/components/DayPartLabel.vue';
+import DinnerCard from '@/components/DinnerCard.vue';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import SchoolLunch from '@/components/SchoolLunch.vue';
 import TaskRow from '@/components/TaskRow.vue';
@@ -16,6 +17,7 @@ import type {
     DayPart,
     Member,
     RoutineSummary,
+    MealEntry,
     SchoolLunchData,
 } from '@/types';
 
@@ -35,6 +37,7 @@ const props = defineProps<{
     routines: RoutineSummary[];
     activities: ActivityEntry[];
     lunches: Array<SchoolLunchData & { child: Member }>;
+    dinner: MealEntry | null;
 }>();
 
 // The adults follow the children's routines and tasks live.
@@ -149,6 +152,14 @@ const chip =
                     <ActivityCard :activity="activity" />
                 </li>
             </ul>
+        </section>
+
+        <section
+            v-if="dinner"
+            class="rounded-lg border border-line bg-surface-raised p-3"
+            aria-label="Middag"
+        >
+            <DinnerCard :dinner="dinner" />
         </section>
 
         <section

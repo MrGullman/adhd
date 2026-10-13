@@ -5,6 +5,7 @@ use App\Http\Controllers\Activities\CalendarController;
 use App\Http\Controllers\Activities\ChildActivityController;
 use App\Http\Controllers\ChildShoppingListController;
 use App\Http\Controllers\Food\IngredientController;
+use App\Http\Controllers\Food\MealPlanController;
 use App\Http\Controllers\Food\PantryController;
 use App\Http\Controllers\Food\RecipeController;
 use App\Http\Controllers\Food\SuggestionController;
@@ -57,6 +58,13 @@ Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function 
     Route::delete('mat/skafferi/{pantryItem}', [PantryController::class, 'destroy'])->name('pantry.destroy');
 
     Route::get('mat/forslag', SuggestionController::class)->name('meal-suggestions');
+
+    Route::get('mat/vecka', [MealPlanController::class, 'index'])->name('meal-plan.index');
+    Route::post('mat/vecka', [MealPlanController::class, 'store'])->name('meal-plan.store');
+    Route::put('mat/vecka/{entry}', [MealPlanController::class, 'update'])->whereNumber('entry')->name('meal-plan.update');
+    Route::delete('mat/vecka/{entry}', [MealPlanController::class, 'destroy'])->whereNumber('entry')->name('meal-plan.destroy');
+    Route::post('mat/vecka/handla', [MealPlanController::class, 'shoppingList'])->name('meal-plan.shopping-list');
+    Route::put('mat/vecka/byte', [MealPlanController::class, 'dinnerSwitch'])->name('meal-plan.dinner-switch');
     Route::get('mat/ingredienser', [IngredientController::class, 'index'])->name('ingredients.index');
 
     Route::get('imorgon', [CalendarController::class, 'tomorrow'])->name('tomorrow');

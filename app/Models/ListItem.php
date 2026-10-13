@@ -16,13 +16,18 @@ use Illuminate\Support\Carbon;
  * @property int $list_id
  * @property int|null $picture_id
  * @property string $name
+ * @property int|null $ingredient_id
+ * @property string|null $quantity
+ * @property string|null $unit
+ * @property Carbon|null $meal_plan_week
+ * @property string|null $for_meals
  * @property int|null $added_by
  * @property Carbon|null $completed_at
  * @property int|null $completed_by
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'picture_id', 'added_by'])]
+#[Fillable(['name', 'picture_id', 'added_by', 'ingredient_id', 'quantity', 'unit', 'meal_plan_week', 'for_meals'])]
 class ListItem extends Model
 {
     /** @use HasFactory<ListItemFactory> */
@@ -37,6 +42,7 @@ class ListItem extends Model
     {
         return [
             'completed_at' => 'datetime',
+            'meal_plan_week' => 'date:Y-m-d',
         ];
     }
 
@@ -64,6 +70,21 @@ class ListItem extends Model
     public function adder(): BelongsTo
     {
         return $this->belongsTo(User::class, 'added_by');
+    }
+
+    /**
+     * The grocery, when known: from the meal plan, or chosen when added.
+     *
+     * @return BelongsTo<Ingredient, $this>
+     */
+    public function ingredient(): BelongsTo
+    {
+        return $this->belongsTo(Ingredient::class);
+    }
+
+    public function isFromMealPlan(): bool
+    {
+        return $this->meal_plan_week !== null;
     }
 
     public function isCompleted(): bool

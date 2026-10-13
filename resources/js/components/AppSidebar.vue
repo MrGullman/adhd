@@ -27,7 +27,7 @@ import { dashboard, tomorrow, week } from '@/routes';
 import { index as activitiesIndex } from '@/routes/activities';
 import { show as familyShow } from '@/routes/family';
 import { index as listsIndex } from '@/routes/lists';
-import { index as recipesIndex } from '@/routes/recipes';
+import { index as mealPlanIndex } from '@/routes/meal-plan';
 import { index as routinesIndex } from '@/routes/routines';
 import { index as tasksIndex } from '@/routes/tasks';
 import type { NavItem } from '@/types';
@@ -65,7 +65,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Mat',
-        href: recipesIndex(),
+        href: mealPlanIndex(),
         icon: ChefHat,
     },
     {

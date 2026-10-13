@@ -784,6 +784,16 @@ I version 1 (Milestone 9):
 - Matförslag i Milestone 9: en vara som finns hemma räknas som tillräcklig oavsett mängd. Mängder och enheter jämförs när handlingslistan räknas ut (Milestone 10).
 - Butiksavdelningar i gångordning: Frukt & grönt, Bröd, Mejeri, Kött & fisk, Skafferi, Frys, Dryck, Hushåll, Övrigt.
 
+I version 1 (Milestone 10):
+
+- Veckomatsedeln gäller middag (meal_plan_entries.meal = dinner). Fritext utan recept handlas inte till.
+- "Uppdatera handlingslistan" gäller veckan som visas, från idag och framåt (måltider som varit handlas inte till). Varorna som räknades ut förra gången för samma vecka och inte är avbockade byts ut. Det familjen lagt till själv (list_items.meal_plan_week null) och det som är avbockat rörs aldrig.
+- Mängder skalas med veckomatsedelns portioner delat med receptets. Samma vara slås ihop per enhetsgrupp: vikt (g, kg), volym (krm, tsk, msk, ml, dl, l) eller samma enhet. Styck, påse, förpackning m.fl. avrundas uppåt till hela.
+- Avdrag mot skafferiet: basvaror och varor utan mängd räcker alltid. En mängd dras av inom samma enhetsgrupp. Olika grupper (t.ex. st och g) kan inte jämföras, då handlas hela behovet.
+- "smör eller margarin": inget att handla när någon av varorna finns hemma.
+- En vara som läggs på handlingslistan med ett namn som finns bland varorna får varans butiksavdelning. Avbockat på handlingslistan läggs i skafferiet (utan mängd).
+- "Middag ikväll" visas i Idag, Min dag och på hemskärmen (widget Middag). Efter families.settings.dinner_switch (förval 19:00) visas morgondagens middag.
+
 ---
 
 # Skolmat (Matilda)

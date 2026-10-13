@@ -1,0 +1,317 @@
+<script setup lang="ts">
+import { Form, Head, Link, router } from '@inertiajs/vue3';
+import {
+    ChefHat,
+    ChevronLeft,
+    ChevronRight,
+    Minus,
+    Plus,
+    ShoppingCart,
+    X,
+} from '@lucide/vue';
+import { ref } from 'vue';
+import MealPlanController from '@/actions/App/Http/Controllers/Food/MealPlanController';
+import RecipeController from '@/actions/App/Http/Controllers/Food/RecipeController';
+import FoodTabs from '@/components/food/FoodTabs.vue';
+import InputError from '@/components/InputError.vue';
+import PictureThumb from '@/components/PictureThumb.vue';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { formatDay } from '@/lib/format';
+import type { MealEntry } from '@/types';
+
+defineOptions({
+    layout: {
+        breadcrumbs: [{ title: 'Mat', href: MealPlanController.index() }],
+    },
+});
+
+defineProps<{
+    offset: number;
+    weekNumber: number;
+    days: Array<{
+        date: string;
+        isToday: boolean;
+        isPast: boolean;
+        entries: MealEntry[];
+    }>;
+    recipes: Array<{ id: number; name: string; portions: number }>;
+    canEdit: boolean;
+    canManage: boolean;
+    dinnerSwitch: string;
+}>();
+
+// The day whose add form is open.
+const adding = ref<string | null>(null);
+
+function setPortions(entry: MealEntry, portions: number): void {
+    if (portions >= 1 && portions <= 20) {
+        router.put(
+            MealPlanController.update.url(entry.id),
+            { portions },
+            { preserveScroll: true },
+        );
+    }
+}
+
+const navClass =
+    'flex size-tap-adult items-center justify-center rounded-full border border-line bg-surface-raised hover:border-primary';
+const selectClass =
+    'h-12 w-full rounded-md border-2 border-input bg-surface-raised px-3 text-body';
+</script>
+
+<!-- Veckomatsedeln: familjens middagar. Skolmaten visas för sig. -->
+<template>
+    <Head title="Veckomatsedel" />
+
+    <div class="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4 md:p-8">
+        <h1 class="text-heading font-semibold">Mat</h1>
+        <FoodTabs />
+
+        <header class="flex flex-wrap items-center gap-3">
+            <Link
+                :href="
+                    MealPlanController.index({ query: { vecka: offset - 1 } })
+                "
+                :class="navClass"
+                aria-label="Veckan före"
+            >
+                <ChevronLeft class="size-6" aria-hidden="true" />
+            </Link>
+            <h2 class="text-title">Vecka {{ weekNumber }}</h2>
+            <Link
+                :href="
+                    MealPlanController.index({ query: { vecka: offset + 1 } })
+                "
+                :class="navClass"
+                aria-label="Veckan efter"
+            >
+                <ChevronRight class="size-6" aria-hidden="true" />
+            </Link>
+            <Link
+                v-if="offset !== 0"
+                :href="MealPlanController.index()"
+                class="font-bold underline"
+                >Den här veckan</Link
+            >
+        </header>
+
+        <section
+            v-if="canEdit"
+            class="flex flex-col gap-2 rounded-lg bg-surface-sunken p-4"
+            aria-labelledby="handla"
+        >
+            <h2 id="handla" class="font-bold">Handla till veckan</h2>
+            <p class="text-caption text-ink-muted">
+                Lägger det som behövs till veckans kommande middagar på
+                handlingslistan, minus det som finns hemma. Det ni lagt till
+                själva och det som är avbockat rörs inte.
+            </p>
+            <Form
+                v-bind="
+                    MealPlanController.shoppingList.form({
+                        query: { vecka: offset },
+                    })
+                "
+                :options="{ preserveScroll: true }"
+                v-slot="{ processing }"
+            >
+                <Button type="submit" class="w-fit" :disabled="processing">
+                    <ShoppingCart class="size-5" />
+                    Uppdatera handlingslistan
+                </Button>
+            </Form>
+        </section>
+
+        <ul class="flex flex-col gap-3">
+            <li
+                v-for="day in days"
+                :key="day.date"
+                class="flex flex-col gap-3 rounded-lg border p-3"
+                :class="[
+                    day.isToday
+                        ? 'border-2 border-primary bg-primary-soft'
+                        : 'border-line bg-surface-raised',
+                    day.isPast && 'opacity-60',
+                ]"
+            >
+                <div class="flex items-center justify-between gap-2">
+                    <h3 class="font-bold first-letter:uppercase">
+                        {{ formatDay(day.date) }}
+                        <span
+                            v-if="day.isToday"
+                            class="ml-1 rounded-full bg-primary px-2 text-caption text-on-primary"
+                            >Idag</span
+                        >
+                    </h3>
+                    <Button
+                        v-if="canEdit && adding !== day.date"
+                        type="button"
+                        variant="ghost"
+                        @click="adding = day.date"
+                    >
+                        <Plus class="size-5" />
+                        Middag
+                    </Button>
+                </div>
+
+                <p
+                    v-if="!day.entries.length && adding !== day.date"
+                    class="text-caption text-ink-muted"
+                >
+                    Ingen middag planerad.
+                </p>
+
+                <div
+                    v-for="entry in day.entries"
+                    :key="entry.id"
+                    class="flex flex-wrap items-center gap-3"
+                >
+                    <PictureThumb
+                        v-if="entry.picture"
+                        :picture="entry.picture"
+                        size="md"
+                    />
+                    <ChefHat
+                        v-else
+                        class="size-8 shrink-0 text-ink-muted"
+                        aria-hidden="true"
+                    />
+                    <component
+                        :is="entry.recipeId ? Link : 'span'"
+                        v-bind="
+                            entry.recipeId
+                                ? {
+                                      href: RecipeController.show(
+                                          entry.recipeId,
+                                      ),
+                                  }
+                                : {}
+                        "
+                        class="min-w-0 flex-1 text-title break-words"
+                        :class="entry.recipeId && 'hover:underline'"
+                    >
+                        {{ entry.name }}
+                    </component>
+                    <div
+                        v-if="canEdit && entry.recipeId"
+                        class="flex items-center gap-1"
+                    >
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            aria-label="Färre portioner"
+                            @click="setPortions(entry, entry.portions - 1)"
+                        >
+                            <Minus class="size-5" />
+                        </Button>
+                        <span class="w-24 text-center tabular-nums"
+                            >{{ entry.portions }} portioner</span
+                        >
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            aria-label="Fler portioner"
+                            @click="setPortions(entry, entry.portions + 1)"
+                        >
+                            <Plus class="size-5" />
+                        </Button>
+                    </div>
+                    <Link
+                        v-if="canEdit"
+                        :href="MealPlanController.destroy(entry.id)"
+                        as="button"
+                        preserve-scroll
+                        class="flex size-tap-adult items-center justify-center rounded-md hover:bg-surface-sunken"
+                        :aria-label="`Ta bort ${entry.name}`"
+                    >
+                        <X class="size-5" />
+                    </Link>
+                </div>
+
+                <Form
+                    v-if="adding === day.date"
+                    v-bind="MealPlanController.store.form()"
+                    :options="{ preserveScroll: true }"
+                    class="grid gap-3 rounded-lg bg-surface p-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
+                    v-slot="{ errors, processing }"
+                    @success="adding = null"
+                >
+                    <input type="hidden" name="date" :value="day.date" />
+                    <div class="grid gap-2">
+                        <Label :for="`recipe-${day.date}`">Recept</Label>
+                        <select
+                            :id="`recipe-${day.date}`"
+                            name="recipe_id"
+                            :class="selectClass"
+                        >
+                            <option value="">Inget recept</option>
+                            <option
+                                v-for="recipe in recipes"
+                                :key="recipe.id"
+                                :value="recipe.id"
+                            >
+                                {{ recipe.name }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="grid gap-2">
+                        <Label :for="`title-${day.date}`">Eller skriv</Label>
+                        <Input
+                            :id="`title-${day.date}`"
+                            name="title"
+                            maxlength="100"
+                            placeholder="T.ex. Pizza ute"
+                        />
+                    </div>
+                    <div class="flex gap-2">
+                        <Button type="submit" :disabled="processing"
+                            >Lägg till</Button
+                        >
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            @click="adding = null"
+                            >Avbryt</Button
+                        >
+                    </div>
+                    <InputError
+                        class="sm:col-span-3"
+                        :message="
+                            errors.title ?? errors.recipe_id ?? errors.date
+                        "
+                    />
+                </Form>
+            </li>
+        </ul>
+
+        <Form
+            v-if="canManage"
+            v-bind="MealPlanController.dinnerSwitch.form()"
+            :options="{ preserveScroll: true }"
+            class="flex flex-wrap items-end gap-3 border-t border-line pt-6"
+            v-slot="{ errors, processing }"
+        >
+            <div class="grid gap-2">
+                <Label for="dinner-switch"
+                    >Visa morgondagens middag från klockan</Label
+                >
+                <Input
+                    id="dinner-switch"
+                    name="time"
+                    type="time"
+                    :default-value="dinnerSwitch"
+                    required
+                    class="w-32"
+                />
+                <InputError :message="errors.time" />
+            </div>
+            <Button variant="outline" type="submit" :disabled="processing"
+                >Spara</Button
+            >
+        </Form>
+    </div>
+</template>

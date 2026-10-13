@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Lists;
 
 use App\Enums\ListType;
+use App\Enums\StoreSection;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Lists\StoreListRequest;
 use App\Http\Requests\Lists\UpdateListRequest;
@@ -58,11 +59,21 @@ class ListController extends Controller
         $user = $request->user();
 
         $items = $list->items()
-            ->with(['picture', 'adder:id,name'])
+            ->with(['picture', 'adder:id,name', 'ingredient'])
             ->orderByRaw('completed_at is not null')
             ->orderByDesc('completed_at')
             ->orderBy('id')
             ->get();
+
+        // The shopping list goes through the store section by section.
+        if ($list->isShopping()) {
+            $order = array_flip(array_map(fn (StoreSection $section) => $section->value, StoreSection::cases()));
+            $items = $items->sortBy(fn (ListItem $item) => [
+                $item->isCompleted() ? 1 : 0,
+                $order[($item->ingredient->category ?? StoreSection::Other)->value],
+                $item->id,
+            ])->values();
+        }
 
         return Inertia::render('lists/Show', [
             'list' => [
@@ -76,6 +87,9 @@ class ListController extends Controller
                 'picture' => $item->picture?->toPicker(),
                 'addedBy' => $item->adder?->name,
                 'completed' => $item->isCompleted(),
+                'section' => $list->isShopping() ? ($item->ingredient->category ?? StoreSection::Other)->label() : null,
+                'amount' => $item->quantity === null ? null : trim(str_replace('.', ',', (string) (float) $item->quantity).' '.$item->unit),
+                'forMeals' => $item->for_meals,
             ]),
             'can' => [
                 'addItems' => $user->can('addItem', $list),

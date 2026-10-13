@@ -64,7 +64,7 @@ Rekommenderad byggordning, så att familjen kan börja använda appen tidigt:
 10. Milestone 6 – Aktiviteter, händelser och packlistor (klar)
 11. Milestone 8 – Skolmat (klar)
 12. Milestone 9 – Receptbank och skafferi (klar)
-13. Milestone 10 – Veckomatsedel och handlingslista (nästa)
+13. Milestone 10 – Veckomatsedel och handlingslista (klar)
 
 Barnen testar varje vy när den är klar, och vi justerar innan vi bygger vidare.
 
@@ -367,16 +367,16 @@ Familjen planerar veckans mat och får en handlingslista med det som behöver ko
 
 ## Tasks
 
-- [ ] meal_plan_entries tabell
-- [ ] Veckomatsedel UI: lägg recept (eller fritext) på en dag, ändra portioner
-- [ ] Lägg till recept i veckomatsedeln direkt från matförslagen
-- [ ] Skapa handlingslista: veckans ingredienser minus det som finns hemma
-- [ ] Slå ihop samma vara och räkna om enheter inom vikt och volym
-- [ ] Handlingslistan sorteras efter butiksavdelning
-- [ ] Avbockad vara läggs i skafferiet
-- [ ] Uppdatera handlingslistan när veckomatsedeln ändras (lägg till nytt, ta bort ej avbockade varor från strukna måltider, rör aldrig det familjen lagt till själv)
-- [ ] "Middag ikväll" med bild i Idag-vyn
-- [ ] Tester för portioner, enheter och avdrag mot skafferiet
+- [x] meal_plan_entries tabell
+- [x] Veckomatsedel UI: lägg recept (eller fritext) på en dag, ändra portioner
+- [x] Lägg till recept i veckomatsedeln direkt från matförslagen
+- [x] Skapa handlingslista: veckans ingredienser minus det som finns hemma
+- [x] Slå ihop samma vara och räkna om enheter inom vikt och volym
+- [x] Handlingslistan sorteras efter butiksavdelning
+- [x] Avbockad vara läggs i skafferiet
+- [x] Uppdatera handlingslistan när veckomatsedeln ändras (lägg till nytt, ta bort ej avbockade varor från strukna måltider, rör aldrig det familjen lagt till själv)
+- [x] "Middag ikväll" med bild i Idag-vyn
+- [x] Tester för portioner, enheter och avdrag mot skafferiet
 
 ## Definition of Done
 
@@ -405,9 +405,9 @@ En separat skärm hemma, likt DAKboard. Vårdnadshavarna väljer själva vad som
 - [x] DisplayLayout utan navigation, pages/display/Index.vue
 - [x] Widgets: klocka/datum (alltid överst), barnets dag (rutinens steg eller nästa uppgift), dagens uppgifter, aktiviteter och packning, Imorgon, Veckan, handlingslista
 - [x] Widget för skollunch
-- [ ] Widget för middag ikväll/veckans mat (kommer med Milestone 10)
+- [x] Widget för middag ikväll och kommande dagar
 - [x] Byte till nästa dag för skollunch vid tid familjen ställer in (förval 15:00)
-- [ ] Byte till nästa dag för middag (förval 19:00), med middagswidgeten
+- [x] Byte till nästa dag för middag (förval 19:00)
 - [x] Mörkt tema kvällstid
 - [x] Automatisk uppdatering med usePoll
 

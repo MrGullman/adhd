@@ -7,6 +7,7 @@ import TaskCompletionController from '@/actions/App/Http/Controllers/Tasks/TaskC
 import ChildActivity from '@/components/ChildActivity.vue';
 import CompletionToggle from '@/components/CompletionToggle.vue';
 import DayPartLabel from '@/components/DayPartLabel.vue';
+import DinnerCard from '@/components/DinnerCard.vue';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import PictureThumb from '@/components/PictureThumb.vue';
 import SchoolLunch from '@/components/SchoolLunch.vue';
@@ -18,6 +19,7 @@ import type {
     DayGroup,
     DayPart,
     RoutineSummary,
+    MealEntry,
     SchoolLunchData,
     TaskRowData,
 } from '@/types';
@@ -34,6 +36,7 @@ const props = defineProps<{
     packTomorrow: ActivityEntry[];
     tomorrow: ActivityEntry[];
     lunch: SchoolLunchData | null;
+    dinner: MealEntry | null;
 }>();
 
 const groups = computed(() =>
@@ -323,6 +326,14 @@ const allDone = computed(
                 aria-label="Skollunch"
             >
                 <SchoolLunch :lunch="lunch" size="child" />
+            </section>
+
+            <section
+                v-if="dinner"
+                class="rounded-xl border-2 border-line bg-surface-raised p-4"
+                aria-label="Middag"
+            >
+                <DinnerCard :dinner="dinner" size="child" />
             </section>
 
             <!-- Imorgon: packa dagen innan, och det som händer -->

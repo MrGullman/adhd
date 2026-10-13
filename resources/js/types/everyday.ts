@@ -146,3 +146,13 @@ export type IngredientOption = {
     unit: string | null;
     picture: PictureItem | null;
 };
+
+export type MealEntry = {
+    id: number;
+    date: string;
+    name: string;
+    recipeId: number | null;
+    picture: PictureItem | null;
+    portions: number;
+    label?: string;
+};

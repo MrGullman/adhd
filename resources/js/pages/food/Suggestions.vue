@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Form, Head, Link } from '@inertiajs/vue3';
 import { ChefHat, Clock } from '@lucide/vue';
+import MealPlanController from '@/actions/App/Http/Controllers/Food/MealPlanController';
 import RecipeController from '@/actions/App/Http/Controllers/Food/RecipeController';
 import FoodTabs from '@/components/food/FoodTabs.vue';
 import PictureThumb from '@/components/PictureThumb.vue';
+import { Button } from '@/components/ui/button';
 import type { PictureItem } from '@/types';
 
 defineOptions({
@@ -18,7 +20,12 @@ type Suggestion = {
     missing: string[];
 };
 
-defineProps<{ canCook: Suggestion[]; missingFew: Suggestion[] }>();
+defineProps<{
+    canCook: Suggestion[];
+    missingFew: Suggestion[];
+    today: string;
+    canPlan: boolean;
+}>();
 </script>
 
 <!-- Förslag utifrån det som finns hemma. Basvaror räknas som att de finns. -->
@@ -45,7 +52,11 @@ defineProps<{ canCook: Suggestion[]; missingFew: Suggestion[] }>();
             <template v-if="group.items.length">
                 <h2 class="text-title">{{ group.title }}</h2>
                 <ul class="grid gap-3 sm:grid-cols-2">
-                    <li v-for="recipe in group.items" :key="recipe.id">
+                    <li
+                        v-for="recipe in group.items"
+                        :key="recipe.id"
+                        class="flex flex-col gap-2"
+                    >
                         <Link
                             :href="RecipeController.show(recipe.id)"
                             class="flex h-full items-center gap-3 rounded-lg border border-line bg-surface-raised p-3 hover:border-primary"
@@ -77,6 +88,35 @@ defineProps<{ canCook: Suggestion[]; missingFew: Suggestion[] }>();
                                 </span>
                             </span>
                         </Link>
+                        <Form
+                            v-if="canPlan"
+                            v-bind="MealPlanController.store.form()"
+                            :options="{ preserveScroll: true }"
+                            class="flex flex-wrap items-center gap-2"
+                            v-slot="{ processing }"
+                        >
+                            <input
+                                type="hidden"
+                                name="recipe_id"
+                                :value="recipe.id"
+                            />
+                            <input
+                                type="date"
+                                name="date"
+                                :value="today"
+                                :min="today"
+                                required
+                                class="h-tap-adult rounded-md border-2 border-input bg-surface-raised px-3"
+                                :aria-label="`Dag för ${recipe.name}`"
+                            />
+                            <Button
+                                type="submit"
+                                variant="outline"
+                                :disabled="processing"
+                            >
+                                Lägg på veckomatsedeln
+                            </Button>
+                        </Form>
                     </li>
                 </ul>
             </template>

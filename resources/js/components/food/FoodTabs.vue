@@ -2,12 +2,14 @@
 import { Link } from '@inertiajs/vue3';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { mealSuggestions } from '@/routes';
+import { index as mealPlanIndex } from '@/routes/meal-plan';
 import { index as pantryIndex } from '@/routes/pantry';
 import { index as recipesIndex } from '@/routes/recipes';
 
 const { isCurrentOrParentUrl } = useCurrentUrl();
 
 const tabs = [
+    { label: 'Vecka', href: mealPlanIndex() },
     { label: 'Recept', href: recipesIndex() },
     { label: 'Skafferi', href: pantryIndex() },
     { label: 'Förslag', href: mealSuggestions() },
