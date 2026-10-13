@@ -28,7 +28,8 @@ Användaren `npf-familjen` har **inget lösenord**, med flit (`adduser --disable
 | köra ett artisan-kommando | `sudo -u npf-familjen php8.4 /var/www/npf-familjen/current/artisan <kommando>` |
 | ändra inställningar (`.env`) | `sudo nano /var/www/npf-familjen/shared/.env` |
 | läsa in ändrad `.env` | `sudo -u npf-familjen php8.4 /var/www/npf-familjen/current/artisan optimize` och `sudo systemctl restart npf-familjen-queue` |
-| se appens logg | `sudo tail -n 100 /var/www/npf-familjen/shared/storage/logs/laravel.log` |
+| se appens logg | `sudo tail -n 100 /var/www/npf-familjen/shared/storage/logs/laravel-*.log` |
+| se nginx fel (t.ex. 502 Bad Gateway) | `sudo tail -n 50 /var/log/nginx/error.log` |
 | se om kön går | `sudo systemctl status npf-familjen-queue` |
 
 Sätt aldrig ett lösenord på `npf-familjen` med `passwd`. Då försvinner skyddet, och `sudo` räcker till allt.
@@ -277,6 +278,23 @@ Namnet på utgången (`HDMI-A-1`) visas med `wlr-randr`. Fungerar på Raspberry 
 - Ta bort skärmen i appen så slutar länken fungera direkt.
 
 ## Felsökning
+
+### 502 Bad Gateway
+
+Står det `upstream sent too big header` i `/var/log/nginx/error.log` är nginx buffert för appens svarshuvuden (kakor) för liten. Lägg till två rader i appens `location ~ ^/index\.php` i `/etc/nginx/sites-available/npf-familjen` (samma som i [deploy/server/nginx.conf](../deploy/server/nginx.conf)):
+
+```
+        fastcgi_buffer_size 32k;
+        fastcgi_buffers 16 16k;
+```
+
+```bash
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+Filen ändrades av Certbot när HTTPS lades till, så skriv in raderna för hand i stället för att kopiera hela filen. Ändringen gäller bara NPF-familjens sajt, inte de andra projekten.
+
+Står det något om `connect() ... failed` eller `No such file` på `npf-familjen.sock` är PHP-FPM nere: `sudo systemctl restart php8.4-fpm`.
 
 | Var | Kommando |
 | --- | --- |
