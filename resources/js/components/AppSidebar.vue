@@ -10,6 +10,7 @@ import {
     LayoutGrid,
     ListOrdered,
     ListTodo,
+    MessagesSquare,
     Sunrise,
     Users,
 } from '@lucide/vue';
@@ -28,6 +29,7 @@ import {
 import { dashboard, tomorrow, week } from '@/routes';
 import { index as activitiesIndex } from '@/routes/activities';
 import { show as familyShow } from '@/routes/family';
+import { index as communityIndex } from '@/routes/community';
 import { index as listsIndex } from '@/routes/lists';
 import { index as mealPlanIndex } from '@/routes/meal-plan';
 import { index as routinesIndex } from '@/routes/routines';
@@ -91,14 +93,19 @@ const allItems: NavItem[] = [
         icon: Star,
     },
     {
+        title: 'Community',
+        href: communityIndex(),
+        icon: MessagesSquare,
+    },
+    {
         title: 'Familjen',
         href: familyShow(),
         icon: Users,
     },
 ];
 
-// Dagboken and Belöningar are for parents only.
-const parentOnly = ['Dagbok', 'Belöningar'];
+// Dagboken, Belöningar and Community are for parents only.
+const parentOnly = ['Dagbok', 'Belöningar', 'Community'];
 const mainNavItems = computed(() =>
     allItems.filter(
         (item) =>
