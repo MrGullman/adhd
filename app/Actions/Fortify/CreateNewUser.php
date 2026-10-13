@@ -5,6 +5,7 @@ namespace App\Actions\Fortify;
 use App\Concerns\PasswordValidationRules;
 use App\Concerns\ProfileValidationRules;
 use App\Models\User;
+use App\Support\Registration;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
@@ -19,6 +20,9 @@ class CreateNewUser implements CreatesNewUsers
      */
     public function create(array $input): User
     {
+        // Closed by an admin: only invited adults can join.
+        abort_unless(Registration::isOpen(), 403);
+
         Validator::make($input, [
             ...$this->profileRules(),
             'password' => $this->passwordRules(),
