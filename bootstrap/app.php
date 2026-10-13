@@ -9,7 +9,6 @@ use App\Http\Middleware\ResolveDisplay;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 
@@ -26,7 +25,6 @@ return Application::configure(basePath: dirname(__DIR__))
             ResolveCurrentFamily::class,
             HandleAppearance::class,
             HandleInertiaRequests::class,
-            AddLinkHeadersForPreloadedAssets::class,
         ]);
 
         // The current family must be known before route model binding runs,
