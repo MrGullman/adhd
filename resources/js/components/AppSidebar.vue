@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import {
     CalendarDays,
     CalendarRange,
@@ -25,6 +25,7 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    useSidebar,
 } from '@/components/ui/sidebar';
 import { dashboard, tomorrow, week } from '@/routes';
 import { index as activitiesIndex } from '@/routes/activities';
@@ -34,12 +35,16 @@ import { index as listsIndex } from '@/routes/lists';
 import { index as mealPlanIndex } from '@/routes/meal-plan';
 import { index as routinesIndex } from '@/routes/routines';
 import { index as tasksIndex } from '@/routes/tasks';
-import { computed } from 'vue';
+import { computed, onUnmounted } from 'vue';
 import { index as journalIndex } from '@/routes/journal';
 import { index as rewardsIndex } from '@/routes/rewards';
 import type { NavItem } from '@/types';
 
 const page = usePage();
+
+// On the phone the menu closes when a page is chosen.
+const { setOpenMobile } = useSidebar();
+onUnmounted(router.on('navigate', () => setOpenMobile(false)));
 
 const allItems: NavItem[] = [
     {

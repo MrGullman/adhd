@@ -22,10 +22,12 @@ const { isCurrentUrl } = useCurrentUrl();
         <SidebarGroupLabel>Meny</SidebarGroupLabel>
         <SidebarMenu>
             <SidebarMenuItem v-for="item in items" :key="item.title">
+                <!-- Larger on the phone: at least 48px to tap (docs/STYLEGUIDE.md). -->
                 <SidebarMenuButton
                     as-child
                     :is-active="isCurrentUrl(item.href)"
                     :tooltip="item.title"
+                    class="h-12 text-base md:h-8 md:text-sm [&>svg]:size-5 md:[&>svg]:size-4"
                 >
                     <Link :href="item.href">
                         <component :is="item.icon" />
