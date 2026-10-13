@@ -74,7 +74,13 @@ Milestone 13–16: dagbok, belöningssystem, kalender, PWA och påminnelser.
 
 ## Innan andra familjer bjuds in
 
-Milestone 17–18: datakontroll och integritetspolicy, community.
+Milestone 17–18: datakontroll och integritetspolicy, community (klara).
+
+Milestone 19: konton och missbruk i adminportalen (klar).
+
+## Version 3
+
+Milestone 20: visningsläge för äldre barn.
 
 ---
 
@@ -623,6 +629,47 @@ Admin har överblick över familjer och konton och kan stänga av ett konto elle
 
 - Admin ser familjer och konton men aldrig familjens innehåll
 - Ett avstängt konto eller en avstängd familj kommer inte in, och ingenting tas bort
+
+---
+
+# Milestone 20 – Visningsläge för äldre barn
+
+## Mål
+
+Appen följer med barnet när det blir äldre. Barnens del passar idag bäst för ungefär 5–10 år. Ett barn på 10–14 år behöver ofta samma struktur, men tycker att stora bilder, "Min dag" och stjärnor känns barnsliga och vill bestämma mer själv. Vårdnadshavare väljer läge per barn, eftersom mognad och behov hos barn med NPF ofta inte följer åldern.
+
+## Två lägen
+
+| | Liten (som idag) | Större |
+| --- | --- | --- |
+| Passar ungefär | 5–10 år | 10–14 år |
+| Text | minst 22px, högst tre ord, börjar med verbet | minst 18px, vanlig kort text |
+| Bilder | stora, alltid med ord | små ikoner, kan stängas av |
+| Tryckytor | minst 64px | minst 48px (som vuxna) |
+| Startsidan | "Hej Alva!", Nu först, en sak i taget | "Idag" med dagens lista och tider, veckan nära till hands |
+| Rutiner | fokusläge, ett steg i taget | checklista, alla steg synliga |
+| Poäng och belöningar | på (om familjen använder dem) | kan stängas av för just det barnet |
+| Egna saker | bocka av | lägga in egna uppgifter och saker på listor |
+
+Hemskärmen visar alla barn som idag, oavsett läge.
+
+## Tasks
+
+- [ ] Läge per barn: users.child_view (small, large). Det följer barnet, även om barnet senare finns i två familjer (växelvis boende).
+- [ ] Vårdnadshavare väljer läge på barnets sida, med en förhandsvisning av hur Min dag ser ut i båda lägena
+- [ ] STYLEGUIDE.md och tokens.json: regler och storlekar för läget Större (föreslaget minst 18px text och 48px tryckytor, beslutas innan bygget)
+- [ ] Min dag, Min vecka, rutinen och handlingslistan i läget Större
+- [ ] Rutiner som checklista i läget Större (fokusläget finns kvar som val)
+- [ ] Poäng och belöningar av eller på per barn (family_user, eftersom det är familjens beslut)
+- [ ] Barn i läget Större kan lägga in egna uppgifter till sig själva. Vuxna ser dem i Idag och kan ändra och ta bort dem.
+- [ ] Påminnelser och tysta timmar som idag
+- [ ] Tester: läget ändrar bara barnets egna vyer, bara vårdnadshavare byter läge, ett barn kan bara lägga in uppgifter till sig själv, isolationstest för nya fält
+
+## Definition of Done
+
+- Ett barn i läget Större ser en lugn, vuxnare vy med samma struktur
+- Vårdnadshavare byter läge per barn och ser direkt hur det blir
+- Ett barn kan stänga av ingenting själv: läge och belöningar bestäms av vårdnadshavare
 
 ---
 
