@@ -10,7 +10,9 @@ use App\Models\DisplayWidget;
 use App\Models\Family;
 use App\Models\FamilyList;
 use App\Models\ListItem;
+use App\Models\MealPlanEntry;
 use App\Models\Routine;
+use App\Models\SchoolMenu;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -189,6 +191,72 @@ class DisplayTest extends TestCase
                 ->where('widgets.0.data.tasks.0.title', 'Mata katten')
                 ->where('widgets.1.data.items.0.name', 'Mjölk')
                 ->where('widgets.1.data.items.0.addedBy', 'Alva'),
+            );
+    }
+
+    public function test_a_parent_adds_a_week_grid_with_chosen_members_and_rows()
+    {
+        [$device] = $this->display();
+        $stranger = User::factory()->inFamily(Family::factory()->create())->create();
+
+        $this->actingAs($this->parent)
+            ->post(route('displays.widgets.store', $device), ['type' => 'week_grid', 'member_ids' => [$stranger->id]])
+            ->assertSessionHasErrors('member_ids.0');
+
+        $this->actingAs($this->parent)
+            ->post(route('displays.widgets.store', $device), ['type' => 'week_grid', 'member_ids' => [$this->child->id], 'rows' => ['dinner', 'school_meals']])
+            ->assertRedirect(route('displays.edit', $device));
+
+        $widget = DisplayWidget::query()->withoutGlobalScopes()->sole();
+        $this->assertSame(['member_ids' => [$this->child->id], 'rows' => ['dinner', 'school_meals']], $widget->settings);
+        $this->assertSame([12, 5], [$widget->w, $widget->h]);
+    }
+
+    public function test_the_week_grid_shows_each_members_week_like_the_whiteboard()
+    {
+        [$device, $token] = $this->display();
+        $this->widget($device, 'week_grid', ['w' => 12, 'h' => 4, 'settings' => ['member_ids' => [], 'rows' => ['dinner', 'school_meals']]]);
+
+        Activity::factory()->for($this->family)->concerning($this->parent)->create(['name' => 'Möte på jobbet', 'date' => '2026-10-13', 'visible_to_children' => false]);
+        Activity::factory()->for($this->family)->concerning($this->parent)->create(['name' => 'Jobbar natt', 'date' => '2026-10-15', 'time' => '21:20', 'visible_to_children' => true]);
+        Activity::factory()->for($this->family)->weekly(2)->concerning($this->child)->create(['name' => 'Simskola', 'time' => '17:00']);
+        Activity::factory()->for($this->family)->create(['name' => 'Utflykt', 'date' => '2026-10-18', 'visible_to_children' => true]);
+        MealPlanEntry::factory()->for($this->family)->create(['date' => '2026-10-14', 'title' => 'Tacos']);
+        $menu = SchoolMenu::factory()->for($this->family)->create();
+        $menu->meals()->create(['date' => '2026-10-12', 'meal_name' => 'Lunch', 'courses' => [['name' => 'Fiskgratäng', 'option' => null]], 'fetched_at' => now()]);
+        $this->family->children()->updateExistingPivot($this->child->id, ['school_menu_id' => $menu->id]);
+
+        $this->get(route('display.show', $token))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('widgets.0.data.days.0.date', '2026-10-12')
+                ->where('widgets.0.data.days.1.isToday', true)
+                ->where('widgets.0.data.rows.0.label', 'Mamma')
+                ->has('widgets.0.data.rows.0.cells.1', 0)
+                ->where('widgets.0.data.rows.0.cells.3.0.name', 'Jobbar natt')
+                ->where('widgets.0.data.rows.0.cells.3.0.time', '21:20')
+                ->where('widgets.0.data.rows.1.label', 'Alva')
+                ->where('widgets.0.data.rows.1.cells.1.0.name', 'Simskola')
+                ->where('widgets.0.data.rows.2.label', 'Alla')
+                ->where('widgets.0.data.rows.2.cells.6.0.name', 'Utflykt')
+                ->where('widgets.0.data.rows.3.label', 'Middag')
+                ->where('widgets.0.data.rows.3.cells.2.0.name', 'Tacos')
+                ->where('widgets.0.data.rows.4.label', 'Skolmat')
+                ->where('widgets.0.data.rows.4.cells.0.0.name', 'Fiskgratäng'),
+            );
+    }
+
+    public function test_the_week_grid_turns_to_next_week_on_sunday_evening()
+    {
+        [$device, $token] = $this->display();
+        $this->widget($device, 'week_grid', ['w' => 12, 'h' => 4, 'settings' => ['member_ids' => [$this->child->id], 'rows' => []]]);
+
+        $this->travelTo('2026-10-18 18:00:00');
+
+        $this->get(route('display.show', $token))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('widgets.0.data.days.0.date', '2026-10-19')
+                ->has('widgets.0.data.rows', 1)
+                ->where('widgets.0.data.rows.0.label', 'Alva'),
             );
     }
 

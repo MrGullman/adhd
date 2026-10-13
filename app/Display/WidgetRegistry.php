@@ -11,6 +11,7 @@ use App\Display\Widgets\SchoolMealsWidget;
 use App\Display\Widgets\ShoppingListWidget;
 use App\Display\Widgets\TasksWidget;
 use App\Display\Widgets\TomorrowWidget;
+use App\Display\Widgets\WeekGridWidget;
 use App\Display\Widgets\WeekWidget;
 use App\Models\DisplayWidget;
 
@@ -32,6 +33,7 @@ class WidgetRegistry
             new ActivitiesWidget,
             new TomorrowWidget,
             new WeekWidget,
+            new WeekGridWidget,
             new ShoppingListWidget,
             new PointsWidget,
         ];

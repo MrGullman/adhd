@@ -2,7 +2,7 @@
 import { Form, Head, Link, router, usePage } from '@inertiajs/vue3';
 import { GridStack } from 'gridstack';
 import 'gridstack/dist/gridstack.min.css';
-import { Copy, ExternalLink, Trash2 } from '@lucide/vue';
+import { Check, Copy, ExternalLink, Trash2 } from '@lucide/vue';
 import {
     computed,
     nextTick,
@@ -55,7 +55,7 @@ const props = defineProps<{
     widgetTypes: Array<{
         type: string;
         label: string;
-        setting: 'child' | 'member' | null;
+        setting: 'child' | 'member' | 'grid' | null;
     }>;
     children: Member[];
     members: Member[];
@@ -94,6 +94,17 @@ const newSetting = computed(
 );
 
 function describe(widget: DisplayWidgetItem): string {
+    if (widget.type === 'week_grid') {
+        const ids = (widget.settings.member_ids ?? []) as number[];
+        const names = props.members
+            .filter((member) => ids.includes(member.id))
+            .map((member) => member.name);
+
+        return names.length
+            ? `${widget.label} · ${names.join(', ')}`
+            : `${widget.label} · hela familjen`;
+    }
+
     const childId = widget.settings.child_id;
     const memberId = widget.settings.member_id;
     const person = [...props.children, ...props.members].find(
@@ -288,11 +299,84 @@ const chip =
                         </option>
                     </select>
                 </div>
+                <div
+                    v-else-if="newSetting === 'grid'"
+                    class="grid gap-4 sm:col-span-3 sm:row-start-2"
+                >
+                    <fieldset class="grid gap-2">
+                        <legend class="mb-2 text-sm font-medium">
+                            Vilka ska vara med?
+                        </legend>
+                        <div class="flex flex-wrap gap-2">
+                            <label
+                                v-for="member in members"
+                                :key="member.id"
+                                :class="[chip, 'group']"
+                            >
+                                <input
+                                    type="checkbox"
+                                    name="member_ids[]"
+                                    :value="member.id"
+                                    checked
+                                    class="sr-only"
+                                />
+                                <span class="flex items-center gap-2 font-bold">
+                                    <Check
+                                        class="hidden size-4 group-has-[:checked]:block"
+                                        aria-hidden="true"
+                                    />
+                                    {{ member.name }}
+                                </span>
+                            </label>
+                        </div>
+                        <InputError :message="errors['member_ids.0']" />
+                    </fieldset>
+                    <fieldset class="grid gap-2">
+                        <legend class="mb-2 text-sm font-medium">
+                            Fler rader
+                        </legend>
+                        <div class="flex flex-wrap gap-2">
+                            <label :class="[chip, 'group']">
+                                <input
+                                    type="checkbox"
+                                    name="rows[]"
+                                    value="dinner"
+                                    checked
+                                    class="sr-only"
+                                />
+                                <span class="flex items-center gap-2 font-bold">
+                                    <Check
+                                        class="hidden size-4 group-has-[:checked]:block"
+                                        aria-hidden="true"
+                                    />
+                                    Middag
+                                </span>
+                            </label>
+                            <label :class="[chip, 'group']">
+                                <input
+                                    type="checkbox"
+                                    name="rows[]"
+                                    value="school_meals"
+                                    checked
+                                    class="sr-only"
+                                />
+                                <span class="flex items-center gap-2 font-bold">
+                                    <Check
+                                        class="hidden size-4 group-has-[:checked]:block"
+                                        aria-hidden="true"
+                                    />
+                                    Skolmat
+                                </span>
+                            </label>
+                        </div>
+                    </fieldset>
+                </div>
                 <div v-else />
                 <Button type="submit" :disabled="processing">Lägg till</Button>
             </Form>
             <p class="text-caption text-ink-muted">
-                Skollunch och middag kommer när de delarna är byggda.
+                Veckoschema är som whiteboarden: en rad per person och en kolumn
+                per dag. Lägg det över hela bredden.
             </p>
         </section>
 
