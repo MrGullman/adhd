@@ -120,7 +120,7 @@ export type DisplayWidgetItem = {
     y: number;
     w: number;
     h: number;
-    settings: Record<string, number>;
+    settings: Record<string, number | number[] | string[]>;
     data: Record<string, unknown>;
 };
 

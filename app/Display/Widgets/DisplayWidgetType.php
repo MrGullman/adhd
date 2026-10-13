@@ -23,7 +23,8 @@ interface DisplayWidgetType
     public function defaultSize(): array;
 
     /**
-     * Which setting the widget needs: "child", "member" or null.
+     * Which setting the widget needs: "child", "member", "grid" (members and
+     * extra rows) or null.
      */
     public function setting(): ?string;
 

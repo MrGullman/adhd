@@ -384,6 +384,7 @@ Tillgängliga widgets:
 - Aktiviteter och packning (t.ex. "Imorgon: simskola")
 - Imorgon (det man ska förbereda sig på)
 - Veckan (bara det stora och det som avviker, se Aktiviteter och händelser)
+- Veckoschema som whiteboarden: en rad per vald familjemedlem och en kolumn per dag (måndag–söndag, från söndag kväll nästa vecka), med aktiviteter och händelser. Det som inte gäller någon särskild hamnar på raden Alla. Raderna Middag och Skolmat kan väljas till. Vuxnas händelser syns bara med "Visa för barnen".
 - Handlingslista
 - Poäng och belöningar
 
@@ -425,7 +426,7 @@ display_widgets
 
 - family_id
 - device_id (skärmen)
-- type (clock, calendar, school_meals, meal_plan, tasks, routines, activities, tomorrow, week, shopping_list, points)
+- type (clock, calendar, school_meals, meal_plan, tasks, routines, activities, tomorrow, week, week_grid, shopping_list, points)
 - x, y, w, h (position i rutnätet)
 - settings (json)
 

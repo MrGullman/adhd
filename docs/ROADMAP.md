@@ -410,6 +410,7 @@ En separat skärm hemma, likt DAKboard. Vårdnadshavarna väljer själva vad som
 - [x] Byte till nästa dag för middag (förval 19:00)
 - [x] Mörkt tema kvällstid
 - [x] Automatisk uppdatering med usePoll
+- [x] Veckoschema som whiteboarden: rad per vald person, kolumn per dag, valbara rader Middag och Skolmat (tillagd efter version 1)
 
 Widgets för kalender och poäng läggs till när de delarna byggs (version 2). Utkast: docs/mockups/.
 

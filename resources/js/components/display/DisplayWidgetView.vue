@@ -7,6 +7,7 @@ import PointsWidget from './widgets/PointsWidget.vue';
 import SchoolMealsWidget from './widgets/SchoolMealsWidget.vue';
 import ShoppingListWidget from './widgets/ShoppingListWidget.vue';
 import TasksWidget from './widgets/TasksWidget.vue';
+import WeekGridWidget from './widgets/WeekGridWidget.vue';
 import WeekWidget from './widgets/WeekWidget.vue';
 
 defineProps<{ widget: DisplayWidgetItem }>();
@@ -49,6 +50,10 @@ defineProps<{ widget: DisplayWidgetItem }>();
     />
     <PointsWidget
         v-else-if="widget.type === 'points'"
+        :data="widget.data as never"
+    />
+    <WeekGridWidget
+        v-else-if="widget.type === 'week_grid'"
         :data="widget.data as never"
     />
 </template>
