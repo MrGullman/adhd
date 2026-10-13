@@ -426,7 +426,7 @@ display_widgets
 
 - family_id
 - device_id (skärmen)
-- type (clock, calendar, school_meals, meal_plan, tasks, routines, activities, tomorrow, week, week_grid, shopping_list, points)
+- type (clock, calendar, school_meals, meal_plan, tasks, routines, activities, tomorrow, week, week_grid, shopping_list, points, calendar)
 - x, y, w, h (position i rutnätet)
 - settings (json)
 
@@ -956,10 +956,10 @@ calendars
 - family_id
 - user_id (nullable: vems kalender)
 - name
-- color
 - provider (ics, senare google, outlook)
 - url (krypterad: länken ger läsrätt till hela kalendern)
-- last_synced_at
+- visible_to_children
+- last_synced_at, last_failed_at
 
 calendar_events
 
@@ -979,6 +979,14 @@ calendar_events
 - Sidor och hemskärm läser bara från databasen
 - Tider lagras i UTC och visas i Europe/Stockholm
 - Om synken misslyckas visas senast hämtade data
+
+I version 2 (Milestone 15):
+
+- Vuxna ser alla kalendrar. Ett barn ser sin egen kalender och de som är valda med "Visa för barnen" (inte ett syskons). Hemskärmen visar det som något barn får se.
+- Heldagshändelser lagras som datum (starts_at 00:00, ends_at dagen efter). Händelser med tid lagras i UTC.
+- En händelse som heter som en aktivitet (t.ex. "Simskola") får aktivitetens bild, och visas inte en gång till de dagar aktiviteten redan syns.
+- Länken måste vara https (webcal:// byts) till en publik adress. Servern hämtar aldrig adresser i sitt eget nät, inte heller efter en omdirigering.
+- Kalendern läses i bakgrunden när den läggs till och med knappen Läs in nu. Sidor läser aldrig länken.
 
 ---
 

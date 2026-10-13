@@ -4,6 +4,7 @@ import { Plus } from '@lucide/vue';
 import { computed, ref } from 'vue';
 import TaskController from '@/actions/App/Http/Controllers/Tasks/TaskController';
 import ActivityCard from '@/components/ActivityCard.vue';
+import CalendarEventRow from '@/components/CalendarEventRow.vue';
 import DayPartLabel from '@/components/DayPartLabel.vue';
 import DinnerCard from '@/components/DinnerCard.vue';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
@@ -13,6 +14,7 @@ import { formatDay } from '@/lib/format';
 import { dashboard } from '@/routes';
 import type {
     ActivityEntry,
+    CalendarEventEntry,
     DayGroup,
     DayPart,
     Member,
@@ -36,6 +38,7 @@ const props = defineProps<{
     >;
     routines: RoutineSummary[];
     activities: ActivityEntry[];
+    calendarEvents: CalendarEventEntry[];
     lunches: Array<SchoolLunchData & { child: Member }>;
     dinner: MealEntry | null;
 }>();
@@ -142,7 +145,7 @@ const chip =
         </nav>
 
         <section
-            v-if="activities.length"
+            v-if="activities.length || calendarEvents.length"
             class="flex flex-col gap-3"
             aria-labelledby="hander"
         >
@@ -150,6 +153,9 @@ const chip =
             <ul class="flex flex-col gap-2">
                 <li v-for="activity in activities" :key="activity.id">
                     <ActivityCard :activity="activity" />
+                </li>
+                <li v-for="event in calendarEvents" :key="`k${event.id}`">
+                    <CalendarEventRow :event="event" />
                 </li>
             </ul>
         </section>

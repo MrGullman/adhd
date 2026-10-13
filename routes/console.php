@@ -17,3 +17,6 @@ Schedule::command('tasks:generate-recurring')->dailyAt('00:05')->timezone('Europ
 
 // Skolmaten för denna och nästa vecka, varje morgon innan barnen vaknar.
 Schedule::command('school-meals:fetch')->dailyAt('05:30')->timezone('Europe/Stockholm')->withoutOverlapping();
+
+// Familjernas kalendrar (iCal-länkar) läses var 15:e minut.
+Schedule::command('calendars:sync')->everyFifteenMinutes()->withoutOverlapping();

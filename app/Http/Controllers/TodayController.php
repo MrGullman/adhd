@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Calendar\FamilyCalendar;
 use App\Enums\FamilyRole;
 use App\Food\Dinner;
 use App\Models\Activity;
+use App\Models\CalendarEvent;
 use App\Models\Family;
 use App\Models\Membership;
 use App\Models\Routine;
@@ -43,10 +45,15 @@ class TodayController extends Controller
 
         $now = LocalTime::now()->startOfDay();
         $calendar = ActivityCalendar::between($now, $now);
+        $activities = $calendar->on($now);
+        $events = FamilyCalendar::between($now, $now);
 
         return Inertia::render('today/Index', [
             'date' => $today,
-            'activities' => $calendar->on($now)->map(fn (Activity $activity) => $calendar->present($activity, $now))->values(),
+            'activities' => $activities->map(fn (Activity $activity) => $calendar->present($activity, $now))->values(),
+            'calendarEvents' => $events->on($now, null, $activities->map(fn (Activity $activity) => $activity->name)->values()->all())
+                ->map(fn (CalendarEvent $event) => $events->present($event, $now))
+                ->values(),
             'lunches' => $this->lunches($family),
             'dinner' => Dinner::next($family, LocalTime::now()),
             // Read again every little while on the page, so the adults follow along live.
@@ -140,9 +147,14 @@ class TodayController extends Controller
         $calendar = ActivityCalendar::between($today, $tomorrow);
 
         $tomorrows = $calendar->on($tomorrow, $child);
+        $todays = $calendar->on($today, $child);
+        $events = FamilyCalendar::between($today, $today);
 
         return [
-            'activities' => $calendar->on($today, $child)->map(fn (Activity $activity) => $calendar->present($activity, $today, $child))->values(),
+            'activities' => $todays->map(fn (Activity $activity) => $calendar->present($activity, $today, $child))->values(),
+            'calendarEvents' => $events->on($today, $child, $todays->map(fn (Activity $activity) => $activity->name)->values()->all())
+                ->map(fn (CalendarEvent $event) => $events->present($event, $today))
+                ->values(),
             // "Packa till simskolan imorgon"
             'packTomorrow' => $tomorrows
                 ->filter(fn (Activity $activity) => $calendar->packs($activity, $child))

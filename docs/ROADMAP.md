@@ -516,15 +516,15 @@ Familjens kalendrar från Google, iPhone (iCloud) och Outlook visas i appen och 
 
 ## Tasks
 
-- [ ] calendars tabell (iCal-länk lagras krypterad)
-- [ ] calendar_events tabell
-- [ ] Lägg till kalender via iCal-länk, med guide för Google, iPhone och Outlook
-- [ ] Synk med sabre/vobject, inklusive återkommande händelser
-- [ ] Schemalagt kommando som synkar var 15:e minut
-- [ ] Visa dagens händelser i Idag-vyn
-- [ ] Kalender-widget på hemskärmen
-- [ ] Koppla aktiviteter till kalenderhändelser via namn (t.ex. "Simskola")
-- [ ] Tester med Http::fake() och exempel-filer från alla tre
+- [x] calendars tabell (iCal-länk lagras krypterad)
+- [x] calendar_events tabell
+- [x] Lägg till kalender via iCal-länk, med guide för Google, iPhone och Outlook
+- [x] Synk med sabre/vobject, inklusive återkommande händelser
+- [x] Schemalagt kommando som synkar var 15:e minut
+- [x] Visa dagens händelser i Idag-vyn (och barnens Min dag)
+- [x] Kalender-widget på hemskärmen, och händelserna i Veckoschema
+- [x] Koppla aktiviteter till kalenderhändelser via namn (t.ex. "Simskola")
+- [x] Tester med Http::fake() och exempel-filer från alla tre
 
 ## Definition of Done
 
