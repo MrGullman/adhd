@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureAccountActive;
 use App\Http\Middleware\EnsureFamilyMember;
 use App\Http\Middleware\EnsureRole;
 use App\Http\Middleware\HandleAppearance;
@@ -23,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->web(append: [
             ResolveCurrentFamily::class,
+            EnsureAccountActive::class,
             HandleAppearance::class,
             HandleInertiaRequests::class,
         ]);

@@ -18,6 +18,8 @@ use Illuminate\Support\Carbon;
  * @property string $name
  * @property array<string, mixed>|null $settings
  * @property array<string, string>|null $day_parts
+ * @property Carbon|null $suspended_at
+ * @property string|null $suspended_reason
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -37,6 +39,7 @@ class Family extends Model
         return [
             'settings' => 'array',
             'day_parts' => 'array',
+            'suspended_at' => 'datetime',
         ];
     }
 
@@ -48,6 +51,11 @@ class Family extends Model
         static::created(function (Family $family): void {
             $family->lists()->create(['type' => ListType::Shopping, 'name' => 'Handlingslista']);
         });
+    }
+
+    public function isSuspended(): bool
+    {
+        return $this->suspended_at !== null;
     }
 
     /**

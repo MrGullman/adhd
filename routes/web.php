@@ -13,6 +13,9 @@ Route::get('integritet', fn () => Inertia::render('Privacy', [
     'contact' => config('privacy.contact'),
     'backupDays' => config('backup.cleanup.default_strategy.keep_all_backups_for_days'),
 ]))->name('privacy');
+Route::get('avstangt', fn () => Inertia::render('Suspended', [
+    'contact' => config('privacy.contact'),
+]))->name('suspended');
 
 Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function () {
     Route::get('dashboard', [TodayController::class, 'family'])->name('dashboard');

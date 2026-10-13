@@ -601,6 +601,30 @@ Vårdnadshavare i olika familjer kan diskutera problem och tips.
 
 ---
 
+# Milestone 19 – Konton och missbruk
+
+## Mål
+
+Admin har överblick över familjer och konton och kan stänga av ett konto eller en familj som missbrukar appen. Grund för abonnemang senare.
+
+## Tasks
+
+- [x] Familjer i adminportalen: skapad av, antal vuxna och barn, skapad, senast inloggad, status
+- [x] Vuxenkonton i adminportalen: namn, e-post, familjer, namn i Community, skapat, senast inloggad, status
+- [x] Senaste inloggning sparas (last_login_at)
+- [x] Stänga av och häva: ett vuxenkonto eller en hel familj, med anledning
+- [x] Avstängda loggas ut och stoppas vid inloggning, barnens inloggning och hemskärmen
+- [x] Avstängda kontons inlägg i Community döljs
+- [x] Logg över vad admin gjort (admin_actions)
+- [x] Integritetspolicyn säger vad admin ser
+
+## Definition of Done
+
+- Admin ser familjer och konton men aldrig familjens innehåll
+- Ett avstängt konto eller en avstängd familj kommer inte in, och ingenting tas bort
+
+---
+
 # Framtida funktioner
 
 ## Möjliga features

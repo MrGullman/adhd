@@ -24,6 +24,9 @@ class ResolveDisplay
 
         abort_if($device === null || $device->type !== DeviceType::Display || $device->family === null, 404);
 
+        // A family an admin has suspended has no display either.
+        abort_if($device->family->isSuspended(), 403);
+
         $this->current->forget();
         $this->current->set($device->family);
         $this->current->setDevice($device);

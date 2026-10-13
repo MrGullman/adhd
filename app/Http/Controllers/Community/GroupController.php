@@ -26,6 +26,8 @@ class GroupController extends Controller
             'communityName' => $user->community_name,
             'threads' => $group->threads()
                 ->with('author:id,community_name')
+                // A suspended account's threads are hidden, not removed.
+                ->whereHas('author', fn ($query) => $query->whereNull('suspended_at'))
                 ->withCount('posts')
                 ->orderByDesc('last_posted_at')
                 ->paginate(20)

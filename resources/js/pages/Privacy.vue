@@ -88,6 +88,17 @@ defineProps<{
         </section>
 
         <section class="flex flex-col gap-2">
+            <h2 class="text-title">Vad ser administratören?</h2>
+            <p>
+                Administratören ser kontouppgifter: namn, e-postadress, vilken
+                familj kontot hör till, när det skapades och senast loggade in.
+                Aldrig familjens innehåll, som dagbok, uppgifter, bilder eller
+                kalendrar. Missbrukas ett konto kan administratören stänga av
+                det. Ingenting tas bort då.
+            </p>
+        </section>
+
+        <section class="flex flex-col gap-2">
             <h2 class="text-title">Var finns datan?</h2>
             <p>
                 På en server inom EU. Familjens foton ligger på en privat del av
