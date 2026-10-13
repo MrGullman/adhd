@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { CalendarDays, Check, LogOut, ShoppingCart } from '@lucide/vue';
+import { CalendarDays, Check, LogOut, ShoppingCart, Star } from '@lucide/vue';
 import { computed } from 'vue';
 import ChildRoutineController from '@/actions/App/Http/Controllers/Routines/ChildRoutineController';
 import TaskCompletionController from '@/actions/App/Http/Controllers/Tasks/TaskCompletionController';
@@ -14,6 +14,7 @@ import SchoolLunch from '@/components/SchoolLunch.vue';
 import { formatDay } from '@/lib/format';
 import { logout } from '@/routes';
 import { shopping, week as childWeek } from '@/routes/child';
+import { index as childRewards } from '@/routes/child/rewards';
 import type {
     ActivityEntry,
     DayGroup,
@@ -37,6 +38,7 @@ const props = defineProps<{
     tomorrow: ActivityEntry[];
     lunch: SchoolLunchData | null;
     dinner: MealEntry | null;
+    points: number | null;
 }>();
 
 const groups = computed(() =>
@@ -67,7 +69,7 @@ const allDone = computed(
 
     <main class="min-h-svh bg-surface px-4 py-6 text-ink md:px-8">
         <div class="mx-auto flex w-full max-w-5xl flex-col gap-6">
-            <header class="flex items-center gap-4">
+            <header class="flex flex-wrap items-center gap-4">
                 <FamilyAvatar
                     :name="child.name"
                     :color="child.avatarColor"
@@ -83,6 +85,17 @@ const allDone = computed(
                         {{ formatDay(date) }}
                     </p>
                 </div>
+                <Link
+                    v-if="points !== null"
+                    :href="childRewards()"
+                    class="ml-auto flex h-tap-child shrink-0 items-center gap-2 rounded-full bg-orange-soft px-5 font-display text-child-label font-semibold"
+                >
+                    <Star
+                        class="size-8 text-orange-strong"
+                        aria-hidden="true"
+                    />
+                    {{ points }} poäng
+                </Link>
             </header>
 
             <!-- Händer idag, med frågan om packningen -->

@@ -304,6 +304,49 @@ I version 2 (Milestone 13):
 
 ---
 
+# Belöningar
+
+Barn får poäng för det de gör och kan önska sig något i verkliga livet, aldrig skärmtid i ett spel.
+
+point_transactions (poängboken)
+
+- family_id
+- user_id (barnet)
+- points (positivt när poäng ges, negativt när de används)
+- reason
+- source_type, source_id (task, routine, packing eller redemption)
+- created_by (vårdnadshavaren, null när poängen kom av sig själv)
+
+Ett barns poäng är summan. Raderna ändras aldrig i efterhand, utom automatiska poäng som tas bort när barnet bockar ur igen.
+
+rewards
+
+- family_id
+- name
+- picture_id
+- cost
+- active
+
+reward_redemptions
+
+- family_id
+- reward_id
+- user_id
+- cost
+- status (requested, approved, declined)
+- decided_at, decided_by
+
+I version 2 (Milestone 14):
+
+- Bara vårdnadshavare (parent) ger och drar poäng, skapar belöningar och svarar på önskningar. /beloningar skyddas av role:parent och policies.
+- Poäng av sig själv (App\Points\Points): avklarad uppgift (barnet som uppgiften är till, eller barnet som bockade av), avklarad rutin och "Ja, jag har packat". Familjen väljer antal eller stänger av det (families.settings.points, standard 1/3/1).
+- Samma sak ger aldrig poäng två gånger: unikt index på (source_type, source_id, user_id). Bockas den ur tas poängen bort.
+- Vuxna får aldrig poäng automatiskt.
+- Ett barn kan önska när poängen räcker. Önskningar som väntar räknas bort från det barnet kan önska med. Godkänns önskningen skrivs en negativ rad (source redemption). "Inte nu" kostar inget.
+- Widgeten points visar varje barns poäng och hur långt det är kvar till nästa belöning.
+
+---
+
 # Community Data
 
 Community är separat från familjedata.

@@ -3,6 +3,7 @@ import type { DisplayWidgetItem } from '@/types';
 import ActivitiesWidget from './widgets/ActivitiesWidget.vue';
 import ChildWidget from './widgets/ChildWidget.vue';
 import MealPlanWidget from './widgets/MealPlanWidget.vue';
+import PointsWidget from './widgets/PointsWidget.vue';
 import SchoolMealsWidget from './widgets/SchoolMealsWidget.vue';
 import ShoppingListWidget from './widgets/ShoppingListWidget.vue';
 import TasksWidget from './widgets/TasksWidget.vue';
@@ -44,6 +45,10 @@ defineProps<{ widget: DisplayWidgetItem }>();
     />
     <ShoppingListWidget
         v-else-if="widget.type === 'shopping_list'"
+        :data="widget.data as never"
+    />
+    <PointsWidget
+        v-else-if="widget.type === 'points'"
         :data="widget.data as never"
     />
 </template>

@@ -15,6 +15,10 @@ use App\Http\Controllers\Lists\ListController;
 use App\Http\Controllers\Lists\ListItemCompletionController;
 use App\Http\Controllers\Lists\ListItemController;
 use App\Http\Controllers\PictureController;
+use App\Http\Controllers\Rewards\ChildRewardController;
+use App\Http\Controllers\Rewards\PointController;
+use App\Http\Controllers\Rewards\RedemptionController;
+use App\Http\Controllers\Rewards\RewardController;
 use App\Http\Controllers\Routines\ChildRoutineController;
 use App\Http\Controllers\Routines\RoutineController;
 use App\Http\Controllers\Routines\RoutineTemplateController;
@@ -100,6 +104,16 @@ Route::middleware(['auth', 'verified', 'family', 'role:parent'])->group(function
     Route::post('dagbok', [JournalController::class, 'store'])->name('journal.store');
     Route::put('dagbok/{entry}', [JournalController::class, 'update'])->whereNumber('entry')->name('journal.update');
     Route::delete('dagbok/{entry}', [JournalController::class, 'destroy'])->whereNumber('entry')->name('journal.destroy');
+
+    // Belöningar: only parents give points and answer wishes.
+    Route::get('beloningar', [RewardController::class, 'index'])->name('rewards.index');
+    Route::post('beloningar', [RewardController::class, 'store'])->name('rewards.store');
+    Route::put('beloningar/{reward}', [RewardController::class, 'update'])->whereNumber('reward')->name('rewards.update');
+    Route::delete('beloningar/{reward}', [RewardController::class, 'destroy'])->whereNumber('reward')->name('rewards.destroy');
+    Route::post('beloningar/poang', [PointController::class, 'store'])->name('points.store');
+    Route::put('beloningar/installningar', [PointController::class, 'settings'])->name('points.settings');
+    Route::post('beloningar/onskningar/{redemption}/ja', [RedemptionController::class, 'approve'])->name('redemptions.approve');
+    Route::post('beloningar/onskningar/{redemption}/nej', [RedemptionController::class, 'decline'])->name('redemptions.decline');
 });
 
 // Adults and children: children add to the shopping list and tick off their own tasks.
@@ -121,6 +135,8 @@ Route::middleware(['auth', 'family', 'role:child'])->group(function () {
     Route::get('handla', ChildShoppingListController::class)->name('child.shopping');
 
     Route::get('min-dag/veckan', [CalendarController::class, 'childWeek'])->name('child.week');
+    Route::get('min-dag/beloningar', [ChildRewardController::class, 'index'])->name('child.rewards.index');
+    Route::post('min-dag/beloningar/{reward}', [ChildRewardController::class, 'wish'])->name('child.rewards.wish');
     Route::scopeBindings()->group(function () {
         Route::post('min-dag/aktivitet/{activity}/{date}/sak/{item}', [ChildActivityController::class, 'pack'])
             ->where('date', '\\d{4}-\\d{2}-\\d{2}')->name('child.activities.pack');
