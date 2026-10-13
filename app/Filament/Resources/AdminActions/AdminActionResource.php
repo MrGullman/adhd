@@ -13,7 +13,8 @@ use Filament\Tables\Table;
 use UnitEnum;
 
 /**
- * What admins have done: who turned what off or on, when and why.
+ * What admins have done: who turned what off or on, when and why, and
+ * when registration was opened or closed.
  */
 class AdminActionResource extends Resource
 {
@@ -42,10 +43,20 @@ class AdminActionResource extends Resource
                 TextColumn::make('created_at')->label('När')->dateTime('Y-m-d H:i')->sortable(),
                 TextColumn::make('action')
                     ->label('Vad')
-                    ->formatStateUsing(fn (string $state) => $state === 'suspended' ? 'Stängde av' : 'Hävde avstängning'),
+                    ->formatStateUsing(fn (string $state) => match ($state) {
+                        'suspended' => 'Stängde av',
+                        'unsuspended' => 'Hävde avstängning',
+                        'registration_opened' => 'Öppnade',
+                        'registration_closed' => 'Stängde',
+                        default => $state,
+                    }),
                 TextColumn::make('subject_type')
                     ->label('Typ')
-                    ->formatStateUsing(fn (string $state) => $state === 'family' ? 'Familj' : 'Konto'),
+                    ->formatStateUsing(fn (string $state) => match ($state) {
+                        'family' => 'Familj',
+                        'user' => 'Konto',
+                        default => 'Appen',
+                    }),
                 TextColumn::make('subject_name')->label('Vem')->searchable(),
                 TextColumn::make('reason')->label('Anledning')->wrap()->placeholder('–'),
                 TextColumn::make('admin.name')->label('Admin')->placeholder('–'),

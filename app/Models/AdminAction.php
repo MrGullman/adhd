@@ -11,8 +11,8 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property int|null $admin_id
- * @property string $action suspended or unsuspended
- * @property string $subject_type user or family
+ * @property string $action suspended, unsuspended, registration_opened or registration_closed
+ * @property string $subject_type user, family or app
  * @property int $subject_id
  * @property string $subject_name
  * @property string|null $reason

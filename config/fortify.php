@@ -160,9 +160,21 @@ return [
     |
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | Registration
+    |--------------------------------------------------------------------------
+    |
+    | Whether registration is open until an admin changes it in the admin
+    | portal. Other adults join by invitation either way.
+    |
+    */
+
+    'registration_open' => (bool) env('REGISTRATION_ENABLED', true),
+
     'features' => [
-        // Turn off with REGISTRATION_ENABLED=false on the server. Other adults join by invitation.
-        ...(env('REGISTRATION_ENABLED', true) ? [Features::registration()] : []),
+        // Open or closed is decided in the admin portal (App\Support\Registration).
+        Features::registration(),
         Features::resetPasswords(),
         Features::emailVerification(),
         Features::twoFactorAuthentication([

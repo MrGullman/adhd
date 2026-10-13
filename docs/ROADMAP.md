@@ -616,6 +616,7 @@ Admin har överblick över familjer och konton och kan stänga av ett konto elle
 - [x] Avstängda loggas ut och stoppas vid inloggning, barnens inloggning och hemskärmen
 - [x] Avstängda kontons inlägg i Community döljs
 - [x] Logg över vad admin gjort (admin_actions)
+- [x] Öppna och stänga registreringen med en knapp i adminportalen
 - [x] Integritetspolicyn säger vad admin ser
 
 ## Definition of Done

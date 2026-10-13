@@ -95,10 +95,9 @@ Efter detta driftsätts varje push till `main` automatiskt när testerna har gå
 1. Skapa ditt konto på https://npf-familjen.duckdns.org/register och skapa familjen.
 2. Stäng registreringen, så att ingen annan kan skapa konton. Andra vuxna bjuds in via e-post.
 
-```bash
-sudo sed -i 's/^REGISTRATION_ENABLED=.*/REGISTRATION_ENABLED=false/' /var/www/npf-familjen/shared/.env
-sudo -u npf-familjen php8.4 /var/www/npf-familjen/current/artisan optimize
-```
+Registreringen öppnas och stängs i adminportalen: Konton → Familjer → **Stäng registreringen** / **Öppna registreringen**. Ändringen gäller direkt och syns i Konton → Logg. Inbjudna vuxna kan alltid gå med.
+
+`REGISTRATION_ENABLED` i `.env` gäller bara tills knappen har använts första gången.
 
 ## Adminkonto för bildgalleriet
 
