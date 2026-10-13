@@ -8,6 +8,7 @@ use App\Models\ActivityConfirmation;
 use App\Models\ActivityItem;
 use App\Models\ActivityItemCheck;
 use App\Models\User;
+use App\Points\Points;
 use App\Support\LocalTime;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
@@ -51,14 +52,19 @@ class ChildActivityController extends Controller
     /**
      * "Ja, jag har packat", on the day of the activity.
      */
-    public function confirm(Request $request, Activity $activity, string $date): RedirectResponse
+    public function confirm(Request $request, Activity $activity, string $date, Points $points): RedirectResponse
     {
         $this->authorizeDay($activity, $date, [LocalTime::today()]);
 
-        ActivityConfirmation::query()->firstOrCreate(
-            ['activity_id' => $activity->id, 'user_id' => $request->user()?->id, 'date' => $date],
+        /** @var User $child */
+        $child = $request->user();
+
+        $confirmation = ActivityConfirmation::query()->firstOrCreate(
+            ['activity_id' => $activity->id, 'user_id' => $child->id, 'date' => $date],
             ['confirmed_at' => now()],
         );
+
+        $points->award($child, 'packing', $confirmation->id, 'Packade till '.$activity->name);
 
         return back();
     }

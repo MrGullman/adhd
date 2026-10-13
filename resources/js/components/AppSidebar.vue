@@ -6,6 +6,7 @@ import {
     ChefHat,
     ClipboardList,
     NotebookPen,
+    Star,
     LayoutGrid,
     ListOrdered,
     ListTodo,
@@ -33,6 +34,7 @@ import { index as routinesIndex } from '@/routes/routines';
 import { index as tasksIndex } from '@/routes/tasks';
 import { computed } from 'vue';
 import { index as journalIndex } from '@/routes/journal';
+import { index as rewardsIndex } from '@/routes/rewards';
 import type { NavItem } from '@/types';
 
 const page = usePage();
@@ -84,17 +86,24 @@ const allItems: NavItem[] = [
         icon: NotebookPen,
     },
     {
+        title: 'Belöningar',
+        href: rewardsIndex(),
+        icon: Star,
+    },
+    {
         title: 'Familjen',
         href: familyShow(),
         icon: Users,
     },
 ];
 
-// Dagboken is for parents only.
+// Dagboken and Belöningar are for parents only.
+const parentOnly = ['Dagbok', 'Belöningar'];
 const mainNavItems = computed(() =>
     allItems.filter(
         (item) =>
-            item.title !== 'Dagbok' || (page.props.family?.canManage ?? false),
+            !parentOnly.includes(item.title) ||
+            (page.props.family?.canManage ?? false),
     ),
 );
 </script>

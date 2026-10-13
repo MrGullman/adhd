@@ -10,6 +10,7 @@ use App\Models\Membership;
 use App\Models\Routine;
 use App\Models\Task;
 use App\Models\User;
+use App\Points\Points;
 use App\Support\ActivityCalendar;
 use App\Support\CurrentFamily;
 use App\Support\DayPlan;
@@ -101,6 +102,7 @@ class TodayController extends Controller
             ...$this->childActivities($child),
             'lunch' => SchoolLunch::now($family)->forMenu($family->schoolMenuIdOf($child)),
             'dinner' => Dinner::next($family, LocalTime::now()),
+            'points' => Points::settings($family)['enabled'] ? Points::balance($child) : null,
         ]);
     }
 

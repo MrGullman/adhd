@@ -6,6 +6,7 @@ use App\Models\Routine;
 use App\Models\RoutineRun;
 use App\Models\RoutineStep;
 use App\Models\User;
+use App\Points\Points;
 use App\Support\LocalTime;
 use App\Support\RoutineDay;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +18,8 @@ use Illuminate\Support\Facades\DB;
  */
 class CheckRoutineStep
 {
+    public function __construct(private Points $points) {}
+
     public function check(Routine $routine, User $child, RoutineStep $step, bool $skipped = false): void
     {
         DB::transaction(function () use ($routine, $child, $step, $skipped): void {
@@ -52,5 +55,11 @@ class CheckRoutineStep
         $completed = RoutineDay::for($routine, $child)->isCompleted();
 
         $run->forceFill(['completed_at' => $completed ? ($run->completed_at ?? now()) : null])->save();
+
+        if ($completed) {
+            $this->points->award($child, 'routine', $run->id, $routine->name);
+        } else {
+            $this->points->revoke('routine', $run->id);
+        }
     }
 }

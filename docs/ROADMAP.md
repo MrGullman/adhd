@@ -488,16 +488,16 @@ Motivera användare genom poäng.
 
 ## Tasks
 
-- [ ] task_completions tabell
-- [ ] daily_goals tabell
-- [ ] family_points_ledger tabell
-- [ ] rewards tabell (med picture_id)
-- [ ] reward_redemptions tabell
-- [ ] Rewards UI
-- [ ] Bara vuxna kan ge och dra poäng
-- [ ] Barn kan önska belöning, vuxen godkänner
-- [ ] Avklarad rutin och packning kan ge poäng (valbart)
-- [ ] Poäng-widget på hemskärmen
+- [x] ~~task_completions tabell~~ behövs inte: uppgifter sparar redan vem som bockade av och när
+- [ ] daily_goals tabell (väntar, inget behov än)
+- [x] Poängbok: point_transactions (en rad per poäng som ges eller används)
+- [x] rewards tabell (med picture_id)
+- [x] reward_redemptions tabell
+- [x] Rewards UI (Belöningar för vårdnadshavare, Mina poäng för barn)
+- [x] Bara vårdnadshavare kan ge och dra poäng, enligt ARCHITECTURE.md
+- [x] Barn kan önska belöning, vårdnadshavare godkänner
+- [x] Avklarad uppgift, rutin och packning kan ge poäng (valbart per familj)
+- [x] Poäng-widget på hemskärmen
 
 ## Definition of Done
 
