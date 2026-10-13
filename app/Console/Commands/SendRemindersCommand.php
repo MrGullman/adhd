@@ -30,7 +30,7 @@ class SendRemindersCommand extends Command
             ->select('family_id');
 
         try {
-            Family::query()->whereIn('id', $withDevices)->lazyById()->each(function (Family $family) use ($send, $current, $now, &$sent): void {
+            Family::query()->whereNull('suspended_at')->whereIn('id', $withDevices)->lazyById()->each(function (Family $family) use ($send, $current, $now, &$sent): void {
                 $current->set($family);
                 $sent += $send->handle($family, $now);
             });

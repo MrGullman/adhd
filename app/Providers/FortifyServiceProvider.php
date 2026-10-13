@@ -5,12 +5,15 @@ namespace App\Providers;
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Http\Responses\LoginResponse;
+use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 use Laravel\Fortify\Contracts\TwoFactorLoginResponse as TwoFactorLoginResponseContract;
@@ -45,6 +48,24 @@ class FortifyServiceProvider extends ServiceProvider
     {
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::createUsersUsing(CreateNewUser::class);
+
+        // A suspended account is told so at once (EnsureAccountActive stops
+        // every other way in, e.g. passkeys).
+        Fortify::authenticateUsing(function (Request $request): ?User {
+            $user = User::query()->where('email', $request->string(Fortify::username())->toString())->first();
+
+            if (! $user instanceof User || $user->password === null || ! Hash::check($request->string('password')->toString(), $user->password)) {
+                return null;
+            }
+
+            $onlySuspendedFamilies = $user->families()->exists() && ! $user->families()->whereNull('families.suspended_at')->exists();
+
+            if (! $user->is_admin && ($user->isSuspended() || $onlySuspendedFamilies)) {
+                throw ValidationException::withMessages([Fortify::username() => 'Kontot är avstängt. Kontakta oss om du tror att det är fel.']);
+            }
+
+            return $user;
+        });
     }
 
     /**

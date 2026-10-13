@@ -45,6 +45,7 @@ class CommunityController extends Controller
                 ->with(['group:id,name', 'author:id,community_name'])
                 ->withCount('posts')
                 ->whereIn('community_group_id', $joined)
+                ->whereHas('author', fn ($query) => $query->whereNull('suspended_at'))
                 ->orderByDesc('last_posted_at')
                 ->limit(10)
                 ->get()

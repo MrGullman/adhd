@@ -28,6 +28,7 @@ class SendReminders
             $user = $reminder->user;
 
             if (! $user->reminders_enabled
+                || $user->isSuspended()
                 || $user->isQuietAt($reminder->at->setTimezone(LocalTime::ZONE))
                 || ! $user->pushSubscriptions()->exists()) {
                 continue;

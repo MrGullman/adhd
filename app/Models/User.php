@@ -46,6 +46,9 @@ use NotificationChannels\WebPush\HasPushSubscriptions;
  * @property string|null $two_factor_recovery_codes
  * @property Carbon|null $two_factor_confirmed_at
  * @property string|null $remember_token
+ * @property Carbon|null $last_login_at
+ * @property Carbon|null $suspended_at
+ * @property string|null $suspended_reason
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -84,6 +87,8 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail, Pas
             'pin' => 'encrypted',
             'login_disabled_at' => 'datetime',
             'two_factor_confirmed_at' => 'datetime',
+            'last_login_at' => 'datetime',
+            'suspended_at' => 'datetime',
         ];
     }
 
@@ -165,6 +170,11 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail, Pas
     /**
      * Compare a child's code in constant time.
      */
+    public function isSuspended(): bool
+    {
+        return $this->suspended_at !== null;
+    }
+
     /**
      * Whether reminders wait at a time in Sweden, e.g. quiet 20:00–07:00.
      */

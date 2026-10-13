@@ -1270,6 +1270,15 @@ I version 2 (Milestone 17):
 - Ta bort familjen: vårdnadshavare bekräftar med lösenord och familjens namn. Allt med family_id försvinner (cascade), liksom bilder och exporter på disken, barnens konton och vuxna som inte är med i någon annan familj (med deras community-inlägg). Adminkonton tas aldrig bort.
 - Integritetspolicyn (/integritet) hämtar personuppgiftsansvarig från PRIVACY_CONTROLLER och PRIVACY_CONTACT i .env.
 
+## Konton och missbruk (Milestone 19)
+
+- Admin ser familjer och vuxenkonton i adminportalen (Konton → Familjer, Vuxna, Logg), aldrig familjens innehåll.
+- users.suspended_at och families.suspended_at stänger av ett konto eller en familj. Anledningen syns bara för admin. Ingenting tas bort.
+- EnsureAccountActive körs vid varje anrop: avstängda loggas ut och skickas till /avstangt. En vuxen som också finns i en annan familj fortsätter där. Familjens enheter och hemskärmar stoppas. Fortify säger direkt vid inloggning att kontot är avstängt.
+- Avstängda får inga påminnelser, och deras inlägg i Community döljs.
+- Adminkonton kan aldrig stängas av. Varje avstängning och upphävning loggas i admin_actions.
+- Abonnemang (senare, Laravel Cashier): familjen är kunden. Ett abonnemang som gått ut kan använda samma spärr som en avstängd familj, med eget meddelande.
+
 ---
 
 # Security

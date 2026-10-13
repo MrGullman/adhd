@@ -40,7 +40,7 @@ class ThreadController extends Controller
     public function show(Request $request, CommunityThread $thread): Response
     {
         $group = $thread->group;
-        abort_if($group === null, 404);
+        abort_if($group === null || $thread->author->isSuspended(), 404);
         Gate::authorize('view', $group);
 
         /** @var User $user */
@@ -52,6 +52,7 @@ class ThreadController extends Controller
             'communityName' => $user->community_name,
             'posts' => $thread->posts()
                 ->with('author:id,community_name')
+                ->whereHas('author', fn ($query) => $query->whereNull('suspended_at'))
                 ->orderBy('id')
                 ->paginate(30)
                 ->through(fn (CommunityPost $post) => [
