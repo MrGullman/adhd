@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\FamilyRole;
+use App\Food\Dinner;
 use App\Models\Activity;
 use App\Models\Family;
 use App\Models\Membership;
@@ -46,6 +47,7 @@ class TodayController extends Controller
             'date' => $today,
             'activities' => $calendar->on($now)->map(fn (Activity $activity) => $calendar->present($activity, $now))->values(),
             'lunches' => $this->lunches($family),
+            'dinner' => Dinner::next($family, LocalTime::now()),
             // Read again every little while on the page, so the adults follow along live.
             'routines' => $this->routines($family, LocalTime::now()),
             'currentPart' => $family->dayPartFor(LocalTime::now()->format('H:i'))->value,
@@ -98,6 +100,7 @@ class TodayController extends Controller
             'routines' => $this->routines($family, LocalTime::now(), $child),
             ...$this->childActivities($child),
             'lunch' => SchoolLunch::now($family)->forMenu($family->schoolMenuIdOf($child)),
+            'dinner' => Dinner::next($family, LocalTime::now()),
         ]);
     }
 

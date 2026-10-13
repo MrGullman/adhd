@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Lists;
 
+use App\Actions\Meals\MoveToPantry;
 use App\Http\Controllers\Controller;
 use App\Models\FamilyList;
 use App\Models\ListItem;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Gate;
  */
 class ListItemCompletionController extends Controller
 {
-    public function store(Request $request, FamilyList $list, ListItem $item): RedirectResponse
+    public function store(Request $request, MoveToPantry $moveToPantry, FamilyList $list, ListItem $item): RedirectResponse
     {
         Gate::authorize('check', $item);
 
@@ -24,6 +25,11 @@ class ListItemCompletionController extends Controller
 
         if (! $item->isCompleted()) {
             $item->complete($user);
+
+            // What is bought ends up in the pantry.
+            if ($list->isShopping()) {
+                $moveToPantry->handle($item);
+            }
         }
 
         return back();

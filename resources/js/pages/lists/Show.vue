@@ -24,6 +24,9 @@ const props = defineProps<{
         picture: PictureItem | null;
         addedBy: string | null;
         completed: boolean;
+        section: string | null;
+        amount: string | null;
+        forMeals: string | null;
     }>;
     can: { addItems: boolean; update: boolean; delete: boolean };
 }>();
@@ -41,6 +44,16 @@ defineOptions({
 });
 
 const open = computed(() => props.items.filter((item) => !item.completed));
+
+// A new heading where the store section changes (only on the shopping list).
+function startsSection(index: number): boolean {
+    const item = open.value[index];
+
+    return (
+        item.section !== null &&
+        (index === 0 || open.value[index - 1].section !== item.section)
+    );
+}
 const done = computed(() => props.items.filter((item) => item.completed));
 
 // A picture can name the item, e.g. choosing the milk picture writes "Mjölk".
@@ -105,49 +118,71 @@ function onPicture(picture: PictureItem): void {
                 Inget kvar på listan.
             </p>
             <ul class="flex flex-col gap-2">
-                <li
-                    v-for="item in open"
-                    :key="item.id"
-                    class="flex items-center gap-2 rounded-lg border border-line bg-surface-raised py-1 pr-2 pl-1"
-                >
-                    <CompletionToggle
-                        v-if="can.addItems"
-                        :completed="false"
-                        :href="
-                            ListItemCompletionController.store([
-                                list.id,
-                                item.id,
-                            ])
-                        "
-                        :label="item.name"
-                    />
-                    <PictureThumb
-                        v-if="item.picture"
-                        :picture="item.picture"
-                        :class="!can.addItems && 'ml-2'"
-                    />
-                    <div
-                        class="min-w-0 flex-1 py-2"
-                        :class="!can.addItems && !item.picture && 'pl-3'"
+                <template v-for="(item, index) in open" :key="item.id">
+                    <li
+                        v-if="startsSection(index)"
+                        class="pt-2 text-overline text-ink-muted uppercase"
+                        aria-hidden="true"
                     >
-                        <p class="font-bold break-words">{{ item.name }}</p>
-                        <p
-                            v-if="item.addedBy"
-                            class="text-caption text-ink-muted"
+                        {{ item.section }}
+                    </li>
+                    <li
+                        class="flex items-center gap-2 rounded-lg border border-line bg-surface-raised py-1 pr-2 pl-1"
+                    >
+                        <CompletionToggle
+                            v-if="can.addItems"
+                            :completed="false"
+                            :href="
+                                ListItemCompletionController.store([
+                                    list.id,
+                                    item.id,
+                                ])
+                            "
+                            :label="item.name"
+                        />
+                        <PictureThumb
+                            v-if="item.picture"
+                            :picture="item.picture"
+                            :class="!can.addItems && 'ml-2'"
+                        />
+                        <div
+                            class="min-w-0 flex-1 py-2"
+                            :class="!can.addItems && !item.picture && 'pl-3'"
                         >
-                            {{ item.addedBy }}
-                        </p>
-                    </div>
-                    <Link
-                        v-if="can.update"
-                        :href="ListItemController.destroy([list.id, item.id])"
-                        as="button"
-                        preserve-scroll
-                        class="min-h-tap-adult rounded-md px-3 text-caption font-bold text-danger hover:bg-surface-sunken"
-                    >
-                        Ta bort
-                    </Link>
-                </li>
+                            <p class="font-bold break-words">
+                                {{ item.name }}
+                                <span
+                                    v-if="item.amount"
+                                    class="font-normal text-ink-muted"
+                                    >· {{ item.amount }}</span
+                                >
+                            </p>
+                            <p
+                                v-if="item.forMeals"
+                                class="text-caption text-ink-muted"
+                            >
+                                Till {{ item.forMeals }}
+                            </p>
+                            <p
+                                v-if="item.addedBy"
+                                class="text-caption text-ink-muted"
+                            >
+                                {{ item.addedBy }}
+                            </p>
+                        </div>
+                        <Link
+                            v-if="can.update"
+                            :href="
+                                ListItemController.destroy([list.id, item.id])
+                            "
+                            as="button"
+                            preserve-scroll
+                            class="min-h-tap-adult rounded-md px-3 text-caption font-bold text-danger hover:bg-surface-sunken"
+                        >
+                            Ta bort
+                        </Link>
+                    </li>
+                </template>
             </ul>
         </section>
 
