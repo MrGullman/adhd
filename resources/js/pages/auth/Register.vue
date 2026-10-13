@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import { login } from '@/routes';
+import { login, privacy } from '@/routes';
 import { store } from '@/routes/register';
 
 defineProps<{
@@ -110,5 +110,11 @@ defineOptions({
                 >Logga in</TextLink
             >
         </div>
+        <p class="text-center text-sm text-muted-foreground">
+            Läs hur vi hanterar familjens data i
+            <TextLink :href="privacy()" class="underline underline-offset-4"
+                >integritetspolicyn</TextLink
+            >.
+        </p>
     </Form>
 </template>

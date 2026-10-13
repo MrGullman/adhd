@@ -23,3 +23,6 @@ Schedule::command('calendars:sync')->everyFifteenMinutes()->withoutOverlapping()
 
 // Påminnelser som push-notiser (uppgifter, rutiner, kalender och packning).
 Schedule::command('reminders:send')->everyMinute()->withoutOverlapping();
+
+// Familjernas exporter sparas en vecka.
+Schedule::command('exports:prune')->dailyAt('03:30')->timezone('Europe/Stockholm');

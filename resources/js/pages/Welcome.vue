@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import logoUrl from '../../images/logo-320.png';
-import { dashboard, login, pictureSources } from '@/routes';
+import { dashboard, login, pictureSources, privacy } from '@/routes';
 </script>
 
 <template>
@@ -45,11 +45,19 @@ import { dashboard, login, pictureSources } from '@/routes';
             Logga in
         </Link>
 
-        <Link
-            :href="pictureSources()"
-            class="text-caption text-ink-muted underline"
-        >
-            Bildkällor
-        </Link>
+        <div class="flex gap-4">
+            <Link
+                :href="privacy()"
+                class="text-caption text-ink-muted underline"
+            >
+                Integritetspolicy
+            </Link>
+            <Link
+                :href="pictureSources()"
+                class="text-caption text-ink-muted underline"
+            >
+                Bildkällor
+            </Link>
+        </div>
     </div>
 </template>

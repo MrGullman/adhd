@@ -21,6 +21,7 @@ void createInertiaApp({
             case name.startsWith('invitations/'):
             case name === 'family/Create':
             case name === 'PictureSources':
+            case name === 'Privacy':
                 return AuthLayout;
             case name.startsWith('settings/'):
                 return [AppLayout, SettingsLayout];

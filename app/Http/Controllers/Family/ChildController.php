@@ -7,9 +7,11 @@ use App\Enums\FamilyRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Family\StoreChildRequest;
 use App\Http\Requests\Family\UpdateChildRequest;
+use App\Http\Requests\Privacy\RemoveChildRequest;
 use App\Models\Device;
 use App\Models\LoginEvent;
 use App\Models\User;
+use App\Privacy\RemoveChild;
 use App\Support\ChildPins;
 use App\Support\CurrentFamily;
 use Illuminate\Http\RedirectResponse;
@@ -107,5 +109,21 @@ class ChildController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Sparat.']);
 
         return to_route('children.show', $child->id);
+    }
+
+    /**
+     * Removes the child's account and everything about the child.
+     */
+    public function destroy(RemoveChildRequest $request, CurrentFamily $current, RemoveChild $remove, int $child): RedirectResponse
+    {
+        $family = $current->getOrFail();
+        $child = $family->findChildOrFail($child);
+        $name = $child->name;
+
+        $remove->handle($family, $child);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => "{$name} är borttagen."]);
+
+        return to_route('family.show');
     }
 }
