@@ -116,6 +116,21 @@ cd /var/www/npf-familjen/current
 sudo -u npf-familjen php8.4 artisan tinker --execute="Mail::raw('Test från NPF-familjen.', fn (\$m) => \$m->to('din@epost.se')->subject('Test'));"
 ```
 
+## Push-notiser (påminnelser)
+
+Påminnelser skickas som push-notiser och kräver ett nyckelpar (VAPID). Gör detta en gång, efter första driftsättningen med Milestone 16:
+
+```bash
+cd /var/www/npf-familjen/current
+sudo -u npf-familjen php8.4 artisan webpush:vapid
+sudo -u npf-familjen php8.4 artisan optimize
+sudo -u npf-familjen php8.4 artisan queue:restart
+```
+
+Kommandot skriver `VAPID_PUBLIC_KEY` och `VAPID_PRIVATE_KEY` i `/var/www/npf-familjen/shared/.env`. Kör det aldrig igen på en server som används: nya nycklar gör att alla enheter måste slå på påminnelser på nytt. Spara nycklarna tillsammans med `APP_KEY`.
+
+Påminnelserna skickas av schemaläggaren varje minut (`reminders:send`) och går via kön.
+
 ## 8. Backup
 
 Backupen tas varje natt kl. 02:30 och sparas i 14 dagar i `/var/backups/npf-familjen`. Den innehåller databasen och uppladdade filer. Koden finns på GitHub.
@@ -142,7 +157,7 @@ Backupen ligger på samma server. Den skyddar mot misstag och trasiga uppdaterin
 
 ### Spara APP_KEY säkert
 
-Dagboken och barnens koder är krypterade med appens nyckel, `APP_KEY` i `/var/www/npf-familjen/shared/.env`. Backupen innehåller databasen men inte `.env`. Försvinner nyckeln går dagboken inte att läsa, inte ens från en backup.
+Dagboken, kalenderlänkarna och barnens koder är krypterade med appens nyckel, `APP_KEY` i `/var/www/npf-familjen/shared/.env`. Backupen innehåller databasen men inte `.env`. Försvinner nyckeln går dagboken inte att läsa, inte ens från en backup.
 
 Spara nyckeln på ett säkert ställe utanför servern, t.ex. i din lösenordshanterare:
 

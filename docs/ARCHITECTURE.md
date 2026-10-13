@@ -994,13 +994,20 @@ I version 2 (Milestone 15):
 
 Påminnelser byggs tillsammans med PWA.
 
-- PWA: vite-plugin-pwa (manifest, service worker, installerbar)
+- PWA: eget manifest (public/manifest.webmanifest) och en liten egen service worker (public/sw.js) som bara visar notiser. Inget cachas, så appen visar alltid aktuell data. (Beslut i Milestone 16 i stället för vite-plugin-pwa: inga nya byggsteg eller paket.)
 - Push: laravel-notification-channels/webpush (VAPID-nycklar)
 - iPhone: push fungerar bara när appen lagts till på hemskärmen
 - Påminnelser för uppgifter med tid, rutiner, återkommande uppgifter, kalenderhändelser och packning dagen innan en aktivitet
 - Barn får påminnelser på sin egen enhet
 - Tysta timmar per användare (t.ex. 20–07)
 - Påminnelser skickas via Laravel Notifications från ett schemalagt kommando
+
+I version 2 (Milestone 16):
+
+- reminders:send körs varje minut. En påminnelse skickas vid sin tid, eller upp till 10 minuter senare om körningen var sen, och aldrig två gånger (sent_reminders med unik nyckel).
+- Uppgift med klockslag: till den uppgiften är till. Rutin: när den startar, till varje barn som inte är klart. Kalenderhändelse: 15 minuter innan, till den vars kalender det är. Packning: 18:00 dagen innan, till barn som inte packat allt.
+- Tysta timmar och på/av ligger på users (gäller personen i alla familjer). Förval 20:00–07:00. Vårdnadshavare ställer in barnens.
+- Push skickas bara till publika https-adresser, aldrig till serverns eget nät.
 
 ---
 

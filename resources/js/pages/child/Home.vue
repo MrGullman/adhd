@@ -11,6 +11,7 @@ import DayPartLabel from '@/components/DayPartLabel.vue';
 import DinnerCard from '@/components/DinnerCard.vue';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import PictureThumb from '@/components/PictureThumb.vue';
+import PushToggle from '@/components/PushToggle.vue';
 import SchoolLunch from '@/components/SchoolLunch.vue';
 import { formatDay } from '@/lib/format';
 import { logout } from '@/routes';
@@ -42,6 +43,7 @@ const props = defineProps<{
     lunch: SchoolLunchData | null;
     dinner: MealEntry | null;
     points: number | null;
+    vapidPublicKey: string | null;
 }>();
 
 const groups = computed(() =>
@@ -398,6 +400,11 @@ const allDone = computed(
                     <ShoppingCart class="size-8" aria-hidden="true" />
                     Handla
                 </Link>
+                <PushToggle
+                    v-if="vapidPublicKey"
+                    :vapid-public-key="vapidPublicKey"
+                    child
+                />
                 <Link
                     :href="logout()"
                     as="button"

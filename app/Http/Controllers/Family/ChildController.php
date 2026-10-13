@@ -61,6 +61,11 @@ class ChildController extends Controller
                 'pin' => $child->pin,
                 'loginEnabled' => $child->loginEnabled(),
                 'failedPinAttempts' => $child->failed_pin_attempts,
+                'reminders' => [
+                    'remindersEnabled' => $child->reminders_enabled,
+                    'quietFrom' => $child->quiet_from === null ? null : substr($child->quiet_from, 0, 5),
+                    'quietUntil' => $child->quiet_until === null ? null : substr($child->quiet_until, 0, 5),
+                ],
             ],
             'devices' => Device::query()
                 ->where('user_id', $child->id)

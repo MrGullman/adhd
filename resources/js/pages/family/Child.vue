@@ -5,10 +5,12 @@ import ChildAccessController from '@/actions/App/Http/Controllers/Family/ChildAc
 import ChildController from '@/actions/App/Http/Controllers/Family/ChildController';
 import ChildPairingController from '@/actions/App/Http/Controllers/Family/ChildPairingController';
 import ChildPinController from '@/actions/App/Http/Controllers/Family/ChildPinController';
+import ChildReminderController from '@/actions/App/Http/Controllers/Family/ChildReminderController';
 import DeviceController from '@/actions/App/Http/Controllers/Family/DeviceController';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import InputError from '@/components/InputError.vue';
 import PicturePicker from '@/components/PicturePicker.vue';
+import ReminderSettingsForm from '@/components/ReminderSettingsForm.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,6 +28,11 @@ const props = defineProps<{
         pin: string | null;
         loginEnabled: boolean;
         failedPinAttempts: number;
+        reminders: {
+            remindersEnabled: boolean;
+            quietFrom: string | null;
+            quietUntil: string | null;
+        };
     };
     devices: Array<{ id: number; name: string; lastSeenAt: string | null }>;
     loginEvents: Array<{
@@ -245,6 +252,19 @@ const avatarPicture = ref<PictureItem | null>(props.child.picture);
         </section>
 
         <!-- Inloggningshistorik -->
+        <section class="flex flex-col gap-3" aria-labelledby="paminnelser">
+            <h2 id="paminnelser" class="text-title">Påminnelser</h2>
+            <p class="text-ink-muted">
+                {{ child.name }} slår på påminnelser i Min dag på sin egen
+                enhet. Påminnelserna gäller rutiner, uppgifter med klockslag och
+                packning kvällen innan.
+            </p>
+            <ReminderSettingsForm
+                :action="ChildReminderController.update.url(child.id)"
+                :settings="child.reminders"
+            />
+        </section>
+
         <section class="flex flex-col gap-3" aria-labelledby="historik">
             <h2 id="historik" class="text-title">Inloggningar</h2>
             <p v-if="!loginEvents.length" class="text-ink-muted">
