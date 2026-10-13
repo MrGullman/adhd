@@ -62,7 +62,7 @@ function addPicture(picture: PictureItem): void {
                     maxlength="100"
                     autocomplete="off"
                     placeholder="Vad behövs?"
-                    class="h-tap-child min-w-0 flex-1 rounded-md border-2 border-line-strong bg-surface-raised px-4 font-display text-child-label"
+                    class="h-tap-child w-full min-w-0 shrink-0 rounded-md border-2 border-line-strong bg-surface-raised px-4 font-display text-child-label sm:w-auto sm:flex-1"
                 />
                 <button
                     type="submit"

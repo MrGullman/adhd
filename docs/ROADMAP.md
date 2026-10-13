@@ -586,12 +586,13 @@ Vårdnadshavare i olika familjer kan diskutera problem och tips.
 
 ## Tasks
 
-- [ ] groups tabell
-- [ ] group_members tabell
-- [ ] threads tabell
-- [ ] posts tabell
-- [ ] Community UI
-- [ ] Bara vuxna har åtkomst
+- [x] groups tabell (community_groups: "groups" är ett reserverat ord i MariaDB)
+- [x] group_members tabell (community_group_members)
+- [x] threads tabell (community_threads)
+- [x] posts tabell (community_posts)
+- [x] Community UI, med eget visningsnamn och anmälan av inlägg
+- [x] Bara vårdnadshavare har åtkomst, enligt ARCHITECTURE.md
+- [x] Adminportalen: grupper och anmälda inlägg
 
 ## Definition of Done
 

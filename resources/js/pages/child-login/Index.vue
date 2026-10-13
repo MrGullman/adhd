@@ -2,7 +2,7 @@
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { Delete } from '@lucide/vue';
 import { computed, ref } from 'vue';
-import logoUrl from '../../../images/logo-320.png';
+import logoUrl from '../../../images/logo-wide.png';
 import ChildSessionController from '@/actions/App/Http/Controllers/ChildSessionController';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import { login } from '@/routes';
@@ -63,7 +63,13 @@ function submit(): void {
     <main
         class="flex min-h-svh flex-col items-center gap-8 bg-surface px-4 py-8 text-ink"
     >
-        <img :src="logoUrl" alt="NPF-familjen" class="size-24" />
+        <img
+            :src="logoUrl"
+            alt="NPF-familjen"
+            width="600"
+            height="372"
+            class="h-auto w-56"
+        />
 
         <!-- Enheten är inte godkänd -->
         <div

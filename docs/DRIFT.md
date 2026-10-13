@@ -16,6 +16,23 @@ Så sätts servern upp och så driftsätts nya versioner. Appen körs på https:
 
 Konfigurationsfilerna finns i [deploy/server/](../deploy/server/) och Deployer i [deploy.php](../deploy.php).
 
+## Snabbguide: jobba på servern
+
+Logga in med ditt eget konto: `ssh jeppe@62.119.70.55`.
+
+Användaren `npf-familjen` har **inget lösenord**, med flit (`adduser --disabled-password`). Ingen kan logga in som appen med lösenord, bara deployen med sin nyckel. Därför fungerar inte `su - npf-familjen`. Använd `sudo`, som frågar efter ditt eget lösenord:
+
+| Vill du … | Skriv |
+| --- | --- |
+| bli `npf-familjen` en stund (`exit` för att gå tillbaka) | `sudo -iu npf-familjen` |
+| köra ett artisan-kommando | `sudo -u npf-familjen php8.4 /var/www/npf-familjen/current/artisan <kommando>` |
+| ändra inställningar (`.env`) | `sudo nano /var/www/npf-familjen/shared/.env` |
+| läsa in ändrad `.env` | `sudo -u npf-familjen php8.4 /var/www/npf-familjen/current/artisan optimize` och `sudo systemctl restart npf-familjen-queue` |
+| se appens logg | `sudo tail -n 100 /var/www/npf-familjen/shared/storage/logs/laravel.log` |
+| se om kön går | `sudo systemctl status npf-familjen-queue` |
+
+Sätt aldrig ett lösenord på `npf-familjen` med `passwd`. Då försvinner skyddet, och `sudo` räcker till allt.
+
 ---
 
 ## 1. Innan du börjar
@@ -118,14 +135,27 @@ sudo -u npf-familjen php8.4 artisan tinker --execute="Mail::raw('Test från NPF-
 
 ## Integritetspolicyn
 
-Fyll i vem som är personuppgiftsansvarig i `/var/www/npf-familjen/shared/.env` och kör `artisan optimize`:
+Integritetspolicyn på `/integritet` ska visa vem som ansvarar för familjernas uppgifter (GDPR). Det fylls i på servern, aldrig i koden:
+
+- `PRIVACY_CONTROLLER`: den som är personuppgiftsansvarig, alltså den som bestämmer över uppgifterna. Driver du appen själv är det ditt namn. Står ett företag eller en förening bakom: dess namn (gärna med organisationsnummer).
+- `PRIVACY_CONTACT`: dit familjer vänder sig med frågor, rättelser eller klagomål. En e-postadress räcker, gärna en separat adress i stället för din privata.
+
+Båda syns publikt på `/integritet`.
+
+```bash
+sudo nano /var/www/npf-familjen/shared/.env
+```
 
 ```
-PRIVACY_CONTROLLER="Namn"
-PRIVACY_CONTACT="e-post"
+PRIVACY_CONTROLLER="Förnamn Efternamn"
+PRIVACY_CONTACT="integritet@exempel.se"
 ```
 
-Policyn finns på `/integritet`.
+```bash
+sudo -u npf-familjen php8.4 /var/www/npf-familjen/current/artisan optimize
+```
+
+Tomma fält visar "Uppgift om personuppgiftsansvarig saknas ännu". Fyll i dem innan andra familjer bjuds in.
 
 ## Push-notiser (påminnelser)
 

@@ -351,17 +351,26 @@ I version 2 (Milestone 14):
 
 Community är separat från familjedata.
 
-Community använder:
+Community använder (prefix community_, eftersom groups är ett reserverat ord):
 
-groups
-threads
-posts
+community_groups
+community_group_members
+community_threads
+community_posts
+community_reports
 
 Community använder inte family_id.
 
-Behörighet styrs via group_members.
+Behörighet styrs via group_members: man läser och skriver bara i grupper man gått med i.
 
 Bara vårdnadshavare (parent) har åtkomst. Barnkonton kommer aldrig åt Community.
+
+I version 2 (Milestone 18):
+
+- Admin skapar grupperna i adminportalen. Migrationen lägger in några att börja med.
+- Varje vårdnadshavare väljer ett visningsnamn (users.community_name, unikt). Det riktiga namnet och familjen visas aldrig för andra familjer.
+- Man ändrar och tar bort sina egna inlägg. Tar man bort trådens första inlägg försvinner tråden. Andras inlägg kan anmälas; admin tar bort dem eller låter dem vara kvar.
+- Tas en vuxen bort försvinner hens trådar och inlägg (cascade), även svar andra skrivit i hens trådar.
 
 ---
 

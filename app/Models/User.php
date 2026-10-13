@@ -29,6 +29,7 @@ use NotificationChannels\WebPush\HasPushSubscriptions;
  * @property int $id
  * @property int|null $active_family_id
  * @property string $name
+ * @property string|null $community_name
  * @property AvatarColor $avatar_color
  * @property int|null $picture_id
  * @property bool $is_admin

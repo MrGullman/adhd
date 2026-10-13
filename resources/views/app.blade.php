@@ -34,7 +34,7 @@
         <meta name="theme-color" content="#10171c" media="(prefers-color-scheme: dark)">
 
         <link rel="icon" href="/favicon.ico" sizes="any">
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+        <link rel="icon" href="/icons/favicon-32.png" type="image/png" sizes="32x32">
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
         <link rel="manifest" href="/manifest.webmanifest">
         <meta name="apple-mobile-web-app-capable" content="yes">

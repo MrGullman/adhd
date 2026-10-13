@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import logoUrl from '../../../images/logo-320.png';
+import logoUrl from '../../../images/logo-wide.png';
 import { home } from '@/routes';
 
 defineProps<{
@@ -20,9 +20,9 @@ defineProps<{
                         <img
                             :src="logoUrl"
                             alt="NPF-familjen"
-                            width="120"
-                            height="120"
-                            class="size-30 rounded-lg"
+                            width="600"
+                            height="372"
+                            class="h-auto w-72"
                         />
                     </Link>
                     <div class="space-y-2 text-center">

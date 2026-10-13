@@ -31,3 +31,4 @@ Route::middleware(['auth', 'throttle:20,1'])->group(function () {
 require __DIR__.'/family.php';
 require __DIR__.'/everyday.php';
 require __DIR__.'/settings.php';
+require __DIR__.'/community.php';
