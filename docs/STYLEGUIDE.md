@@ -11,7 +11,7 @@ Identiteten är lekfull som logotypen, men gränssnittet är lugnt: logotypens f
 ## Ton och text
 
 - Skriv till en person med "du". Korta meningar, en sak i taget.
-- Barnens texter börjar med verbet och har högst tre ord: "Borsta tänderna", "Packa väskan", "Klar".
+- Barnens texter börjar med verbet och har högst tre ord: "Borsta tänderna", "Packa väskan", "Klar". I läget Ungdom börjar de med verbet men får vara längre: "Packa gympapåsen till fredag".
 - Vuxnas texter är raka och vänliga: "Simskola imorgon. Inte packat än."
 - Skriv aldrig skuld eller stress. Inte "Du är sen!", utan "10 minuter kvar". Inte "Misslyckades", utan "Vi hoppar över det idag".
 - Utropstecken bara i firandet när något är klart: "Bra jobbat!"
@@ -53,13 +53,13 @@ Identiteten är lekfull som logotypen, men gränssnittet är lugnt: logotypens f
 - `display` (Fredoka): rubriker, barnens texter, bildetiketter och stora siffror
 - `body` (Atkinson Hyperlegible Next): all löptext, formulär och vuxnas listor
 - Stilar: `display-xl` klockan, `display-l` steget i fokusläget, `heading` sidrubriker, `child-label` barnens uppgifter, `title` rubriker i vuxnas kort, `body` text, `caption` tider och metadata, `overline` gruppetiketter
-- Barnens text är aldrig mindre än 22px (`child-label`). Vuxnas text aldrig mindre än 14px (`caption`).
+- Barnens text är aldrig mindre än 22px (`child-label`). I läget Ungdom aldrig mindre än 18px (`youth-label`), tider och metadata 14px (`caption`). Vuxnas text aldrig mindre än 14px (`caption`).
 - Siffror i rad har `tabular-nums`.
 
 ## Storlek, avstånd och former
 
 - 4px-rutnät: `space-1` till `space-12`. Kort har `space-4` inre marginal, sektioner `space-8` emellan.
-- Tryckytor: minst `tap-adult` (48px) för vuxna och `tap-child` (64px) för barn.
+- Tryckytor: minst `tap-adult` (48px) för vuxna och läget Ungdom, och `tap-child` (64px) för barn i läget Barn.
 - Former: knappar, etiketter och dagsdelar `radius-pill`. Kort `radius-lg`, bildstöd och fält `radius-md`, widgets `radius-xl`.
 - Skugga (`shadow-raised`) bara för det som ligger ovanpå.
 
@@ -72,7 +72,7 @@ Identiteten är lekfull som logotypen, men gränssnittet är lugnt: logotypens f
 ## Bildstöd
 
 - Varje uppgift, steg, vara och familjemedlem kan ha en bild. Till vänster i listor, ovanför etiketten i rutnät.
-- Storlekar: `picture-sm` i listor, `picture-md` i barnens kort och bildväljaren, `picture-lg` i fokusläget och på hemskärmen.
+- Storlekar: `picture-sm` i listor, `picture-md` i barnens kort och bildväljaren, `picture-lg` i fokusläget och på hemskärmen. I läget Ungdom `picture-xs` i listor.
 - Kvadratiska bilder med rundade hörn. Samma sak har alltid samma bild.
 
 ## Tid som syns
@@ -92,6 +92,25 @@ Identiteten är lekfull som logotypen, men gränssnittet är lugnt: logotypens f
 | Valfri | Etiketten "Valfri" med streckad kant |
 | Hoppas över | Etiketten "Hoppar över idag" i `surface-sunken` |
 | Annorlunda dag | `orange-soft` bakgrund och etiketten "Annorlunda" |
+
+## Barnens visningslägen
+
+Vårdnadshavare väljer läge per barn. Mognad och behov följer inte alltid åldern. Båda lägena har samma struktur, samma färger och samma lugn. Läget Ungdom byter bara skala och ton, så att ett äldre barn känner igen appen men inte känner sig litet.
+
+| | Barn (ungefär 5–10 år) | Ungdom (ungefär 10–14 år) |
+| --- | --- | --- |
+| Typsnitt | `display` (Fredoka) för allt barnet läser | `display` bara i rubriker. Listor och text i `body`, som vuxnas vyer. |
+| Text | `child-label` 22px, högst tre ord | `youth-label` 18px, kort men utan ordgräns. Tider `caption`. |
+| Tryckytor | `tap-child` 64px | `tap-adult` 48px |
+| Bildstöd | `picture-sm` i listor, `picture-md`–`picture-lg` för Nu | `picture-xs` i listor, 44px för Nu. På från början, vårdnadshavare kan stänga av dem. |
+| Startsidan | "Hej Alva!" och ett stort Nu-kort | "Idag" med datum, Nu som en rad överst, dagens lista med tider och dagsdelar som små etiketter |
+| Rutiner | Fokusläge: ett steg i taget med kvartsprickar | Checklista med alla steg och en tunn förloppslinje. Fokusläget kan väljas. |
+| Klar | Bock, ordet Klar, nedtonad text | Samma, i mindre storlek |
+| Poäng | Stjärna med poäng i Min dag | En länk längst ner. Dold om belöningar är avstängda för barnet. |
+
+- Högst en primary-knapp per vy i båda lägena.
+- Hemskärmen ser likadan ut för alla barn, oavsett läge.
+- Visuellt utkast: https://claude.ai/artifact/6yMR9uauSVohCTEsD6bF5F (privat länk)
 
 ## Hemskärmen
 

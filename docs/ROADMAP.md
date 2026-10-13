@@ -74,7 +74,13 @@ Milestone 13–16: dagbok, belöningssystem, kalender, PWA och påminnelser.
 
 ## Innan andra familjer bjuds in
 
-Milestone 17–18: datakontroll och integritetspolicy, community.
+Milestone 17–18: datakontroll och integritetspolicy, community (klara).
+
+Milestone 19: konton och missbruk i adminportalen (klar).
+
+## Version 3
+
+Milestone 20: visningsläge för äldre barn.
 
 ---
 
@@ -623,6 +629,42 @@ Admin har överblick över familjer och konton och kan stänga av ett konto elle
 
 - Admin ser familjer och konton men aldrig familjens innehåll
 - Ett avstängt konto eller en avstängd familj kommer inte in, och ingenting tas bort
+
+---
+
+# Milestone 20 – Visningsläge för äldre barn
+
+## Mål
+
+Appen följer med barnet när det blir äldre. Läget Barn passar ungefär 5–10 år. Ett barn på 10–14 år behöver ofta samma struktur, men tycker att stora bilder, "Min dag" och stjärnor känns barnsliga och vill bestämma mer själv. Vårdnadshavare väljer läge per barn, eftersom mognad och behov hos barn med NPF ofta inte följer åldern.
+
+Lägena heter **Barn** och **Ungdom**. Reglerna står i STYLEGUIDE.md under "Barnens visningslägen".
+
+## Beslutat
+
+- Ungdom: text minst 18px (`youth-label`), tryckytor 48px, typsnittet `body` i listor och text, Fredoka bara i rubriker
+- Bildstöd är på från början i Ungdom, och vårdnadshavare kan stänga av det per barn
+- Rutiner är en checklista i Ungdom, och fokusläget kan väljas
+- Hemskärmen ser likadan ut oavsett läge
+
+## Tasks
+
+- [x] STYLEGUIDE.md och tokens.json: regler för läget Ungdom (`youth-label`, `picture-xs`)
+- [ ] Läge per barn: users.child_view (child, youth). Det följer barnet, även om barnet senare finns i två familjer (växelvis boende).
+- [ ] Bildstöd av eller på per barn i läget Ungdom (users.child_pictures)
+- [ ] Vårdnadshavare väljer läge och bildstöd på barnets sida, med en förhandsvisning av Min dag i båda lägena
+- [ ] Tokens i app.css: `youth-label` och `picture-xs`
+- [ ] Min dag, Min vecka, Mina poäng och handlingslistan i läget Ungdom
+- [ ] Rutin som checklista i läget Ungdom, med knapp till fokusläget
+- [ ] Poäng och belöningar av eller på per barn (family_user, eftersom det är familjens beslut)
+- [ ] Barn i läget Ungdom kan lägga in egna uppgifter till sig själva. Vuxna ser dem i Idag och kan ändra och ta bort dem.
+- [ ] Tester: läget ändrar bara barnets egna vyer, bara vårdnadshavare byter läge, ett barn kan bara lägga in uppgifter till sig själv, isolationstest för nya fält
+
+## Definition of Done
+
+- Ett barn i läget Ungdom ser en lugn, vuxnare vy med samma struktur
+- Vårdnadshavare byter läge per barn och ser direkt hur det blir
+- Barnet kan inte byta läge eller stänga av belöningar själv
 
 ---
 

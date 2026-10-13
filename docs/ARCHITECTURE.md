@@ -119,6 +119,12 @@ family_user.role
 
 Rollen kontrolleras i policies.
 
+## Barnens visningsläge (Milestone 20, planerat)
+
+- users.child_view: child (läget Barn, som idag, ungefär 5–10 år) eller youth (läget Ungdom, ungefär 10–14 år). users.child_pictures stänger av bildstöd i läget Ungdom. Båda hör till barnet och följer med mellan familjer.
+- Bara vårdnadshavare byter läge. Poäng och belöningar av eller på per barn ligger på family_user, eftersom det är familjens beslut.
+- Läget påverkar bara barnets egna vyer, aldrig hemskärmen eller vuxnas vyer.
+
 ## Vuxenkonton
 
 - Fortify: e-post + lösenord, 2FA
