@@ -370,5 +370,41 @@ const avatarPicture = ref<PictureItem | null>(props.child.picture);
                 </Button>
             </Form>
         </section>
+
+        <section
+            class="flex flex-col gap-3 border-t border-line pt-8"
+            aria-labelledby="ta-bort"
+        >
+            <h2 id="ta-bort" class="text-title">Ta bort {{ child.name }}</h2>
+            <p>
+                Kontot och allt om {{ child.name }} tas bort: uppgifter,
+                rutiner, poäng, inloggningar och enheter. Det går inte att
+                ångra.
+            </p>
+            <Form
+                v-bind="ChildController.destroy.form(child.id)"
+                class="flex flex-wrap items-end gap-3"
+                v-slot="{ errors, processing }"
+            >
+                <div class="grid min-w-60 gap-2">
+                    <Label for="remove-password">Ditt lösenord</Label>
+                    <Input
+                        id="remove-password"
+                        name="password"
+                        type="password"
+                        autocomplete="current-password"
+                        required
+                    />
+                    <InputError :message="errors.password" />
+                </div>
+                <Button
+                    type="submit"
+                    variant="destructive"
+                    :disabled="processing"
+                >
+                    Ta bort {{ child.name }}
+                </Button>
+            </Form>
+        </section>
     </div>
 </template>

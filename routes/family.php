@@ -9,6 +9,7 @@ use App\Http\Controllers\Family\ChildController;
 use App\Http\Controllers\Family\ChildPairingController;
 use App\Http\Controllers\Family\ChildPinController;
 use App\Http\Controllers\Family\ChildReminderController;
+use App\Http\Controllers\Family\DataController;
 use App\Http\Controllers\Family\DayPartController;
 use App\Http\Controllers\Family\DeviceController;
 use App\Http\Controllers\Family\DisplayController;
@@ -43,6 +44,7 @@ Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function 
     Route::post('familj/barn/{child}/kod', [ChildPinController::class, 'store'])->whereNumber('child')->name('children.pin.store');
     Route::post('familj/barn/{child}/inloggning', [ChildAccessController::class, 'store'])->whereNumber('child')->name('children.access.store');
     Route::delete('familj/barn/{child}/inloggning', [ChildAccessController::class, 'destroy'])->whereNumber('child')->name('children.access.destroy');
+    Route::delete('familj/barn/{child}', [ChildController::class, 'destroy'])->whereNumber('child')->name('children.destroy');
     Route::put('familj/barn/{child}/paminnelser', [ChildReminderController::class, 'update'])->whereNumber('child')->name('children.reminders.update');
     Route::post('familj/barn/{child}/koppling', [ChildPairingController::class, 'store'])->whereNumber('child')->name('children.pairing.store');
 
@@ -52,6 +54,11 @@ Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function 
     Route::delete('familj/skolor/{schoolMenu}', [SchoolMenuController::class, 'destroy'])->name('school-menus.destroy');
     Route::put('familj/skolor/byte', [SchoolMenuController::class, 'switchTime'])->name('school-menus.switch');
     Route::put('familj/medlemmar/{member}/skola', [SchoolMenuController::class, 'assign'])->whereNumber('member')->name('school-menus.assign');
+
+    Route::get('familj/data', [DataController::class, 'index'])->name('family.data');
+    Route::post('familj/data/export', [DataController::class, 'export'])->middleware('throttle:3,10')->name('family.data.export');
+    Route::get('familj/data/export/{export}', [DataController::class, 'download'])->whereNumber('export')->name('family.data.download');
+    Route::delete('familj', [DataController::class, 'destroy'])->middleware('throttle:5,1')->name('family.destroy');
 
     Route::get('familj/kalendrar', [CalendarController::class, 'index'])->name('calendars.index');
     Route::post('familj/kalendrar', [CalendarController::class, 'store'])->middleware('throttle:10,1')->name('calendars.store');

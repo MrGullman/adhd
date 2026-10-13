@@ -4,9 +4,15 @@ use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\TodayController;
 use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::get('/', WelcomeController::class)->name('home');
 Route::inertia('bildkallor', 'PictureSources')->name('picture-sources');
+Route::get('integritet', fn () => Inertia::render('Privacy', [
+    'controller' => config('privacy.controller'),
+    'contact' => config('privacy.contact'),
+    'backupDays' => config('backup.cleanup.default_strategy.keep_all_backups_for_days'),
+]))->name('privacy');
 
 Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function () {
     Route::get('dashboard', [TodayController::class, 'family'])->name('dashboard');

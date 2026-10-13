@@ -116,6 +116,17 @@ cd /var/www/npf-familjen/current
 sudo -u npf-familjen php8.4 artisan tinker --execute="Mail::raw('Test från NPF-familjen.', fn (\$m) => \$m->to('din@epost.se')->subject('Test'));"
 ```
 
+## Integritetspolicyn
+
+Fyll i vem som är personuppgiftsansvarig i `/var/www/npf-familjen/shared/.env` och kör `artisan optimize`:
+
+```
+PRIVACY_CONTROLLER="Namn"
+PRIVACY_CONTACT="e-post"
+```
+
+Policyn finns på `/integritet`.
+
 ## Push-notiser (påminnelser)
 
 Påminnelser skickas som push-notiser och kräver ett nyckelpar (VAPID). Gör detta en gång, efter första driftsättningen med Milestone 16:

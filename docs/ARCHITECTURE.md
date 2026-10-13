@@ -1254,6 +1254,13 @@ Familjen äger sin data och har full kontroll över den.
 - Hosting inom EU
 - Integritetspolicy innan andra familjer bjuds in
 
+I version 2 (Milestone 17):
+
+- Export (Familjen → Familjens data): en JSON-fil per del och familjens egna bilder i en ZIP. Dagboken exporteras läsbar. Lösenord, barnens koder, tvåstegsnycklar, länktokens och kalenderlänkar är aldrig med. Filen sparas 7 dagar (exports:prune).
+- Ta bort barn: barnets konto och allt om barnet. Ett barn som också finns i en annan familj behåller kontot där; bara den här familjens data om barnet tas bort.
+- Ta bort familjen: vårdnadshavare bekräftar med lösenord och familjens namn. Allt med family_id försvinner (cascade), liksom bilder och exporter på disken, barnens konton och vuxna som inte är med i någon annan familj (med deras community-inlägg). Adminkonton tas aldrig bort.
+- Integritetspolicyn (/integritet) hämtar personuppgiftsansvarig från PRIVACY_CONTROLLER och PRIVACY_CONTACT i .env.
+
 ---
 
 # Security

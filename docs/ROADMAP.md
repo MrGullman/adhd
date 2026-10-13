@@ -566,10 +566,10 @@ Familjen har full kontroll över sin data.
 
 ## Tasks
 
-- [ ] Exportera familjens data (JSON + bilder i ZIP, köjobb)
-- [ ] Radera barnkonto
-- [ ] Radera hela familjen (all data och alla filer, köjobb)
-- [ ] Integritetspolicy
+- [x] Exportera familjens data (JSON + bilder i ZIP, köjobb, sparas 7 dagar)
+- [x] Radera barnkonto
+- [x] Radera hela familjen (all data och alla filer, köjobb)
+- [x] Integritetspolicy (/integritet, personuppgiftsansvarig i .env)
 
 ## Definition of Done
 

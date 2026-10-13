@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Form, Head, Link, router } from '@inertiajs/vue3';
-import { CalendarDays, Monitor } from '@lucide/vue';
+import { CalendarDays, Monitor, ShieldCheck } from '@lucide/vue';
 import ChildController from '@/actions/App/Http/Controllers/Family/ChildController';
+import DataController from '@/actions/App/Http/Controllers/Family/DataController';
 import DayPartController from '@/actions/App/Http/Controllers/Family/DayPartController';
 import DeviceController from '@/actions/App/Http/Controllers/Family/DeviceController';
 import CalendarController from '@/actions/App/Http/Controllers/Family/CalendarController';
@@ -459,6 +460,28 @@ const selectClass =
                 <CalendarDays class="size-6 shrink-0" aria-hidden="true" />
                 <span class="min-w-0 flex-1 font-bold">Kalendrar</span>
                 <span class="font-bold text-primary">Hantera</span>
+            </Link>
+        </section>
+
+        <!-- Familjens data -->
+        <section
+            v-if="canManage"
+            class="flex flex-col gap-4"
+            aria-labelledby="data"
+        >
+            <h2 id="data" class="text-title">Familjens data</h2>
+            <Link
+                :href="DataController.index()"
+                class="flex items-center gap-3 rounded-lg border border-line bg-surface-raised p-3 hover:border-primary"
+            >
+                <ShieldCheck class="size-6 shrink-0" aria-hidden="true" />
+                <span class="min-w-0 flex-1">
+                    <span class="block font-bold">Ladda ner eller ta bort</span>
+                    <span class="text-caption text-ink-muted">
+                        All familjens data som en ZIP, eller ta bort familjen
+                    </span>
+                </span>
+                <span class="font-bold text-primary">Öppna</span>
             </Link>
         </section>
 
