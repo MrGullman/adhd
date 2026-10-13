@@ -27,6 +27,20 @@ const http = useHttp<
 >();
 let timer: ReturnType<typeof setTimeout> | undefined;
 
+// "smör el marg": the list is for the word being typed, after "el", "eller" or "/".
+const separator = /(\s+(?:el\.?|eller)\s+|\s*\/\s*)/i;
+
+function current(): { before: string; word: string } | null {
+    if (name.value.includes('(')) {
+        return null;
+    }
+
+    const parts = name.value.split(separator);
+    const word = parts.pop() ?? '';
+
+    return { before: parts.join(''), word: word.trim() };
+}
+
 async function search(text: string): Promise<void> {
     const response = await http.get(
         IngredientController.index.url({ query: { sok: text } }),
@@ -38,14 +52,20 @@ async function search(text: string): Promise<void> {
 function onInput(): void {
     // Typing changes the grocery: the id only stays when chosen from the list.
     ingredientId.value = null;
-    open.value = true;
+    const part = current();
+    open.value = part !== null && part.word !== '';
     clearTimeout(timer);
-    timer = setTimeout(() => search(name.value.trim()), 150);
+
+    if (open.value && part) {
+        timer = setTimeout(() => search(part.word), 150);
+    }
 }
 
 function choose(option: IngredientOption): void {
-    name.value = option.name;
-    ingredientId.value = option.id;
+    const before = current()?.before ?? '';
+    name.value = before + (before ? option.name.toLowerCase() : option.name);
+    // Only one grocery: it is the chosen one. With alternatives the names are read when saved.
+    ingredientId.value = before ? null : option.id;
     open.value = false;
     emit('select', option);
 }
@@ -91,7 +111,7 @@ watch(
             :aria-expanded="open && options.length > 0"
             :aria-label="ariaLabel"
             :placeholder="placeholder ?? 'Till exempel Mjölk'"
-            maxlength="50"
+            maxlength="150"
             @input="onInput"
             @focus="name.trim() && onInput()"
             @keydown="onKey"

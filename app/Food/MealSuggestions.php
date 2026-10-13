@@ -2,7 +2,6 @@
 
 namespace App\Food;
 
-use App\Models\Ingredient;
 use App\Models\PantryItem;
 use App\Models\Recipe;
 use App\Models\RecipeIngredient;
@@ -28,7 +27,7 @@ class MealSuggestions
         $atHome = PantryItem::query()->pluck('ingredient_id')->map(fn ($id) => (int) $id)->all();
 
         /** @var Collection<int, Recipe> $recipes */
-        $recipes = Recipe::query()->with(['picture', 'ingredients.ingredient'])->orderBy('name')->get();
+        $recipes = Recipe::query()->with(['picture', 'ingredients.ingredient', 'ingredients.alternatives'])->orderBy('name')->get();
 
         $canCook = [];
         $missingFew = [];
@@ -38,11 +37,10 @@ class MealSuggestions
                 continue;
             }
 
+            // A line is at home when any of its groceries is ("smör eller margarin").
             $missing = $recipe->ingredients
-                ->reject(fn (RecipeIngredient $line) => in_array($line->ingredient_id, $atHome, true))
-                ->map(fn (RecipeIngredient $line) => $line->ingredient)
-                ->filter()
-                ->unique('id')
+                ->reject(fn (RecipeIngredient $line) => $line->isAtHome($atHome))
+                ->unique(fn (RecipeIngredient $line) => implode(',', $line->ingredientIds()))
                 ->values();
 
             $entry = [
@@ -50,7 +48,7 @@ class MealSuggestions
                 'name' => $recipe->name,
                 'picture' => $recipe->picture?->toPicker(),
                 'timeMinutes' => $recipe->time_minutes,
-                'missing' => $missing->map(fn (Ingredient $ingredient) => $ingredient->name)->all(),
+                'missing' => $missing->map(fn (RecipeIngredient $line) => $line->displayName())->all(),
             ];
 
             if ($missing->isEmpty()) {

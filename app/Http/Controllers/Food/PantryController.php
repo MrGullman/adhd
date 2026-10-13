@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Food;
 
 use App\Enums\StoreSection;
+use App\Food\IngredientText;
 use App\Food\Units;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Food\StorePantryItemRequest;
@@ -61,9 +62,16 @@ class PantryController extends Controller
 
     public function store(StorePantryItemRequest $request, CurrentFamily $current): RedirectResponse
     {
+        // What is in brackets, e.g. "Smör (osaltat)", is not part of the name.
+        $name = IngredientText::parse($request->string('name')->toString())['names'][0] ?? null;
+
+        if (! $request->filled('ingredient_id') && $name === null) {
+            return back()->withErrors(['name' => 'Skriv vad som finns hemma.']);
+        }
+
         $ingredientId = $request->filled('ingredient_id')
             ? $request->integer('ingredient_id')
-            : Ingredient::findOrCreateForFamily($request->string('name')->toString(), $current->getOrFail())->id;
+            : Ingredient::findOrCreateForFamily((string) $name, $current->getOrFail())->id;
 
         // Adding what is already there updates it instead.
         PantryItem::query()->updateOrCreate(

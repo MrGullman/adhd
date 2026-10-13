@@ -52,7 +52,7 @@ class RecipeController extends Controller
 
         /** @var User $user */
         $user = $request->user();
-        $recipe->load(['picture', 'ingredients.ingredient.picture']);
+        $recipe->load(['picture', 'ingredients.ingredient.picture', 'ingredients.alternatives']);
         $atHome = PantryItem::query()->pluck('ingredient_id')->map(fn ($id) => (int) $id)->all();
 
         return Inertia::render('food/recipes/Show', [
@@ -65,12 +65,12 @@ class RecipeController extends Controller
                 'instructions' => $recipe->instructions,
                 'ingredients' => $recipe->ingredients->map(fn (RecipeIngredient $line) => [
                     'id' => $line->id,
-                    'name' => $line->ingredient?->name,
+                    'name' => $line->displayName(),
                     'picture' => $line->ingredient?->picture?->toPicker(),
                     'quantity' => $line->quantity === null ? null : (float) $line->quantity,
                     'unit' => $line->unit,
                     'note' => $line->note,
-                    'atHome' => in_array($line->ingredient_id, $atHome, true),
+                    'atHome' => $line->isAtHome($atHome),
                 ])->values(),
             ],
             'canEdit' => $user->can('update', $recipe),
@@ -100,7 +100,7 @@ class RecipeController extends Controller
     {
         Gate::authorize('update', $recipe);
 
-        $recipe->load(['picture', 'ingredients.ingredient']);
+        $recipe->load(['picture', 'ingredients.ingredient', 'ingredients.alternatives']);
 
         return Inertia::render('food/recipes/Edit', [
             'units' => Units::all(),
@@ -112,8 +112,8 @@ class RecipeController extends Controller
                 'timeMinutes' => $recipe->time_minutes,
                 'instructions' => $recipe->instructions,
                 'ingredients' => $recipe->ingredients->map(fn (RecipeIngredient $line) => [
-                    'ingredientId' => $line->ingredient_id,
-                    'name' => $line->ingredient->name,
+                    'ingredientId' => $line->alternatives->isEmpty() ? $line->ingredient_id : null,
+                    'name' => $line->displayName(),
                     'quantity' => $line->quantity === null ? null : (float) $line->quantity,
                     'unit' => $line->unit,
                     'note' => $line->note,

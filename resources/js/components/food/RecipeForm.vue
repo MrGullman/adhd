@@ -141,7 +141,9 @@ const fieldClass =
             <h2 id="ingredienser" class="text-title">Ingredienser</h2>
             <p class="text-caption text-ink-muted">
                 Välj varan ur listan när den finns, så kan appen jämföra med
-                skafferiet. Ett nytt namn blir familjens egen vara.
+                skafferiet. Ett nytt namn blir familjens egen vara. Skriv "smör
+                el margarin" om båda går bra, och det som står inom parentes
+                blir en anteckning, t.ex. "smör (till stekning)".
             </p>
             <datalist id="units">
                 <option v-for="unit in units" :key="unit" :value="unit" />
@@ -180,7 +182,7 @@ const fieldClass =
                     <input
                         v-model="line.note"
                         placeholder="T.ex. hackad"
-                        maxlength="50"
+                        maxlength="100"
                         :aria-label="`Anteckning, rad ${index + 1}`"
                         :class="fieldClass"
                         class="w-32"

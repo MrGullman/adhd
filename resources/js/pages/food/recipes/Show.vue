@@ -110,8 +110,8 @@ function amount(quantity: number | null): string {
                     </span>
                     <span class="flex-1">
                         {{ line.name }}
-                        <span v-if="line.note" class="text-ink-muted"
-                            >, {{ line.note }}</span
+                        <span v-if="line.note" class="ml-1 text-ink-muted"
+                            >({{ line.note }})</span
                         >
                     </span>
                     <span

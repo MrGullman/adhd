@@ -81,6 +81,50 @@ class FoodTest extends TestCase
         $this->assertSame('Lingonsylt från mormor', $own->name);
     }
 
+    public function test_alternatives_and_brackets_never_become_part_of_a_groceries_name()
+    {
+        $this->actingAs($this->parent)->post(route('recipes.store'), [
+            'name' => 'Pannkakor',
+            'portions' => 4,
+            'ingredients' => [
+                ['name' => 'smör el margarin (till stekning)', 'quantity' => 50, 'unit' => 'g'],
+                ['ingredient_id' => $this->basic('Mjölk')->id, 'name' => 'Mjölk (gärna mellan)', 'quantity' => 6, 'unit' => 'dl'],
+            ],
+        ]);
+
+        $recipe = Recipe::query()->withoutGlobalScopes()->where('name', 'Pannkakor')->firstOrFail();
+        [$fat, $milk] = $recipe->ingredients()->with(['ingredient', 'alternatives'])->get()->all();
+
+        $this->assertSame($this->basic('Smör')->id, $fat->ingredient_id);
+        $this->assertSame(['Margarin'], $fat->alternatives->pluck('name')->all());
+        $this->assertSame('till stekning', $fat->note);
+        $this->assertSame('Smör eller margarin', $fat->displayName());
+
+        $this->assertSame($this->basic('Mjölk')->id, $milk->ingredient_id, 'the bracket does not make a new grocery');
+        $this->assertSame('gärna mellan', $milk->note);
+        $this->assertSame(0, Ingredient::query()->withoutGlobalScopes()->where('name', 'like', '%(%')->count());
+    }
+
+    public function test_a_line_with_alternatives_is_at_home_when_any_of_them_is()
+    {
+        $this->actingAs($this->parent)->post(route('recipes.store'), [
+            'name' => 'Stekt ägg',
+            'portions' => 2,
+            'ingredients' => [['name' => 'Ägg'], ['name' => 'smör/margarin']],
+        ]);
+        PantryItem::factory()->for($this->family)->of('Ägg')->create();
+
+        $this->actingAs($this->parent)->get(route('meal-suggestions'))
+            ->assertInertia(fn (Assert $page) => $page->where('missingFew.0.missing', ['Smör eller margarin']));
+
+        $this->actingAs($this->parent)->post(route('pantry.store'), ['name' => 'Margarin (osaltat)']);
+
+        $this->actingAs($this->parent)->get(route('meal-suggestions'))
+            ->assertInertia(fn (Assert $page) => $page->where('canCook.0.name', 'Stekt ägg'));
+
+        $this->assertDatabaseHas('pantry_items', ['ingredient_id' => Ingredient::query()->withoutGlobalScopes()->where('name', 'Margarin')->value('id')]);
+    }
+
     public function test_a_viewer_sees_recipes_but_cannot_change_food()
     {
         $viewer = User::factory()->inFamily($this->family, FamilyRole::Viewer)->create();

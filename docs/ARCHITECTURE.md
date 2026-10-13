@@ -780,6 +780,7 @@ I version 1 (Milestone 9):
 - Ingredient använder SharedOrFamilyScope, samma som Picture: grundlistan och familjens egna.
 - Ett namn som inte finns blir familjens egen vara. Namn jämförs utan hänsyn till versaler, så "mjölk" blir grundlistans Mjölk.
 - Ett skafferi har en rad per vara. Att lägga till samma vara igen uppdaterar raden.
+- "Smör el margarin (till stekning)": "el", "eller" och "/" skiljer alternativ som alla duger, och det som står inom parentes blir anteckningen, aldrig en del av varans namn. Första varan sparas i recipe_ingredients.ingredient_id och resten i recipe_ingredient_alternatives. Raden räknas som hemma när någon av varorna finns.
 - Matförslag i Milestone 9: en vara som finns hemma räknas som tillräcklig oavsett mängd. Mängder och enheter jämförs när handlingslistan räknas ut (Milestone 10).
 - Butiksavdelningar i gångordning: Frukt & grönt, Bröd, Mejeri, Kött & fisk, Skafferi, Frys, Dryck, Hushåll, Övrigt.
 

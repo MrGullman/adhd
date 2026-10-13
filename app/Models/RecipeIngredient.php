@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Carbon;
 
 /**
- * An ingredient in a recipe, e.g. "400 g Köttfärs". Reached through its recipe.
+ * An ingredient in a recipe, e.g. "400 g Köttfärs" or "50 g Smör eller
+ * margarin". Reached through its recipe.
  *
  * @property int $id
  * @property int $recipe_id
@@ -29,6 +31,46 @@ class RecipeIngredient extends Model
     public function ingredient(): BelongsTo
     {
         return $this->belongsTo(Ingredient::class);
+    }
+
+    /**
+     * Other groceries that will do, e.g. Margarin for Smör.
+     *
+     * @return BelongsToMany<Ingredient, $this>
+     */
+    public function alternatives(): BelongsToMany
+    {
+        return $this->belongsToMany(Ingredient::class, 'recipe_ingredient_alternatives')->orderBy('recipe_ingredient_alternatives.id');
+    }
+
+    /**
+     * The grocery and its alternatives.
+     *
+     * @return list<int>
+     */
+    public function ingredientIds(): array
+    {
+        return [$this->ingredient_id, ...array_map(intval(...), $this->alternatives->modelKeys())];
+    }
+
+    /**
+     * "Smör eller margarin".
+     */
+    public function displayName(): string
+    {
+        $names = [$this->ingredient?->name, ...$this->alternatives->map(fn (Ingredient $alternative) => mb_strtolower($alternative->name))->all()];
+
+        return implode(' eller ', array_filter($names));
+    }
+
+    /**
+     * Whether it is at home: any of the groceries will do.
+     *
+     * @param  array<int>  $atHome  Ids of what is at home, in any order.
+     */
+    public function isAtHome(array $atHome): bool
+    {
+        return array_intersect($this->ingredientIds(), $atHome) !== [];
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Actions\Meals;
 
+use App\Food\IngredientText;
 use App\Models\Family;
 use App\Models\Ingredient;
 use App\Models\Recipe;
@@ -9,7 +10,9 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Saves a recipe with its ingredients. A name that is not in the basic list
- * or the family's own becomes a new ingredient of the family's.
+ * or the family's own becomes a new ingredient of the family's. "Smör el
+ * margarin (till stekning)" is Smör with the alternative Margarin and the
+ * note "till stekning".
  */
 class SaveRecipe
 {
@@ -24,16 +27,29 @@ class SaveRecipe
             $recipe->ingredients()->delete();
 
             foreach ($lines as $index => $line) {
-                $ingredientId = $line['ingredient_id']
-                    ?? Ingredient::findOrCreateForFamily((string) $line['name'], $family)->id;
+                $parsed = IngredientText::parse((string) $line['name']);
+                $names = $parsed['names'];
 
-                $recipe->ingredients()->create([
-                    'ingredient_id' => $ingredientId,
+                // Chosen from the list and nothing more typed: the chosen grocery.
+                $ingredientIds = $line['ingredient_id'] !== null && count($names) <= 1 && $parsed['note'] === null
+                    ? [$line['ingredient_id']]
+                    : array_map(fn (string $name) => Ingredient::findOrCreateForFamily($name, $family)->id, $names);
+
+                $ingredientIds = array_values(array_unique($ingredientIds));
+
+                if ($ingredientIds === []) {
+                    continue;
+                }
+
+                $saved = $recipe->ingredients()->create([
+                    'ingredient_id' => $ingredientIds[0],
                     'quantity' => $line['quantity'],
                     'unit' => $line['unit'],
-                    'note' => $line['note'],
+                    'note' => implode(', ', array_filter([$line['note'], $parsed['note']])) ?: null,
                     'sort_order' => $index,
                 ]);
+
+                $saved->alternatives()->sync(array_slice($ingredientIds, 1));
             }
 
             return $recipe;

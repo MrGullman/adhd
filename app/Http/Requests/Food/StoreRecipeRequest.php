@@ -32,10 +32,10 @@ class StoreRecipeRequest extends FormRequest
             'instructions' => ['nullable', 'string', 'max:5000'],
             'ingredients' => ['array', 'max:50'],
             'ingredients.*.ingredient_id' => ['nullable', 'integer', new VisibleIngredient],
-            'ingredients.*.name' => ['required_without:ingredients.*.ingredient_id', 'nullable', 'string', 'max:50'],
+            'ingredients.*.name' => ['required_without:ingredients.*.ingredient_id', 'nullable', 'string', 'max:150'],
             'ingredients.*.quantity' => ['nullable', 'numeric', 'min:0', 'max:99999'],
             'ingredients.*.unit' => ['nullable', Rule::in(Units::all())],
-            'ingredients.*.note' => ['nullable', 'string', 'max:50'],
+            'ingredients.*.note' => ['nullable', 'string', 'max:100'],
         ];
     }
 
