@@ -45,7 +45,7 @@ class PictureController extends Controller
 
     /**
      * The picture file. The family's photos are only found within the family
-     * (VisiblePictureScope), so other families get a 404.
+     * (SharedOrFamilyScope), so other families get a 404.
      */
     public function show(Request $request, CurrentFamily $current, Picture $picture): StreamedResponse
     {

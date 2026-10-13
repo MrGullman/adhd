@@ -63,8 +63,8 @@ Rekommenderad byggordning, så att familjen kan börja använda appen tidigt:
 9. Milestone 11 – Hemskärm (klar, Raspberry Pi provas när den finns)
 10. Milestone 6 – Aktiviteter, händelser och packlistor (klar)
 11. Milestone 8 – Skolmat (klar)
-12. Milestone 9 – Receptbank och skafferi (nästa)
-13. Milestone 10 – Veckomatsedel och handlingslista
+12. Milestone 9 – Receptbank och skafferi (klar)
+13. Milestone 10 – Veckomatsedel och handlingslista (nästa)
 
 Barnen testar varje vy när den är klar, och vi justerar innan vi bygger vidare.
 
@@ -343,13 +343,13 @@ Familjen har en egen receptbank, skriver in vad som finns hemma och får försla
 
 ## Tasks
 
-- [ ] ingredients tabell (gemensam grundlista + familjens egna)
-- [ ] Admin: grundlista med vanliga ingredienser och butiksavdelningar
-- [ ] recipes och recipe_ingredients tabeller
-- [ ] Receptbank UI: namn, bild, portioner, gör så här, ingredienser med autocomplete
-- [ ] pantry_items tabell
-- [ ] Skafferi UI: snabbt lägga till och ta bort det som finns hemma, markera basvaror
-- [ ] Matförslag: "Kan lagas nu" och "Saknar 1–2 saker"
+- [x] ingredients tabell (gemensam grundlista + familjens egna)
+- [x] Admin: grundlista med vanliga ingredienser och butiksavdelningar
+- [x] recipes och recipe_ingredients tabeller
+- [x] Receptbank UI: namn, bild, portioner, gör så här, ingredienser med autocomplete
+- [x] pantry_items tabell
+- [x] Skafferi UI: snabbt lägga till och ta bort det som finns hemma, markera basvaror
+- [x] Matförslag: "Kan lagas nu" och "Saknar 1–2 saker"
 
 ## Definition of Done
 

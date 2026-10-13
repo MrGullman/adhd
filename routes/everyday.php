@@ -4,6 +4,10 @@ use App\Http\Controllers\Activities\ActivityController;
 use App\Http\Controllers\Activities\CalendarController;
 use App\Http\Controllers\Activities\ChildActivityController;
 use App\Http\Controllers\ChildShoppingListController;
+use App\Http\Controllers\Food\IngredientController;
+use App\Http\Controllers\Food\PantryController;
+use App\Http\Controllers\Food\RecipeController;
+use App\Http\Controllers\Food\SuggestionController;
 use App\Http\Controllers\Lists\CompletedListItemsController;
 use App\Http\Controllers\Lists\ListController;
 use App\Http\Controllers\Lists\ListItemCompletionController;
@@ -38,6 +42,22 @@ Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function 
     Route::get('uppgifter/aterkommande/{recurringTask}/andra', [RecurringTaskController::class, 'edit'])->name('recurring-tasks.edit');
     Route::put('uppgifter/aterkommande/{recurringTask}', [RecurringTaskController::class, 'update'])->name('recurring-tasks.update');
     Route::delete('uppgifter/aterkommande/{recurringTask}', [RecurringTaskController::class, 'destroy'])->name('recurring-tasks.destroy');
+
+    Route::get('mat/recept', [RecipeController::class, 'index'])->name('recipes.index');
+    Route::get('mat/recept/nytt', [RecipeController::class, 'create'])->name('recipes.create');
+    Route::post('mat/recept', [RecipeController::class, 'store'])->name('recipes.store');
+    Route::get('mat/recept/{recipe}', [RecipeController::class, 'show'])->name('recipes.show');
+    Route::get('mat/recept/{recipe}/andra', [RecipeController::class, 'edit'])->name('recipes.edit');
+    Route::put('mat/recept/{recipe}', [RecipeController::class, 'update'])->name('recipes.update');
+    Route::delete('mat/recept/{recipe}', [RecipeController::class, 'destroy'])->name('recipes.destroy');
+
+    Route::get('mat/skafferi', [PantryController::class, 'index'])->name('pantry.index');
+    Route::post('mat/skafferi', [PantryController::class, 'store'])->name('pantry.store');
+    Route::put('mat/skafferi/{pantryItem}', [PantryController::class, 'update'])->name('pantry.update');
+    Route::delete('mat/skafferi/{pantryItem}', [PantryController::class, 'destroy'])->name('pantry.destroy');
+
+    Route::get('mat/forslag', SuggestionController::class)->name('meal-suggestions');
+    Route::get('mat/ingredienser', [IngredientController::class, 'index'])->name('ingredients.index');
 
     Route::get('imorgon', [CalendarController::class, 'tomorrow'])->name('tomorrow');
     Route::get('veckan', [CalendarController::class, 'week'])->name('week');

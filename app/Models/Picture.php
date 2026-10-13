@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Enums\PictureSource;
-use App\Models\Scopes\VisiblePictureScope;
+use App\Models\Scopes\SharedOrFamilyScope;
 use Database\Factories\PictureFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Storage;
  * family's own photos. Files are on the private disk and served through
  * PictureController, which checks access.
  *
- * Not BelongsToFamily: the gallery is shared, so VisiblePictureScope shows the
+ * Not BelongsToFamily: the gallery is shared, so SharedOrFamilyScope shows the
  * gallery and the current family's photos. family_id is always set explicitly.
  *
  * @property int $id
@@ -34,7 +34,7 @@ use Illuminate\Support\Facades\Storage;
  * @property Carbon|null $updated_at
  */
 #[Fillable(['picture_category_id', 'label', 'keywords'])]
-#[ScopedBy([VisiblePictureScope::class])]
+#[ScopedBy([SharedOrFamilyScope::class])]
 class Picture extends Model
 {
     /** @use HasFactory<PictureFactory> */
