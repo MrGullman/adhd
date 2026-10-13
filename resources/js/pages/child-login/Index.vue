@@ -215,8 +215,18 @@ function submit(): void {
             </form>
         </template>
 
-        <p v-if="familyName" class="mt-auto text-caption text-ink-muted">
-            {{ familyName }} · {{ device?.name }}
-        </p>
+        <footer class="mt-auto flex flex-col items-center gap-2">
+            <!-- A parent can always log in on the family's devices. -->
+            <Link
+                v-if="device && children.length"
+                :href="login()"
+                class="flex min-h-tap-adult items-center px-4 font-bold text-primary underline"
+            >
+                Logga in som vuxen
+            </Link>
+            <p v-if="familyName" class="text-caption text-ink-muted">
+                {{ familyName }} · {{ device?.name }}
+            </p>
+        </footer>
     </main>
 </template>
