@@ -30,6 +30,27 @@ class ChildLoginTest extends TestCase
         $this->assertDatabaseHas('login_events', ['user_id' => $child->id, 'succeeded' => true]);
     }
 
+    public function test_a_parent_logs_in_on_the_device_after_the_child_has_logged_out()
+    {
+        $family = Family::factory()->create();
+        $child = User::factory()->child('4826')->inFamily($family, FamilyRole::Child)->create();
+        $parent = User::factory()->inFamily($family)->create(['email' => 'forälder@exempel.se', 'password' => 'hemligt-losen-123']);
+        $token = $this->device($family, DeviceType::Family);
+
+        $this->withCookie(Device::COOKIE, $token)->post(route('child-login.store'), ['child_id' => $child->id, 'pin' => '4826']);
+        $this->withCookie(Device::COOKIE, $token)->post(route('logout'))->assertRedirect('/');
+
+        // The start page on the device is the children's login, which links to the adults' login.
+        $this->withCookie(Device::COOKIE, $token)->get('/')->assertRedirect(route('child-login'));
+        $this->withCookie(Device::COOKIE, $token)->get(route('login'))->assertOk();
+
+        $this->withCookie(Device::COOKIE, $token)
+            ->post(route('login.store'), ['email' => 'forälder@exempel.se', 'password' => 'hemligt-losen-123'])
+            ->assertRedirect(route('dashboard'));
+
+        $this->assertAuthenticatedAs($parent);
+    }
+
     public function test_a_child_cannot_log_in_without_a_trusted_device()
     {
         $family = Family::factory()->create();
