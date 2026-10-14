@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Reminders\StorePushSubscriptionRequest;
 use App\Models\User;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
  */
 class PushSubscriptionController extends Controller
 {
-    public function store(StorePushSubscriptionRequest $request): RedirectResponse
+    public function store(StorePushSubscriptionRequest $request): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
@@ -24,10 +24,10 @@ class PushSubscriptionController extends Controller
             $request->filled('content_encoding') ? $request->string('content_encoding')->toString() : 'aesgcm',
         );
 
-        return back();
+        return response()->json(['devices' => $user->pushSubscriptions()->count()], 201);
     }
 
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
@@ -35,6 +35,6 @@ class PushSubscriptionController extends Controller
         // Only the user's own devices; another's endpoint is left alone.
         $user->pushSubscriptions()->where('endpoint', $request->string('endpoint')->toString())->delete();
 
-        return back();
+        return response()->json(['devices' => $user->pushSubscriptions()->count()]);
     }
 }

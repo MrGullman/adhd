@@ -9,7 +9,9 @@ const props = withDefaults(
     { child: false },
 );
 
-const { state, busy, refresh, turnOn, turnOff } = usePush(props.vapidPublicKey);
+const { state, busy, error, refresh, turnOn, turnOff } = usePush(
+    props.vapidPublicKey,
+);
 
 onMounted(refresh);
 </script>
@@ -33,6 +35,7 @@ onMounted(refresh);
     </div>
 
     <div v-else class="flex flex-col gap-3">
+        <p v-if="error" class="font-bold" role="alert">{{ error }}</p>
         <template v-if="state === 'needs-home-screen'">
             <p>
                 På iPhone och iPad kommer påminnelser bara när appen ligger på

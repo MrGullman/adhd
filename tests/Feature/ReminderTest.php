@@ -12,8 +12,11 @@ use App\Models\Task;
 use App\Models\User;
 use App\Notifications\ReminderNotification;
 use App\Support\CurrentFamily;
+use GuzzleHttp\Psr7\Request;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Minishlink\WebPush\MessageSentReport;
+use NotificationChannels\WebPush\WebPushChannel;
 use Tests\TestCase;
 
 class ReminderTest extends TestCase
@@ -138,13 +141,18 @@ class ReminderTest extends TestCase
     public function test_a_device_is_turned_on_and_off_and_private_addresses_are_refused()
     {
         $this->actingAs($this->parent)
-            ->post(route('push-subscriptions.store'), ['endpoint' => 'https://10.0.0.5/push', 'keys' => ['p256dh' => 'a', 'auth' => 'b']])
-            ->assertSessionHasErrors('endpoint');
+            ->postJson(route('push-subscriptions.store'), ['endpoint' => 'https://10.0.0.5/push', 'keys' => ['p256dh' => 'a', 'auth' => 'b']])
+            ->assertJsonValidationErrors('endpoint');
 
         $this->actingAs($this->parent)
-            ->post(route('push-subscriptions.store'), ['endpoint' => 'https://8.8.4.4/push/new', 'keys' => ['p256dh' => 'a', 'auth' => 'b'], 'content_encoding' => 'aes128gcm'])
-            ->assertRedirect();
-        $this->assertSame(2, $this->parent->pushSubscriptions()->count());
+            ->postJson(route('push-subscriptions.store'), ['endpoint' => 'https://8.8.4.4/push/new', 'keys' => ['p256dh' => 'a', 'auth' => 'b'], 'content_encoding' => 'aes128gcm'])
+            ->assertCreated()
+            ->assertJsonPath('devices', 2);
+
+        // Sending the same device again, as the app does on every visit, changes nothing.
+        $this->actingAs($this->parent)
+            ->postJson(route('push-subscriptions.store'), ['endpoint' => 'https://8.8.4.4/push/new', 'keys' => ['p256dh' => 'a', 'auth' => 'b'], 'content_encoding' => 'aes128gcm'])
+            ->assertJsonPath('devices', 2);
 
         // Someone else's device is left alone.
         $this->actingAs($this->child)->delete(route('push-subscriptions.destroy'), ['endpoint' => 'https://8.8.4.4/push/new']);
@@ -179,5 +187,28 @@ class ReminderTest extends TestCase
 
         app(CurrentFamily::class)->forget();
         $this->assertTrue((bool) $theirChild->fresh()?->reminders_enabled);
+    }
+
+    public function test_a_test_notification_shows_what_the_push_service_answered()
+    {
+        $sentTo = [];
+        $this->mock(WebPushChannel::class, function ($mock) use (&$sentTo): void {
+            $mock->shouldReceive('send')->andReturnUsing(function (User $user) use (&$sentTo): array {
+                $sentTo[] = $user->id;
+
+                return [new MessageSentReport(new Request('POST', 'https://8.8.8.8/push'), null, false, '403 Forbidden: BadJwtToken')];
+            });
+        });
+
+        // During quiet hours too.
+        $this->travelTo('2026-10-13 21:00:00');
+
+        $this->actingAs($this->parent)->post(route('reminders.test'))->assertRedirect(route('reminders.edit'));
+        $this->assertSame([$this->parent->id], $sentTo);
+        $this->assertStringContainsString('BadJwtToken', (string) data_get(session('inertia.flash_data'), 'toast.message', json_encode(session()->all())));
+
+        $withoutDevice = User::factory()->inFamily($this->family)->create();
+        $this->actingAs($withoutDevice)->post(route('reminders.test'))->assertRedirect();
+        $this->assertSame([$this->parent->id], $sentTo, 'nothing is sent without a device');
     }
 }

@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import Heading from '@/components/Heading.vue';
 import PushToggle from '@/components/PushToggle.vue';
 import ReminderSettingsForm from '@/components/ReminderSettingsForm.vue';
-import { edit, update } from '@/routes/reminders';
+import { Button } from '@/components/ui/button';
+import { edit, test, update } from '@/routes/reminders';
 
 defineOptions({
     layout: {
@@ -13,6 +14,7 @@ defineOptions({
 
 defineProps<{
     vapidPublicKey: string | null;
+    devices: number;
     settings: {
         remindersEnabled: boolean;
         quietFrom: string | null;
@@ -34,6 +36,22 @@ defineProps<{
                 description="Påminnelser kommer som notiser på de enheter där du slagit på dem."
             />
             <PushToggle :vapid-public-key="vapidPublicKey" />
+            <p class="text-caption text-ink-muted">
+                {{
+                    devices === 0
+                        ? 'Ingen av dina enheter tar emot påminnelser än.'
+                        : devices === 1
+                          ? '1 av dina enheter tar emot påminnelser.'
+                          : `${devices} av dina enheter tar emot påminnelser.`
+                }}
+            </p>
+            <Button
+                v-if="devices > 0"
+                variant="outline"
+                @click="router.post(test.url(), {}, { preserveScroll: true })"
+            >
+                Skicka en testnotis
+            </Button>
         </section>
 
         <section class="space-y-4">
