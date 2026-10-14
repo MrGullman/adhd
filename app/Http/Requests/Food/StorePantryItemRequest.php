@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Food;
 
+use App\Enums\StorageLocation;
 use App\Food\Units;
 use App\Models\PantryItem;
 use App\Rules\VisibleIngredient;
@@ -29,6 +30,7 @@ class StorePantryItemRequest extends FormRequest
             'quantity' => ['nullable', 'numeric', 'min:0', 'max:99999'],
             'unit' => ['nullable', Rule::in(Units::all())],
             'always_home' => ['boolean'],
+            'location' => ['nullable', Rule::enum(StorageLocation::class)],
         ];
     }
 
@@ -37,6 +39,6 @@ class StorePantryItemRequest extends FormRequest
      */
     public function attributes(): array
     {
-        return ['name' => 'vara', 'quantity' => 'mängd', 'unit' => 'enhet'];
+        return ['name' => 'vara', 'quantity' => 'mängd', 'unit' => 'enhet', 'location' => 'plats'];
     }
 }

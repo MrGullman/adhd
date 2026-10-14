@@ -19,11 +19,12 @@ use Illuminate\Support\Carbon;
  * @property int $portions
  * @property int|null $time_minutes
  * @property string|null $instructions
+ * @property string|null $source_url
  * @property int|null $created_by
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'picture_id', 'portions', 'time_minutes', 'instructions'])]
+#[Fillable(['name', 'picture_id', 'portions', 'time_minutes', 'instructions', 'source_url'])]
 class Recipe extends Model
 {
     /** @use HasFactory<RecipeFactory> */

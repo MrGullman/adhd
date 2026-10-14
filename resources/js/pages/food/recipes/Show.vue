@@ -27,6 +27,7 @@ const props = defineProps<{
         portions: number;
         timeMinutes: number | null;
         instructions: string | null;
+        sourceUrl: string | null;
         ingredients: Array<{
             id: number;
             name: string | null;
@@ -53,6 +54,14 @@ const missing = computed(
 function amount(quantity: number | null): string {
     return quantity === null ? '' : String(quantity).replace('.', ',');
 }
+
+function site(url: string): string {
+    try {
+        return new URL(url).hostname.replace(/^www\./, '');
+    } catch {
+        return url;
+    }
+}
 </script>
 
 <template>
@@ -76,6 +85,15 @@ function amount(quantity: number | null): string {
                     </template>
                     {{ recipe.portions }} portioner
                 </p>
+                <a
+                    v-if="recipe.sourceUrl"
+                    :href="recipe.sourceUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="w-fit text-caption text-ink-muted underline"
+                >
+                    Källa: {{ site(recipe.sourceUrl) }}
+                </a>
             </div>
             <Link
                 v-if="canEdit"

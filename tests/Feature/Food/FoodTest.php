@@ -149,8 +149,8 @@ class FoodTest extends TestCase
             ->get(route('pantry.index'))
             ->assertInertia(fn (Assert $page) => $page
                 ->component('food/Pantry')
-                ->where('sections.0.label', 'Mejeri')
-                ->where('sections.0.items.0.name', 'Mjölk'));
+                ->where('locations.0.label', 'Kylskåp')
+                ->where('locations.0.items.0.name', 'Mjölk'));
     }
 
     public function test_suggestions_show_what_can_be_cooked_and_what_misses_one_or_two_things()

@@ -3,15 +3,12 @@
 namespace App\Calendar;
 
 use App\Support\LocalTime;
+use App\Support\PublicHttp;
 use Carbon\CarbonImmutable;
 use DateTimeInterface;
 use DateTimeZone;
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\RequestException;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\UriInterface;
+use RuntimeException;
 use Sabre\VObject\Component;
 use Sabre\VObject\Component\VCalendar;
 use Sabre\VObject\Component\VEvent;
@@ -48,29 +45,12 @@ class IcsCalendar
         }
 
         try {
-            $response = Http::timeout(20)
-                ->connectTimeout(5)
-                ->retry(2, 1000, throw: false)
-                ->withOptions([
-                    'allow_redirects' => [
-                        'max' => 3,
-                        'protocols' => ['https'],
-                        'on_redirect' => function (RequestInterface $request, $response, UriInterface $uri): void {
-                            if (! IcsLink::isPublicHost($uri->getHost())) {
-                                throw new CalendarSyncException('Länken skickades vidare till en adress som inte går att hämta.');
-                            }
-                        },
-                    ],
-                ])
-                ->get($url)
-                ->throw();
-        } catch (ConnectionException|RequestException $exception) {
+            $body = PublicHttp::get($url, self::MAX_BYTES);
+        } catch (RuntimeException $exception) {
             throw new CalendarSyncException('Kalendern svarade inte.', previous: $exception);
         }
 
-        $body = $response->body();
-
-        if (strlen($body) > self::MAX_BYTES || ! str_contains($body, 'BEGIN:VCALENDAR')) {
+        if (! str_contains($body, 'BEGIN:VCALENDAR')) {
             throw new CalendarSyncException('Länken gav ingen kalender.');
         }
 

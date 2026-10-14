@@ -144,6 +144,7 @@ export type IngredientOption = {
     id: number;
     name: string;
     unit: string | null;
+    location?: string;
     picture: PictureItem | null;
 };
 
@@ -154,6 +155,7 @@ export type MealEntry = {
     recipeId: number | null;
     picture: PictureItem | null;
     portions: number;
+    cooked?: boolean;
     label?: string;
 };
 

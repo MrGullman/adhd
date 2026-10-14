@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ChefHat, Clock, Plus, Search } from '@lucide/vue';
+import { ChefHat, Clock, Link as LinkIcon, Plus, Search } from '@lucide/vue';
 import { ref, watch } from 'vue';
 import RecipeController from '@/actions/App/Http/Controllers/Food/RecipeController';
+import RecipeImportController from '@/actions/App/Http/Controllers/Food/RecipeImportController';
 import FoodTabs from '@/components/food/FoodTabs.vue';
 import PictureThumb from '@/components/PictureThumb.vue';
 import { Input } from '@/components/ui/input';
@@ -46,14 +47,22 @@ watch(query, (text) => {
     <div class="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4 md:p-8">
         <header class="flex flex-wrap items-end justify-between gap-4">
             <h1 class="text-heading font-semibold">Mat</h1>
-            <Link
-                v-if="canCreate"
-                :href="RecipeController.create()"
-                class="flex min-h-tap-adult items-center gap-2 rounded-full bg-primary px-5 font-bold text-on-primary"
-            >
-                <Plus class="size-5" aria-hidden="true" />
-                Nytt recept
-            </Link>
+            <div v-if="canCreate" class="flex flex-wrap gap-2">
+                <Link
+                    :href="RecipeImportController.create()"
+                    class="flex min-h-tap-adult items-center gap-2 rounded-full border-2 border-line px-5 font-bold hover:border-primary"
+                >
+                    <LinkIcon class="size-5" aria-hidden="true" />
+                    Från länk
+                </Link>
+                <Link
+                    :href="RecipeController.create()"
+                    class="flex min-h-tap-adult items-center gap-2 rounded-full bg-primary px-5 font-bold text-on-primary"
+                >
+                    <Plus class="size-5" aria-hidden="true" />
+                    Nytt recept
+                </Link>
+            </div>
         </header>
         <FoodTabs />
 

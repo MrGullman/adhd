@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\StorageLocation;
 use App\Models\Concerns\BelongsToFamily;
 use Database\Factories\PantryItemFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -18,11 +19,12 @@ use Illuminate\Support\Carbon;
  * @property int $ingredient_id
  * @property string|null $quantity
  * @property string|null $unit
+ * @property StorageLocation $location
  * @property bool $always_home
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['ingredient_id', 'quantity', 'unit', 'always_home'])]
+#[Fillable(['ingredient_id', 'quantity', 'unit', 'location', 'always_home'])]
 class PantryItem extends Model
 {
     /** @use HasFactory<PantryItemFactory> */
@@ -37,6 +39,7 @@ class PantryItem extends Model
     {
         return [
             'always_home' => 'boolean',
+            'location' => StorageLocation::class,
         ];
     }
 

@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\Food;
 
-use App\Enums\StoreSection;
+use App\Enums\StorageLocation;
 use App\Food\IngredientText;
+use App\Food\Inventory;
 use App\Food\Units;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Food\StorePantryItemRequest;
@@ -18,12 +19,12 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * Skafferi: what is at home, grouped by store section. Staples (basvaror)
- * always count as at home.
+ * Skafferi: what is at home, by where it is kept (kylskåp, frys, skafferi,
+ * annat). Staples (basvaror) always count as at home.
  */
 class PantryController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request, CurrentFamily $current): Response
     {
         /** @var User $user */
         $user = $request->user();
@@ -32,32 +33,38 @@ class PantryController extends Controller
             ->filter(fn (PantryItem $item) => $item->ingredient !== null)
             ->sortBy(fn (PantryItem $item) => $item->ingredient?->name);
 
-        $sections = [];
-
-        foreach (StoreSection::cases() as $section) {
-            $inSection = $items->filter(fn (PantryItem $item) => $item->ingredient?->category === $section);
-
-            if ($inSection->isNotEmpty()) {
-                $sections[] = [
-                    'value' => $section->value,
-                    'label' => $section->label(),
-                    'items' => $inSection->map(fn (PantryItem $item) => [
-                        'id' => $item->id,
-                        'name' => $item->ingredient?->name,
-                        'picture' => $item->ingredient?->picture?->toPicker(),
-                        'quantity' => $item->quantity === null ? null : (float) $item->quantity,
-                        'unit' => $item->unit,
-                        'alwaysHome' => $item->always_home,
-                    ])->values()->all(),
-                ];
-            }
-        }
+        $inventoried = Inventory::lastTaken($current->getOrFail());
 
         return Inertia::render('food/Pantry', [
-            'sections' => $sections,
+            'locations' => array_map(fn (StorageLocation $location) => [
+                'value' => $location->value,
+                'label' => $location->label(),
+                'inventoriedAt' => $inventoried[$location->value] ?? null,
+                'items' => $items
+                    ->filter(fn (PantryItem $item) => $item->location === $location)
+                    ->map(fn (PantryItem $item) => self::present($item))
+                    ->values()
+                    ->all(),
+            ], StorageLocation::cases()),
             'units' => Units::all(),
             'canEdit' => $user->can('create', PantryItem::class),
         ]);
+    }
+
+    /**
+     * @return array{id: int, name: string|null, picture: array<string, mixed>|null, quantity: float|null, unit: string|null, location: string, alwaysHome: bool}
+     */
+    public static function present(PantryItem $item): array
+    {
+        return [
+            'id' => $item->id,
+            'name' => $item->ingredient?->name,
+            'picture' => $item->ingredient?->picture?->toPicker(),
+            'quantity' => $item->quantity === null ? null : (float) $item->quantity,
+            'unit' => $item->unit,
+            'location' => $item->location->value,
+            'alwaysHome' => $item->always_home,
+        ];
     }
 
     public function store(StorePantryItemRequest $request, CurrentFamily $current): RedirectResponse
@@ -69,17 +76,19 @@ class PantryController extends Controller
             return back()->withErrors(['name' => 'Skriv vad som finns hemma.']);
         }
 
-        $ingredientId = $request->filled('ingredient_id')
-            ? $request->integer('ingredient_id')
-            : Ingredient::findOrCreateForFamily((string) $name, $current->getOrFail())->id;
+        $ingredient = $request->filled('ingredient_id')
+            ? Ingredient::query()->findOrFail($request->integer('ingredient_id'))
+            : Ingredient::findOrCreateForFamily((string) $name, $current->getOrFail());
 
         // Adding what is already there updates it instead.
         PantryItem::query()->updateOrCreate(
-            ['ingredient_id' => $ingredientId],
+            ['ingredient_id' => $ingredient->id],
             [
                 'quantity' => $request->filled('quantity') ? $request->input('quantity') : null,
                 'unit' => $request->filled('unit') ? $request->string('unit')->toString() : null,
                 'always_home' => $request->boolean('always_home'),
+                // The usual place for the grocery unless another is chosen.
+                'location' => $request->enum('location', StorageLocation::class) ?? StorageLocation::for($ingredient->category),
             ],
         );
 

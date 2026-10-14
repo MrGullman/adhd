@@ -502,6 +502,8 @@ Task::where('family_id', $device->family_id)
 
 Uppgifter, listor, belöningar och familjemedlemmar ska kunna visas med bild + kort text, så att den som inte läser (eller inte orkar läsa) förstår ändå.
 
+Familjens egna foton har ett syfte (pictures.purpose): bildstöd (support) eller mat (food). Foton som laddas upp till ett recept är matfoton och visas bara när man väljer bild till ett recept, aldrig bland bildstödet. Galleriet visas överallt.
+
 ## Bildkällor
 
 1. Bildgalleri (gemensamt): bilder som admin laddar upp i adminportalen. Alla familjer väljer från galleriet.
@@ -861,6 +863,12 @@ I version 1 (Milestone 10):
 - "Middag ikväll" visas i Idag, Min dag och på hemskärmen (widget Middag). Efter families.settings.dinner_switch (förval 19:00) visas morgondagens middag.
 
 ---
+
+## Inventera, laga och importera (Milestone 21)
+
+- pantry_items.location: kyl, frys, skafferi eller annat (App\Enums\StorageLocation), förvalt efter varans avdelning. När varje plats senast inventerades sparas i families.settings.inventoried.
+- Lagad (App\Actions\Meals\CookMeal): receptets mängder × portioner / receptets portioner dras av från skafferiet i samma enhetsgrupp (vikt eller volym, annars samma enhet). Smör eller margarin: den första som finns hemma med mängd. Det som tar slut tas bort. Skafferiet före sparas i meal_plan_entries.pantry_before, så Ångra lägger tillbaka exakt.
+- Recept från länk (App\Food\RecipeImport): sidan hämtas med App\Support\PublicHttp (bara https till publika adresser, högst 3 MB), schema.org/Recipe läses ur JSON-LD och App\Food\IngredientLine tolkar varje rad. Utkastet fyller i receptformuläret, och föräldern sparar. recipes.source_url visas som Källa. Sajtens bild hämtas aldrig.
 
 # Skolmat (Matilda)
 

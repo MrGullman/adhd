@@ -123,6 +123,10 @@ defineProps<{
                     Kalendrar läses från Google, Apple eller Microsoft via den
                     länk ni själva lägger in.
                 </li>
+                <li>
+                    Recept från länk: appen hämtar receptsidan ni klistrar in.
+                    Inga uppgifter om er skickas med.
+                </li>
             </ul>
             <p>Typsnitt och bilder ligger på vår egen server.</p>
         </section>

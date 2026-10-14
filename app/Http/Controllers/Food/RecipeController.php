@@ -63,6 +63,7 @@ class RecipeController extends Controller
                 'portions' => $recipe->portions,
                 'timeMinutes' => $recipe->time_minutes,
                 'instructions' => $recipe->instructions,
+                'sourceUrl' => $recipe->source_url,
                 'ingredients' => $recipe->ingredients->map(fn (RecipeIngredient $line) => [
                     'id' => $line->id,
                     'name' => $line->displayName(),
@@ -81,7 +82,11 @@ class RecipeController extends Controller
     {
         Gate::authorize('create', Recipe::class);
 
-        return Inertia::render('food/recipes/Create', ['units' => Units::all()]);
+        return Inertia::render('food/recipes/Create', [
+            'units' => Units::all(),
+            // An imported recipe to check before it is saved (RecipeImportController).
+            'draft' => session('recipe_draft'),
+        ]);
     }
 
     public function store(StoreRecipeRequest $request, CurrentFamily $current, SaveRecipe $save): RedirectResponse
@@ -111,6 +116,7 @@ class RecipeController extends Controller
                 'portions' => $recipe->portions,
                 'timeMinutes' => $recipe->time_minutes,
                 'instructions' => $recipe->instructions,
+                'sourceUrl' => $recipe->source_url,
                 'ingredients' => $recipe->ingredients->map(fn (RecipeIngredient $line) => [
                     'ingredientId' => $line->alternatives->isEmpty() ? $line->ingredient_id : null,
                     'name' => $line->displayName(),

@@ -30,6 +30,7 @@ class StoreRecipeRequest extends FormRequest
             'portions' => ['required', 'integer', 'between:1,20'],
             'time_minutes' => ['nullable', 'integer', 'between:1,600'],
             'instructions' => ['nullable', 'string', 'max:5000'],
+            'source_url' => ['nullable', 'url:https', 'max:500'],
             'ingredients' => ['array', 'max:50'],
             'ingredients.*.ingredient_id' => ['nullable', 'integer', new VisibleIngredient],
             'ingredients.*.name' => ['required_without:ingredients.*.ingredient_id', 'nullable', 'string', 'max:150'],
@@ -66,6 +67,7 @@ class StoreRecipeRequest extends FormRequest
             'portions' => $this->integer('portions'),
             'time_minutes' => $this->filled('time_minutes') ? $this->integer('time_minutes') : null,
             'instructions' => $this->filled('instructions') ? $this->string('instructions')->toString() : null,
+            'source_url' => $this->filled('source_url') ? $this->string('source_url')->toString() : null,
         ];
     }
 
