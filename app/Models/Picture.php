@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\AvatarGroup;
 use App\Enums\PicturePurpose;
 use App\Enums\PictureSource;
 use App\Models\Scopes\SharedOrFamilyScope;
@@ -27,6 +28,7 @@ use Illuminate\Support\Facades\Storage;
  * @property int|null $picture_category_id
  * @property PictureSource $source
  * @property PicturePurpose $purpose
+ * @property AvatarGroup|null $avatar_group
  * @property string $path
  * @property Carbon|null $processed_at
  * @property string $label
@@ -67,6 +69,7 @@ class Picture extends Model
         return [
             'source' => PictureSource::class,
             'purpose' => PicturePurpose::class,
+            'avatar_group' => AvatarGroup::class,
             'processed_at' => 'datetime',
         ];
     }

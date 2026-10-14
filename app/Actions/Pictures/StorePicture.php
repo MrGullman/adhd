@@ -2,6 +2,7 @@
 
 namespace App\Actions\Pictures;
 
+use App\Enums\AvatarGroup;
 use App\Enums\PicturePurpose;
 use App\Enums\PictureSource;
 use App\Jobs\ProcessPicture;
@@ -26,13 +27,14 @@ class StorePicture
     /**
      * For files already on the private disk, e.g. from the admin portal's upload.
      */
-    public function fromStoredFile(string $path, string $label, ?Family $family, ?User $uploader, ?int $categoryId = null, PicturePurpose $purpose = PicturePurpose::Support): Picture
+    public function fromStoredFile(string $path, string $label, ?Family $family, ?User $uploader, ?int $categoryId = null, PicturePurpose $purpose = PicturePurpose::Support, ?AvatarGroup $avatarGroup = null): Picture
     {
         $picture = new Picture(['label' => $label, 'picture_category_id' => $categoryId]);
         $picture->forceFill([
             'family_id' => $family?->id,
             'source' => $family === null ? PictureSource::Gallery : PictureSource::Upload,
             'purpose' => $purpose,
+            'avatar_group' => $family === null ? $avatarGroup : null,
             'path' => $path,
             'uploaded_by' => $uploader?->id,
         ])->save();

@@ -680,6 +680,8 @@ Lägena heter **Barn** och **Ungdom**. Reglerna står i STYLEGUIDE.md under "Bar
 ## Tasks
 
 - [x] STYLEGUIDE.md och tokens.json: regler för läget Ungdom (`youth-label`, `picture-xs`)
+- [x] Avatarer i två stilar (Barn och Ungdom): admin laddar upp under Bildgalleri → Avatarer, barnet väljer själv i Min dag
+- [ ] Avatarer i vuxenstil, när bilderna finns
 - [ ] Läge per barn: users.child_view (child, youth). Det följer barnet, även om barnet senare finns i två familjer (växelvis boende).
 - [ ] Bildstöd av eller på per barn i läget Ungdom (users.child_pictures)
 - [ ] Vårdnadshavare väljer läge och bildstöd på barnets sida, med en förhandsvisning av Min dag i båda lägena

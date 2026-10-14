@@ -350,11 +350,12 @@ const avatarPicture = ref<PictureItem | null>(props.child.picture);
                 <div class="grid gap-2">
                     <span class="text-sm font-medium">Bild (valfritt)</span>
                     <p class="text-caption text-ink-muted">
-                        Till exempel ett foto på barnet. Visas i stället för
-                        bokstaven.
+                        En avatar eller ett foto på barnet. Visas i stället för
+                        bokstaven. Barnet kan också byta själv i Min dag.
                     </p>
                     <PicturePicker
                         v-model="avatarPicture"
+                        purpose="avatar"
                         name="picture_id"
                         button-label="Välj bild"
                     />

@@ -69,6 +69,16 @@ Identiteten är lekfull som logotypen, men gränssnittet är lugnt: logotypens f
 - Tailwinds brytpunkter: telefon under `md` (768px), läsplatta från `md`, dator från `lg` (1024px).
 - På läsplatta i liggande läge visar barnets Idag "Nu" och dagens lista bredvid varandra.
 
+## Avatarer
+
+Barnen väljer själva en avatar i Min dag ("Byt bild"), och vårdnadshavare kan välja på barnets sida. Admin laddar upp avatarerna under Bildgalleri → Avatarer.
+
+- Två stilar: **Barn** (runda former, stora ögon, mjuka färger) och **Ungdom** (mer verkliga proportioner, en vuxnare ton). En stil för vuxna kommer senare.
+- Bara huvudet, mitt i bilden och lika stort i alla avatarer, så att inget klipps av när bilden visas rund.
+- Genomskinlig bakgrund (PNG). Avataren ligger på familjemedlemmens färg, så två syskon med samma avatar skiljs ändå åt.
+- Måste fungera rund och liten (36–56px) och i både ljust och mörkt tema. Fina detaljer och kantljus försvinner i liten storlek.
+- Alla ska kunna hitta sig själva: olika hudtoner, hårtyper och frisyrer, flickor, pojkar och neutrala, och gärna glasögon, hörapparat, slöja och tandställning.
+
 ## Bildstöd
 
 - Varje uppgift, steg, vara och familjemedlem kan ha en bild. Till vänster i listor, ovanför etiketten i rutnät.
