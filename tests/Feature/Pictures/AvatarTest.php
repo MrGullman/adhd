@@ -120,4 +120,38 @@ class AvatarTest extends TestCase
         $this->actingAs($admin)->get('/admin/pictures')->assertOk()->assertSee('Tandborste')->assertDontSee('Pojke med lockar');
         $this->actingAs($this->parent)->get('/admin/avatarer')->assertForbidden();
     }
+
+    public function test_adults_choose_from_the_adult_style_and_children_never_see_it()
+    {
+        $adult = $this->avatar('Skägg', AvatarGroup::Adult);
+        $young = $this->avatar('Pojke med lockar', AvatarGroup::Child);
+        $photo = Picture::factory()->ofFamily($this->family)->create(['label' => 'Foto på Kim']);
+        $theirPhoto = Picture::factory()->ofFamily(Family::factory()->create())->create();
+
+        $labels = fn (array $query) => collect($this->actingAs($this->parent)->getJson(route('pictures.index', $query))->json('pictures'))
+            ->pluck('label')
+            ->all();
+
+        $this->assertSame(['Foto på Kim', 'Skägg'], $labels(['till' => 'avatar-vuxen']));
+        $this->assertSame(['Foto på Kim', 'Pojke med lockar'], $labels(['till' => 'avatar']));
+
+        $this->actingAs($this->parent)->put(route('profile.picture.update'), ['picture_id' => $adult->id])->assertRedirect(route('profile.edit'));
+        $this->assertSame($adult->id, $this->parent->fresh()?->picture_id);
+
+        $this->actingAs($this->parent)->put(route('profile.picture.update'), ['picture_id' => $photo->id])->assertRedirect();
+        $this->assertSame($photo->id, $this->parent->fresh()?->picture_id);
+
+        foreach ([$young, $theirPhoto] as $picture) {
+            $this->actingAs($this->parent)
+                ->put(route('profile.picture.update'), ['picture_id' => $picture->id])
+                ->assertSessionHasErrors('picture_id');
+        }
+
+        $this->actingAs($this->parent)->put(route('profile.picture.update'), ['picture_id' => null]);
+        $this->assertNull($this->parent->fresh()?->picture_id);
+
+        // A child never gets the adult style, not even by asking for it.
+        $this->actingAs($this->child)->get(route('child.avatar'))->assertInertia(fn (Assert $page) => $page->has('groups', 1));
+        $this->actingAs($this->child)->put(route('child.avatar.update'), ['picture_id' => $adult->id])->assertSessionHasErrors('picture_id');
+    }
 }

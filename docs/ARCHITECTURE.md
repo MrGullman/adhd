@@ -504,7 +504,7 @@ Uppgifter, listor, belöningar och familjemedlemmar ska kunna visas med bild + k
 
 Familjens egna foton har ett syfte (pictures.purpose): bildstöd (support) eller mat (food). Foton som laddas upp till ett recept är matfoton och visas bara när man väljer bild till ett recept, aldrig bland bildstödet. Galleriet visas överallt.
 
-Avatarer är galleribilder med pictures.avatar_group (child, youth, senare adult). De visas aldrig bland bildstödet, och bildväljaren för profilbilder (till=avatar) visar bara avatarer och familjens egna foton. Barnet byter själv i Min dag (/min-dag/bild) och kan bara välja avatarer. Den valda bilden sparas som users.picture_id.
+Avatarer är galleribilder med pictures.avatar_group (child, youth, senare adult). De visas aldrig bland bildstödet, och bildväljaren för profilbilder (till=avatar) visar bara avatarer och familjens egna foton. Barnet byter själv i Min dag (/min-dag/bild) och kan bara välja avatarer i stilarna Barn och Ungdom. Vuxna väljer under Inställningar → Profil bland vuxenavatarer (till=avatar-vuxen) och familjens egna foton. Den valda bilden sparas som users.picture_id.
 
 ## Bildkällor
 

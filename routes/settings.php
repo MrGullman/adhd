@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Settings\ProfileController;
+use App\Http\Controllers\Settings\ProfilePictureController;
 use App\Http\Controllers\Settings\ReminderController;
 use App\Http\Controllers\Settings\SecurityController;
 use Illuminate\Auth\Middleware\RequirePassword;
@@ -11,6 +12,7 @@ Route::middleware(['auth', 'role:adult'])->group(function () {
 
     Route::get('settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('settings/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('settings/profile/bild', [ProfilePictureController::class, 'update'])->name('profile.picture.update');
 });
 
 Route::middleware(['auth', 'verified', 'role:adult'])->group(function () {

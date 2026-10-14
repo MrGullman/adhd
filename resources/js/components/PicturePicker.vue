@@ -28,7 +28,7 @@ const props = withDefaults(
          * "food" for recipes and "avatar" for profile pictures: kept apart
          * from bildstöd.
          */
-        purpose?: 'support' | 'food' | 'avatar';
+        purpose?: 'support' | 'food' | 'avatar' | 'avatar-adult';
     }>(),
     {
         name: undefined,
@@ -66,9 +66,12 @@ async function load(): Promise<void> {
             query: {
                 sok: search.value,
                 kategori: category.value,
-                till: { food: 'mat', avatar: 'avatar', support: '' }[
-                    props.purpose
-                ],
+                till: {
+                    food: 'mat',
+                    avatar: 'avatar',
+                    'avatar-adult': 'avatar-vuxen',
+                    support: '',
+                }[props.purpose],
             },
         }),
     );
@@ -189,6 +192,8 @@ const chip =
                             {
                                 food: 'Sök i galleriet och familjens matfoton.',
                                 avatar: 'Välj en avatar eller ett eget foto.',
+                                'avatar-adult':
+                                    'Välj en avatar eller ett eget foto.',
                                 support:
                                     'Sök i galleriet och familjens egna foton.',
                             }[purpose]

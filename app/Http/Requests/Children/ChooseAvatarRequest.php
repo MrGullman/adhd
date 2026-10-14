@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Children;
 
+use App\Enums\AvatarGroup;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -28,7 +29,8 @@ class ChooseAvatarRequest extends FormRequest
             'picture_id' => [
                 'nullable',
                 'integer',
-                Rule::exists('pictures', 'id')->whereNull('family_id')->whereNotNull('avatar_group'),
+                // Children's styles only, never the adult avatars.
+                Rule::exists('pictures', 'id')->whereNull('family_id')->whereIn('avatar_group', [AvatarGroup::Child->value, AvatarGroup::Youth->value]),
             ],
         ];
     }
