@@ -80,7 +80,7 @@ Milestone 19: konton och missbruk i adminportalen (klar).
 
 ## Version 3
 
-Milestone 20: visningsläge för äldre barn.
+Milestone 21 före 20: mat (inventering, laga och importera), sedan visningsläge för äldre barn.
 
 ---
 
@@ -632,6 +632,36 @@ Admin har överblick över familjer och konton och kan stänga av ett konto elle
 
 ---
 
+# Milestone 21 – Mat: inventera, laga och importera
+
+## Mål
+
+Det är lätt att hålla koll på vad som finns hemma, skafferiet följer med när maten lagas, och recept från nätet kommer in utan att skrivas av.
+
+## Beslutat
+
+- Fasta platser: Kylskåp, Frys, Skafferi och Annat
+- Receptimport utan AI: appens egen tolkare och granskning i receptformuläret
+- Importen tar med namn, portioner, tid, ingredienser, gör så här och länk till källan, men aldrig sajtens bild
+
+## Tasks
+
+- [x] Plats för varje sak hemma (pantry_items.location), förvald efter varans avdelning
+- [x] Skafferiet visas per plats med när den senast inventerades
+- [x] Inventera en plats i taget: + och −, Slut, flytta till annan plats, lägg till det som saknas, Klar
+- [x] Lagad i veckomatsedeln: drar av receptets mängder från skafferiet, räknat på portionerna och med omräkning av enheter. Basvaror och saker utan mängd lämnas. Ångra lägger tillbaka.
+- [x] Recept från länk: schema.org/Recipe (JSON-LD), ingrediensrader tolkas till mängd, enhet, namn och anteckning och matchas mot grundlistan
+- [x] Samma skydd som kalenderlänkar: bara https till publika adresser, även efter omdirigering
+- [x] Tester med Http::fake() och en påhittad receptsida
+
+## Definition of Done
+
+- Man inventerar kylen på någon minut från telefonen
+- En lagad middag syns i skafferiet och går att ångra
+- Ett recept från ICA, Köket eller Arla kommer in och kan kollas innan det sparas
+
+---
+
 # Milestone 20 – Visningsläge för äldre barn
 
 ## Mål
@@ -681,7 +711,7 @@ Lägena heter **Barn** och **Ungdom**. Reglerna står i STYLEGUIDE.md under "Bar
 - Egen domän och e-posttjänst inom EU (t.ex. Brevo eller Mailgun EU)
 - Backup även utanför servern
 - Flytta servern till en nyare Debian innan Debian 12:s LTS-stöd tar slut (juni 2028)
-- Importera recept från länk (schema.org/Recipe, Laravel AI SDK för att tolka ingredienser)
-- Dra av ingredienser från skafferiet när en måltid är lagad
+- AI (Laravel AI SDK) för ingrediensrader som receptimporten inte förstår
+- Streckkod för att lägga till i skafferiet (Android; Safari på iPhone saknar stöd)
 
 Dark mode ingår redan i starter kit (inställningar → Appearance).

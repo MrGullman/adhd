@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Food;
 
+use App\Actions\Meals\CookMeal;
 use App\Actions\Meals\RefreshShoppingList;
 use App\Food\Dinner;
 use App\Http\Controllers\Controller;
@@ -103,6 +104,39 @@ class MealPlanController extends Controller
         Gate::authorize('delete', $entry);
 
         $entry->delete();
+
+        return back();
+    }
+
+    /**
+     * "Lagad": what the meal used comes off the pantry.
+     */
+    public function cook(MealPlanEntry $entry, CookMeal $cook): RedirectResponse
+    {
+        Gate::authorize('update', $entry);
+
+        $used = $cook->cook($entry);
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => $used === []
+                ? "{$entry->name()} är lagad. Inget i skafferiet behövde ändras."
+                : "{$entry->name()} är lagad. Avdraget i skafferiet: ".implode(', ', $used).'.',
+        ]);
+
+        return back();
+    }
+
+    /**
+     * "Ångra": the pantry back as it was.
+     */
+    public function uncook(MealPlanEntry $entry, CookMeal $cook): RedirectResponse
+    {
+        Gate::authorize('update', $entry);
+
+        $cook->undo($entry);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Skafferiet är som innan.']);
 
         return back();
     }

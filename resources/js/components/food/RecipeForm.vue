@@ -24,6 +24,7 @@ export type RecipeDraft = {
     portions: number;
     timeMinutes: number | null;
     instructions: string | null;
+    sourceUrl?: string | null;
     ingredients: Line[];
 };
 
@@ -48,6 +49,8 @@ const form = useForm({
     portions: props.recipe?.portions ?? 4,
     time_minutes: props.recipe?.timeMinutes ?? null,
     instructions: props.recipe?.instructions ?? '',
+    // Kept for an imported recipe, shown as "Källa" on the recipe.
+    source_url: props.recipe?.sourceUrl ?? null,
     ingredients: props.recipe?.ingredients.length
         ? props.recipe.ingredients
         : [newLine()],

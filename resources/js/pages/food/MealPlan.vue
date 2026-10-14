@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { Form, Head, Link, router } from '@inertiajs/vue3';
 import {
+    Check,
     ChefHat,
     ChevronLeft,
     ChevronRight,
+    CookingPot,
     Minus,
     Plus,
     ShoppingCart,
@@ -189,7 +191,7 @@ const selectClass =
                                   }
                                 : {}
                         "
-                        class="min-w-0 flex-1 text-title break-words"
+                        class="min-w-40 flex-1 text-title break-words"
                         :class="entry.recipeId && 'hover:underline'"
                     >
                         {{ entry.name }}
@@ -220,6 +222,41 @@ const selectClass =
                             <Plus class="size-5" />
                         </Button>
                     </div>
+                    <!-- Lagad: what the meal used comes off the pantry. -->
+                    <template
+                        v-if="
+                            canEdit &&
+                            entry.recipeId &&
+                            (day.isToday || day.isPast)
+                        "
+                    >
+                        <template v-if="entry.cooked">
+                            <span
+                                class="flex items-center gap-1 rounded-full bg-success-soft px-3 py-1 text-caption font-bold text-success"
+                            >
+                                <Check class="size-4" aria-hidden="true" />
+                                Lagad
+                            </span>
+                            <Link
+                                :href="MealPlanController.uncook(entry.id)"
+                                as="button"
+                                preserve-scroll
+                                class="flex min-h-tap-adult items-center rounded-md px-3 text-caption font-bold hover:bg-surface-sunken"
+                            >
+                                Ångra
+                            </Link>
+                        </template>
+                        <Link
+                            v-else
+                            :href="MealPlanController.cook(entry.id)"
+                            as="button"
+                            preserve-scroll
+                            class="flex min-h-tap-adult items-center gap-2 rounded-full border-2 border-line px-4 font-bold hover:border-primary"
+                        >
+                            <CookingPot class="size-5" aria-hidden="true" />
+                            Lagad
+                        </Link>
+                    </template>
                     <Link
                         v-if="canEdit"
                         :href="MealPlanController.destroy(entry.id)"

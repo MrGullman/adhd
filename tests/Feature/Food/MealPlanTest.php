@@ -236,4 +236,72 @@ class MealPlanTest extends TestCase
 
         $this->assertDatabaseHas('meal_plan_entries', ['id' => $theirs->id, 'portions' => 4]);
     }
+
+    private function pantry(string $name, ?float $quantity, ?string $unit, bool $alwaysHome = false): PantryItem
+    {
+        return PantryItem::factory()->for($this->family)->create([
+            'ingredient_id' => $this->basic($name)->id,
+            'quantity' => $quantity,
+            'unit' => $unit,
+            'always_home' => $alwaysHome,
+        ]);
+    }
+
+    public function test_a_cooked_meal_comes_off_the_pantry_once_and_can_be_undone()
+    {
+        $recipe = Recipe::factory()->for($this->family)->withIngredients([
+            'Köttfärs' => [500, 'g'],
+            'Tortillabröd' => [8, 'st'],
+            'Tacokrydda' => [1, 'påse'],
+            'Salt' => [1, 'krm'],
+        ])->create(['name' => 'Tacos', 'portions' => 4]);
+        $entry = $this->plan($recipe, '2026-10-13', 8);
+
+        $mince = $this->pantry('Köttfärs', 1.5, 'kg');
+        $tortillas = $this->pantry('Tortillabröd', 20, 'st');
+        $spice = $this->pantry('Tacokrydda', null, null);
+        $salt = $this->pantry('Salt', null, null, alwaysHome: true);
+
+        $this->actingAs($this->parent)->post(route('meal-plan.cook', $entry))->assertRedirect();
+        $this->actingAs($this->parent)->post(route('meal-plan.cook', $entry))->assertRedirect();
+
+        $this->assertSame(0.5, (float) $mince->fresh()?->quantity, '1,5 kg minus 2 × 500 g');
+        $this->assertSame('kg', $mince->fresh()?->unit);
+        $this->assertSame(4.0, (float) $tortillas->fresh()?->quantity);
+        $this->assertModelExists($spice);
+        $this->assertModelExists($salt);
+        $this->assertNotNull($entry->fresh()?->cooked_at);
+
+        $this->actingAs($this->parent)->delete(route('meal-plan.uncook', $entry))->assertRedirect();
+
+        $this->assertSame(1.5, (float) $mince->fresh()?->quantity);
+        $this->assertSame(20.0, (float) $tortillas->fresh()?->quantity);
+        $this->assertNull($entry->fresh()?->cooked_at);
+    }
+
+    public function test_what_runs_out_is_removed_and_comes_back_on_undo()
+    {
+        $recipe = Recipe::factory()->for($this->family)->withIngredients(['Köttfärs' => [500, 'g']])->create(['name' => 'Köttbullar', 'portions' => 4]);
+        $entry = $this->plan($recipe, '2026-10-13', 4);
+        $mince = $this->pantry('Köttfärs', 400, 'g');
+
+        $this->actingAs($this->parent)->post(route('meal-plan.cook', $entry));
+        $this->assertModelMissing($mince);
+
+        $this->actingAs($this->parent)->delete(route('meal-plan.uncook', $entry));
+        $this->assertDatabaseHas('pantry_items', ['ingredient_id' => $this->basic('Köttfärs')->id, 'quantity' => 400, 'unit' => 'g']);
+    }
+
+    public function test_only_those_who_change_food_mark_a_meal_cooked()
+    {
+        $recipe = Recipe::factory()->for($this->family)->withIngredients(['Köttfärs' => [500, 'g']])->create(['portions' => 4]);
+        $entry = $this->plan($recipe, '2026-10-13', 4);
+        $viewer = User::factory()->inFamily($this->family, FamilyRole::Viewer)->create();
+        $theirs = MealPlanEntry::factory()->create();
+
+        $this->actingAs($viewer)->post(route('meal-plan.cook', $entry))->assertForbidden();
+        $this->actingAs($this->parent)->post(route('meal-plan.cook', $theirs->id))->assertNotFound();
+
+        $this->assertNull($entry->fresh()?->cooked_at);
+    }
 }

@@ -21,6 +21,8 @@ use Illuminate\Support\Carbon;
  * @property int|null $recipe_id
  * @property string|null $title
  * @property int $portions
+ * @property Carbon|null $cooked_at
+ * @property list<array{ingredient_id: int, quantity: string|null, unit: string|null, location: string, always_home: bool}>|null $pantry_before
  * @property int|null $created_by
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -41,6 +43,8 @@ class MealPlanEntry extends Model
         return [
             'date' => 'date:Y-m-d',
             'portions' => 'integer',
+            'cooked_at' => 'datetime',
+            'pantry_before' => 'array',
         ];
     }
 
@@ -71,6 +75,7 @@ class MealPlanEntry extends Model
             'recipeId' => $this->recipe_id,
             'picture' => $this->recipe?->picture?->toPicker(),
             'portions' => $this->portions,
+            'cooked' => $this->cooked_at !== null,
         ];
     }
 }

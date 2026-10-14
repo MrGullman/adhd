@@ -43,6 +43,16 @@ class Quantity
     }
 
     /**
+     * A base amount (g or ml) back in a given unit, e.g. 250 g as 0,25 kg.
+     */
+    public static function fromBase(float $base, ?string $unit): float
+    {
+        $unit = mb_strtolower(trim((string) $unit));
+
+        return $base / (self::WEIGHT[$unit] ?? self::VOLUME[$unit] ?? 1);
+    }
+
+    /**
      * A base amount in a readable unit: 1 200 g is 1,2 kg, 450 ml is 4,5 dl,
      * 1,5 påse is 2 påse.
      *

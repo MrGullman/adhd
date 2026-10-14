@@ -5,9 +5,11 @@ use App\Http\Controllers\Activities\CalendarController;
 use App\Http\Controllers\Activities\ChildActivityController;
 use App\Http\Controllers\ChildShoppingListController;
 use App\Http\Controllers\Food\IngredientController;
+use App\Http\Controllers\Food\InventoryController;
 use App\Http\Controllers\Food\MealPlanController;
 use App\Http\Controllers\Food\PantryController;
 use App\Http\Controllers\Food\RecipeController;
+use App\Http\Controllers\Food\RecipeImportController;
 use App\Http\Controllers\Food\SuggestionController;
 use App\Http\Controllers\JournalController;
 use App\Http\Controllers\Lists\CompletedListItemsController;
@@ -51,6 +53,8 @@ Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function 
 
     Route::get('mat/recept', [RecipeController::class, 'index'])->name('recipes.index');
     Route::get('mat/recept/nytt', [RecipeController::class, 'create'])->name('recipes.create');
+    Route::get('mat/recept/importera', [RecipeImportController::class, 'create'])->name('recipes.import');
+    Route::post('mat/recept/importera', [RecipeImportController::class, 'store'])->middleware('throttle:10,1')->name('recipes.import.store');
     Route::post('mat/recept', [RecipeController::class, 'store'])->name('recipes.store');
     Route::get('mat/recept/{recipe}', [RecipeController::class, 'show'])->name('recipes.show');
     Route::get('mat/recept/{recipe}/andra', [RecipeController::class, 'edit'])->name('recipes.edit');
@@ -61,6 +65,9 @@ Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function 
     Route::post('mat/skafferi', [PantryController::class, 'store'])->name('pantry.store');
     Route::put('mat/skafferi/{pantryItem}', [PantryController::class, 'update'])->name('pantry.update');
     Route::delete('mat/skafferi/{pantryItem}', [PantryController::class, 'destroy'])->name('pantry.destroy');
+    Route::get('mat/skafferi/inventera/{location}', [InventoryController::class, 'show'])->whereIn('location', ['kyl', 'frys', 'skafferi', 'annat'])->name('inventory.show');
+    Route::post('mat/skafferi/inventera/{location}/klar', [InventoryController::class, 'done'])->whereIn('location', ['kyl', 'frys', 'skafferi', 'annat'])->name('inventory.done');
+    Route::patch('mat/skafferi/{pantryItem}/mangd', [InventoryController::class, 'update'])->name('inventory.update');
 
     Route::get('mat/forslag', SuggestionController::class)->name('meal-suggestions');
 
@@ -68,6 +75,8 @@ Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function 
     Route::post('mat/vecka', [MealPlanController::class, 'store'])->name('meal-plan.store');
     Route::put('mat/vecka/{entry}', [MealPlanController::class, 'update'])->whereNumber('entry')->name('meal-plan.update');
     Route::delete('mat/vecka/{entry}', [MealPlanController::class, 'destroy'])->whereNumber('entry')->name('meal-plan.destroy');
+    Route::post('mat/vecka/{entry}/lagad', [MealPlanController::class, 'cook'])->whereNumber('entry')->name('meal-plan.cook');
+    Route::delete('mat/vecka/{entry}/lagad', [MealPlanController::class, 'uncook'])->whereNumber('entry')->name('meal-plan.uncook');
     Route::post('mat/vecka/handla', [MealPlanController::class, 'shoppingList'])->name('meal-plan.shopping-list');
     Route::put('mat/vecka/byte', [MealPlanController::class, 'dinnerSwitch'])->name('meal-plan.dinner-switch');
     Route::get('mat/ingredienser', [IngredientController::class, 'index'])->name('ingredients.index');

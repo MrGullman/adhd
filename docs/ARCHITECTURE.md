@@ -862,6 +862,12 @@ I version 1 (Milestone 10):
 
 ---
 
+## Inventera, laga och importera (Milestone 21)
+
+- pantry_items.location: kyl, frys, skafferi eller annat (App\Enums\StorageLocation), förvalt efter varans avdelning. När varje plats senast inventerades sparas i families.settings.inventoried.
+- Lagad (App\Actions\Meals\CookMeal): receptets mängder × portioner / receptets portioner dras av från skafferiet i samma enhetsgrupp (vikt eller volym, annars samma enhet). Smör eller margarin: den första som finns hemma med mängd. Det som tar slut tas bort. Skafferiet före sparas i meal_plan_entries.pantry_before, så Ångra lägger tillbaka exakt.
+- Recept från länk (App\Food\RecipeImport): sidan hämtas med App\Support\PublicHttp (bara https till publika adresser, högst 3 MB), schema.org/Recipe läses ur JSON-LD och App\Food\IngredientLine tolkar varje rad. Utkastet fyller i receptformuläret, och föräldern sparar. recipes.source_url visas som Källa. Sajtens bild hämtas aldrig.
+
 # Skolmat (Matilda)
 
 Skolmåltider hämtas från Matilda Menu (menu.matildaplatform.com).

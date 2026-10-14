@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { X } from '@lucide/vue';
+import { ClipboardCheck, X } from '@lucide/vue';
+import InventoryController from '@/actions/App/Http/Controllers/Food/InventoryController';
 import PantryController from '@/actions/App/Http/Controllers/Food/PantryController';
 import RecipeController from '@/actions/App/Http/Controllers/Food/RecipeController';
 import FoodTabs from '@/components/food/FoodTabs.vue';
@@ -8,6 +9,7 @@ import IngredientInput from '@/components/food/IngredientInput.vue';
 import InputError from '@/components/InputError.vue';
 import PictureThumb from '@/components/PictureThumb.vue';
 import { Button } from '@/components/ui/button';
+import { formatDateTime } from '@/lib/format';
 import type { IngredientOption, PictureItem } from '@/types';
 
 defineOptions({
@@ -15,15 +17,17 @@ defineOptions({
 });
 
 defineProps<{
-    sections: Array<{
+    locations: Array<{
         value: string;
         label: string;
+        inventoriedAt: string | null;
         items: Array<{
             id: number;
             name: string;
             picture: PictureItem | null;
             quantity: number | null;
             unit: string | null;
+            location: string;
             alwaysHome: boolean;
         }>;
     }>;
@@ -36,6 +40,7 @@ const form = useForm({
     ingredient_id: null as number | null,
     quantity: null as number | null,
     unit: '',
+    location: '',
     always_home: false,
 });
 
@@ -48,6 +53,8 @@ function add(): void {
 
 function onChoose(option: IngredientOption): void {
     form.unit ||= option.unit ?? '';
+    // The usual place for the grocery, e.g. milk in the fridge.
+    form.location = option.location ?? form.location;
 }
 
 function toggleStaple(id: number, alwaysHome: boolean): void {
@@ -111,6 +118,20 @@ const fieldClass =
                     :class="fieldClass"
                     class="w-24"
                 />
+                <select
+                    v-model="form.location"
+                    aria-label="Var finns det?"
+                    :class="fieldClass"
+                >
+                    <option value="">Vanlig plats</option>
+                    <option
+                        v-for="place in locations"
+                        :key="place.value"
+                        :value="place.value"
+                    >
+                        {{ place.label }}
+                    </option>
+                </select>
                 <Button
                     type="submit"
                     :disabled="form.processing || !form.name.trim()"
@@ -132,22 +153,38 @@ const fieldClass =
             />
         </form>
 
-        <p v-if="!sections.length" class="text-ink-muted">
-            Skafferiet är tomt.
-        </p>
-
         <section
-            v-for="section in sections"
-            :key="section.value"
+            v-for="place in locations"
+            :key="place.value"
             class="flex flex-col gap-2"
-            :aria-label="section.label"
+            :aria-labelledby="`plats-${place.value}`"
         >
-            <h2 class="text-overline text-ink-muted uppercase">
-                {{ section.label }}
-            </h2>
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                    <h2 :id="`plats-${place.value}`" class="text-title">
+                        {{ place.label }}
+                    </h2>
+                    <p class="text-caption text-ink-muted">
+                        {{
+                            place.inventoriedAt
+                                ? `Inventerat ${formatDateTime(place.inventoriedAt)}`
+                                : 'Inte inventerat än'
+                        }}
+                    </p>
+                </div>
+                <Link
+                    v-if="canEdit"
+                    :href="InventoryController.show(place.value)"
+                    class="flex min-h-tap-adult items-center gap-2 rounded-full border-2 border-line px-4 font-bold hover:border-primary"
+                >
+                    <ClipboardCheck class="size-5" aria-hidden="true" />
+                    Inventera
+                </Link>
+            </div>
+            <p v-if="!place.items.length" class="text-ink-muted">Inget här.</p>
             <ul class="grid gap-2 sm:grid-cols-2">
                 <li
-                    v-for="item in section.items"
+                    v-for="item in place.items"
                     :key="item.id"
                     class="flex items-center gap-3 rounded-lg border border-line bg-surface-raised py-1 pr-1 pl-3"
                 >

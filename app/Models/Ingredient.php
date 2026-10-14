@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\StorageLocation;
 use App\Enums\StoreSection;
 use App\Models\Scopes\SharedOrFamilyScope;
 use Database\Factories\IngredientFactory;
@@ -81,7 +82,7 @@ class Ingredient extends Model
     }
 
     /**
-     * @return array{id: int, name: string, unit: string|null, picture: array{id: int, label: string, url: string}|null}
+     * @return array{id: int, name: string, unit: string|null, location: string, picture: array{id: int, label: string, url: string}|null}
      */
     public function toOption(): array
     {
@@ -89,6 +90,7 @@ class Ingredient extends Model
             'id' => $this->id,
             'name' => $this->name,
             'unit' => $this->default_unit,
+            'location' => StorageLocation::for($this->category)->value,
             'picture' => $this->picture?->toPicker(),
         ];
     }
