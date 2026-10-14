@@ -36,9 +36,9 @@ const initial = computed(() => props.name.trim().charAt(0).toUpperCase());
     <span
         class="inline-grid shrink-0 place-items-center rounded-full font-display font-semibold"
         :class="[
-            pictureUrl
-                ? 'overflow-hidden bg-surface-sunken'
-                : (colors[color] ?? colors.teal),
+            // An avatar with a see-through background sits on the member's colour.
+            colors[color] ?? colors.teal,
+            pictureUrl && 'overflow-hidden',
             sizes[size],
             selected &&
                 'ring-4 ring-primary ring-offset-4 ring-offset-surface-raised',

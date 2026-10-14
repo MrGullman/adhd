@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { CalendarDays, Check, LogOut, ShoppingCart, Star } from '@lucide/vue';
+import {
+    CalendarDays,
+    Check,
+    LogOut,
+    ShoppingCart,
+    Smile,
+    Star,
+} from '@lucide/vue';
 import { computed } from 'vue';
 import ChildRoutineController from '@/actions/App/Http/Controllers/Routines/ChildRoutineController';
 import TaskCompletionController from '@/actions/App/Http/Controllers/Tasks/TaskCompletionController';
@@ -15,7 +22,11 @@ import PushToggle from '@/components/PushToggle.vue';
 import SchoolLunch from '@/components/SchoolLunch.vue';
 import { formatDay } from '@/lib/format';
 import { logout } from '@/routes';
-import { shopping, week as childWeek } from '@/routes/child';
+import {
+    avatar as childAvatar,
+    shopping,
+    week as childWeek,
+} from '@/routes/child';
 import { index as childRewards } from '@/routes/child/rewards';
 import type {
     ActivityEntry,
@@ -75,11 +86,14 @@ const allDone = computed(
     <main class="min-h-svh bg-surface px-4 py-6 text-ink md:px-8">
         <div class="mx-auto flex w-full max-w-5xl flex-col gap-6">
             <header class="flex flex-wrap items-center gap-4">
-                <FamilyAvatar
-                    :name="child.name"
-                    :color="child.avatarColor"
-                    :picture-url="child.avatarUrl"
-                />
+                <!-- The child changes their own picture. -->
+                <Link :href="childAvatar()" aria-label="Byt bild">
+                    <FamilyAvatar
+                        :name="child.name"
+                        :color="child.avatarColor"
+                        :picture-url="child.avatarUrl"
+                    />
+                </Link>
                 <div class="flex min-w-0 flex-col">
                     <h1 class="font-display text-display-l font-semibold">
                         Hej {{ child.name }}!
@@ -405,6 +419,13 @@ const allDone = computed(
                     :vapid-public-key="vapidPublicKey"
                     child
                 />
+                <Link
+                    :href="childAvatar()"
+                    class="flex h-tap-child items-center gap-3 rounded-full border-2 border-line bg-surface-raised px-8 font-display text-child-label font-semibold"
+                >
+                    <Smile class="size-8" aria-hidden="true" />
+                    Byt bild
+                </Link>
                 <Link
                     :href="logout()"
                     as="button"

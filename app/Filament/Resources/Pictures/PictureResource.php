@@ -42,7 +42,8 @@ class PictureResource extends Resource
      */
     public static function getEloquentQuery(): Builder
     {
-        return Picture::query()->whereNull('family_id');
+        // Avatars have their own list (AvatarResource).
+        return Picture::query()->whereNull('family_id')->whereNull('avatar_group');
     }
 
     public static function form(Schema $schema): Schema

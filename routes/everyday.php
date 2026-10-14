@@ -3,6 +3,7 @@
 use App\Http\Controllers\Activities\ActivityController;
 use App\Http\Controllers\Activities\CalendarController;
 use App\Http\Controllers\Activities\ChildActivityController;
+use App\Http\Controllers\ChildAvatarController;
 use App\Http\Controllers\ChildShoppingListController;
 use App\Http\Controllers\Food\IngredientController;
 use App\Http\Controllers\Food\InventoryController;
@@ -145,6 +146,8 @@ Route::middleware(['auth', 'family', 'role:child'])->group(function () {
 
     Route::get('min-dag/veckan', [CalendarController::class, 'childWeek'])->name('child.week');
     Route::get('min-dag/beloningar', [ChildRewardController::class, 'index'])->name('child.rewards.index');
+    Route::get('min-dag/bild', [ChildAvatarController::class, 'show'])->name('child.avatar');
+    Route::put('min-dag/bild', [ChildAvatarController::class, 'update'])->name('child.avatar.update');
     Route::post('min-dag/beloningar/{reward}', [ChildRewardController::class, 'wish'])->name('child.rewards.wish');
     Route::scopeBindings()->group(function () {
         Route::post('min-dag/aktivitet/{activity}/{date}/sak/{item}', [ChildActivityController::class, 'pack'])

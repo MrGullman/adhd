@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Pictures\StorePicture;
+use App\Enums\AvatarGroup;
 use App\Enums\PicturePurpose;
 use App\Http\Requests\Pictures\StorePictureRequest;
 use App\Models\Picture;
 use App\Models\PictureCategory;
 use App\Support\CurrentFamily;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -24,27 +26,54 @@ class PictureController extends Controller
     {
         $search = trim($request->string('sok')->toString());
         $category = $request->string('kategori')->toString();
-        // "mat" when choosing a picture for a recipe: the family's food photos.
-        $purpose = $request->string('till')->toString() === 'mat' ? PicturePurpose::Food : PicturePurpose::Support;
+        $for = $request->string('till')->toString();
 
         $pictures = Picture::query()
-            ->where(fn ($query) => $query->whereNull('family_id')->orWhere('purpose', $purpose))
+            ->when($for === 'avatar', fn ($query) => self::avatars($query, $category), fn ($query) => self::pictures($query, $category, $for === 'mat' ? PicturePurpose::Food : PicturePurpose::Support))
             ->when($search !== '', fn ($query) => $query->where(fn ($query) => $query
                 ->where('label', 'like', "%{$search}%")
                 ->orWhere('keywords', 'like', "%{$search}%")))
-            ->when($category === 'egna', fn ($query) => $query->whereNotNull('family_id'))
-            ->when(ctype_digit($category), fn ($query) => $query->where('picture_category_id', (int) $category))
             ->orderBy('label')
             ->limit(120)
             ->get();
 
         return response()->json([
             'pictures' => $pictures->map(fn (Picture $picture) => $picture->toPicker()),
-            'categories' => PictureCategory::query()
-                ->orderBy('sort_order')
-                ->orderBy('name')
-                ->get(['id', 'name']),
+            // For avatars the styles (Barn, Ungdom) are the filters.
+            'categories' => $for === 'avatar'
+                ? collect(AvatarGroup::cases())->map(fn (AvatarGroup $group) => ['id' => 'avatar-'.$group->value, 'name' => $group->label()])->values()
+                : PictureCategory::query()->orderBy('sort_order')->orderBy('name')->get(['id', 'name']),
         ]);
+    }
+
+    /**
+     * Bildstöd or food photos: the gallery and the family's own photos for
+     * that purpose, never avatars. "mat" is used when choosing for a recipe.
+     *
+     * @param  Builder<Picture>  $query
+     */
+    private static function pictures(Builder $query, string $category, PicturePurpose $purpose): void
+    {
+        $query->whereNull('avatar_group')
+            ->where(fn ($query) => $query->whereNull('family_id')->orWhere('purpose', $purpose))
+            ->when($category === 'egna', fn ($query) => $query->whereNotNull('family_id'))
+            ->when(ctype_digit($category), fn ($query) => $query->where('picture_category_id', (int) $category));
+    }
+
+    /**
+     * A profile picture: the avatars, or the family's own photo, e.g. of the child.
+     *
+     * @param  Builder<Picture>  $query
+     */
+    private static function avatars(Builder $query, string $category): void
+    {
+        $group = AvatarGroup::tryFrom((string) str($category)->after('avatar-'));
+
+        $query->where(fn ($query) => $query
+            ->whereNotNull('avatar_group')
+            ->orWhere(fn ($query) => $query->whereNotNull('family_id')->where('purpose', PicturePurpose::Support)))
+            ->when($category === 'egna', fn ($query) => $query->whereNotNull('family_id'))
+            ->when($group !== null, fn ($query) => $query->where('avatar_group', $group));
     }
 
     /**

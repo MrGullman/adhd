@@ -24,8 +24,11 @@ const props = withDefaults(
         /** "child": big tiles and no upload. */
         size?: 'adult' | 'child';
         buttonLabel?: string;
-        /** "food" for recipes: food photos are kept apart from bildstöd. */
-        purpose?: 'support' | 'food';
+        /**
+         * "food" for recipes and "avatar" for profile pictures: kept apart
+         * from bildstöd.
+         */
+        purpose?: 'support' | 'food' | 'avatar';
     }>(),
     {
         name: undefined,
@@ -38,7 +41,7 @@ const props = withDefaults(
 const model = defineModel<PictureItem | null>({ default: null });
 const emit = defineEmits<{ select: [picture: PictureItem] }>();
 
-type Category = { id: number; name: string };
+type Category = { id: number | string; name: string };
 
 const page = usePage();
 const canUpload = computed(
@@ -63,7 +66,9 @@ async function load(): Promise<void> {
             query: {
                 sok: search.value,
                 kategori: category.value,
-                till: props.purpose === 'food' ? 'mat' : '',
+                till: { food: 'mat', avatar: 'avatar', support: '' }[
+                    props.purpose
+                ],
             },
         }),
     );
@@ -98,7 +103,12 @@ function choose(picture: PictureItem): void {
 const upload = useHttp<
     { photo: File | null; label: string; purpose: string },
     { picture: PictureItem }
->({ photo: null, label: '', purpose: props.purpose });
+>({
+    photo: null,
+    label: '',
+    // A photo of the child for the profile is a family photo like bildstöd.
+    purpose: props.purpose === 'food' ? 'food' : 'support',
+});
 
 function onFile(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0] ?? null;
@@ -176,9 +186,12 @@ const chip =
                     <DialogTitle>{{ buttonLabel }}</DialogTitle>
                     <DialogDescription>
                         {{
-                            purpose === 'food'
-                                ? 'Sök i galleriet och familjens matfoton.'
-                                : 'Sök i galleriet och familjens egna foton.'
+                            {
+                                food: 'Sök i galleriet och familjens matfoton.',
+                                avatar: 'Välj en avatar eller ett eget foto.',
+                                support:
+                                    'Sök i galleriet och familjens egna foton.',
+                            }[purpose]
                         }}
                         <Link
                             :href="pictureSources()"
