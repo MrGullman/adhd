@@ -73,7 +73,7 @@ Identiteten är lekfull som logotypen, men gränssnittet är lugnt: logotypens f
 
 Barnen väljer själva en avatar i Min dag ("Byt bild"), och vårdnadshavare kan välja på barnets sida. Admin laddar upp avatarerna under Bildgalleri → Avatarer.
 
-- Två stilar: **Barn** (runda former, stora ögon, mjuka färger) och **Ungdom** (mer verkliga proportioner, en vuxnare ton). En stil för vuxna kommer senare.
+- Tre stilar: **Barn** (runda former, stora ögon, mjuka färger), **Ungdom** (mer verkliga proportioner, en vuxnare ton) och **Vuxna**. Barnen ser Barn och Ungdom och får välja fritt mellan dem. Vuxenstilen visas bara för vuxna.
 - Bara huvudet, mitt i bilden och lika stort i alla avatarer, så att inget klipps av när bilden visas rund.
 - Genomskinlig bakgrund (PNG). Avataren ligger på familjemedlemmens färg, så två syskon med samma avatar skiljs ändå åt.
 - Måste fungera rund och liten (36–56px) och i både ljust och mörkt tema. Fina detaljer och kantljus försvinner i liten storlek.

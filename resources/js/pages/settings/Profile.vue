@@ -1,16 +1,20 @@
 <script setup lang="ts">
-import { Form, Head, usePage } from '@inertiajs/vue3';
+import { Form, Head, router, usePage } from '@inertiajs/vue3';
 import { Link } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
+import ProfilePictureController from '@/actions/App/Http/Controllers/Settings/ProfilePictureController';
 import DeleteUser from '@/components/DeleteUser.vue';
+import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import Heading from '@/components/Heading.vue';
+import PicturePicker from '@/components/PicturePicker.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { edit } from '@/routes/profile';
 import { send } from '@/routes/verification';
+import type { PictureItem } from '@/types';
 
 defineOptions({
     layout: {
@@ -23,8 +27,26 @@ defineOptions({
     },
 });
 
+const props = defineProps<{
+    picture: PictureItem | null;
+    avatarColor: string;
+    mustVerifyEmail: boolean;
+    status?: string;
+}>();
+
 const page = usePage();
 const user = computed(() => page.props.auth.user);
+
+// Your own picture: saved as soon as it is chosen or removed.
+const picture = ref<PictureItem | null>(props.picture);
+
+watch(picture, (chosen) => {
+    router.put(
+        ProfilePictureController.update.url(),
+        { picture_id: chosen?.id ?? null },
+        { preserveScroll: true },
+    );
+});
 </script>
 
 <template>
@@ -33,6 +55,25 @@ const user = computed(() => page.props.auth.user);
     <h1 class="sr-only">Profil</h1>
 
     <div class="flex flex-col space-y-6">
+        <Heading
+            variant="small"
+            title="Din bild"
+            description="Visas för familjen i stället för din bokstav"
+        />
+        <div class="flex flex-wrap items-center gap-4">
+            <FamilyAvatar
+                v-if="!picture"
+                :name="user.name"
+                :color="avatarColor"
+                size="lg"
+            />
+            <PicturePicker
+                v-model="picture"
+                purpose="avatar-adult"
+                button-label="Välj bild"
+            />
+        </div>
+
         <Heading
             variant="small"
             title="Profil"

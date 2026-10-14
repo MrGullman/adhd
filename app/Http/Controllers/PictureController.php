@@ -27,9 +27,15 @@ class PictureController extends Controller
         $search = trim($request->string('sok')->toString());
         $category = $request->string('kategori')->toString();
         $for = $request->string('till')->toString();
+        // Children's avatars for children, the adult style for adults' own profile.
+        $avatarGroups = match ($for) {
+            'avatar' => [AvatarGroup::Child, AvatarGroup::Youth],
+            'avatar-vuxen' => [AvatarGroup::Adult],
+            default => null,
+        };
 
         $pictures = Picture::query()
-            ->when($for === 'avatar', fn ($query) => self::avatars($query, $category), fn ($query) => self::pictures($query, $category, $for === 'mat' ? PicturePurpose::Food : PicturePurpose::Support))
+            ->when($avatarGroups !== null, fn ($query) => self::avatars($query, $category, $avatarGroups ?? []), fn ($query) => self::pictures($query, $category, $for === 'mat' ? PicturePurpose::Food : PicturePurpose::Support))
             ->when($search !== '', fn ($query) => $query->where(fn ($query) => $query
                 ->where('label', 'like', "%{$search}%")
                 ->orWhere('keywords', 'like', "%{$search}%")))
@@ -40,8 +46,8 @@ class PictureController extends Controller
         return response()->json([
             'pictures' => $pictures->map(fn (Picture $picture) => $picture->toPicker()),
             // For avatars the styles (Barn, Ungdom) are the filters.
-            'categories' => $for === 'avatar'
-                ? collect(AvatarGroup::cases())->map(fn (AvatarGroup $group) => ['id' => 'avatar-'.$group->value, 'name' => $group->label()])->values()
+            'categories' => $avatarGroups !== null
+                ? collect($avatarGroups)->map(fn (AvatarGroup $group) => ['id' => 'avatar-'.$group->value, 'name' => $group->label()])->values()
                 : PictureCategory::query()->orderBy('sort_order')->orderBy('name')->get(['id', 'name']),
         ]);
     }
@@ -61,16 +67,18 @@ class PictureController extends Controller
     }
 
     /**
-     * A profile picture: the avatars, or the family's own photo, e.g. of the child.
+     * A profile picture: the avatars in the given styles, or the family's own
+     * photo, e.g. of the child.
      *
      * @param  Builder<Picture>  $query
+     * @param  list<AvatarGroup>  $groups
      */
-    private static function avatars(Builder $query, string $category): void
+    private static function avatars(Builder $query, string $category, array $groups): void
     {
         $group = AvatarGroup::tryFrom((string) str($category)->after('avatar-'));
 
         $query->where(fn ($query) => $query
-            ->whereNotNull('avatar_group')
+            ->whereIn('avatar_group', $groups)
             ->orWhere(fn ($query) => $query->whereNotNull('family_id')->where('purpose', PicturePurpose::Support)))
             ->when($category === 'egna', fn ($query) => $query->whereNotNull('family_id'))
             ->when($group !== null, fn ($query) => $query->where('avatar_group', $group));
