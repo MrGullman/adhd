@@ -1,4 +1,4 @@
-import { router } from '@inertiajs/vue3';
+import { useHttp } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import PushSubscriptionController from '@/actions/App/Http/Controllers/PushSubscriptionController';
 
@@ -51,9 +51,71 @@ function keyBytes(base64: string): Uint8Array<ArrayBuffer> {
     return bytes;
 }
 
+function sameKey(subscription: PushSubscription, key: Uint8Array): boolean {
+    const current = subscription.options.applicationServerKey;
+
+    if (!current) {
+        return false;
+    }
+
+    const bytes = new Uint8Array(current);
+
+    return (
+        bytes.length === key.length && bytes.every((byte, i) => byte === key[i])
+    );
+}
+
 export function usePush(vapidPublicKey: string | null) {
     const state = ref<PushState>('off');
     const busy = ref(false);
+    const error = ref<string | null>(null);
+
+    // A request of its own, so that it never interrupts moving between pages.
+    const http = useHttp<
+        {
+            endpoint: string;
+            keys: Record<string, string>;
+            content_encoding: string;
+        },
+        { devices: number }
+    >({ endpoint: '', keys: {}, content_encoding: 'aesgcm' });
+    const remove = useHttp<{ endpoint: string }, { devices: number }>({
+        endpoint: '',
+    });
+
+    /**
+     * Sends the device to the server. Resolves with an error message, or null.
+     */
+    async function save(
+        subscription: PushSubscription,
+    ): Promise<string | null> {
+        const json = subscription.toJSON();
+
+        http.endpoint = json.endpoint ?? '';
+        http.keys = (json.keys ?? {}) as Record<string, string>;
+        http.content_encoding =
+            (
+                PushManager as unknown as {
+                    supportedContentEncodings?: string[];
+                }
+            ).supportedContentEncodings?.[0] ?? 'aesgcm';
+
+        try {
+            const response = await http.post(
+                PushSubscriptionController.store.url(),
+            );
+
+            return response
+                ? null
+                : (Object.values(http.errors)[0] ??
+                      'Enheten gick inte att koppla.');
+        } catch {
+            return (
+                Object.values(http.errors)[0] ??
+                'Ingen kontakt med servern. Prova igen.'
+            );
+        }
+    }
 
     async function refresh(): Promise<void> {
         if (
@@ -78,7 +140,24 @@ export function usePush(vapidPublicKey: string | null) {
 
         const registration = await navigator.serviceWorker.ready;
         const subscription = await registration.pushManager.getSubscription();
-        state.value = subscription ? 'on' : 'off';
+
+        if (!subscription) {
+            state.value = 'off';
+
+            return;
+        }
+
+        // Made with another key: start over, the old one cannot get messages.
+        if (!sameKey(subscription, keyBytes(vapidPublicKey))) {
+            await subscription.unsubscribe();
+            state.value = 'off';
+
+            return;
+        }
+
+        // The server may not know the device (e.g. after a move): tell it again.
+        error.value = await save(subscription);
+        state.value = error.value === null ? 'on' : 'off';
     }
 
     async function turnOn(): Promise<void> {
@@ -87,6 +166,7 @@ export function usePush(vapidPublicKey: string | null) {
         }
 
         busy.value = true;
+        error.value = null;
 
         try {
             const permission = await Notification.requestPermission();
@@ -104,23 +184,13 @@ export function usePush(vapidPublicKey: string | null) {
                     userVisibleOnly: true,
                     applicationServerKey: keyBytes(vapidPublicKey),
                 }));
-            const json = subscription.toJSON();
 
-            router.post(
-                PushSubscriptionController.store.url(),
-                {
-                    endpoint: json.endpoint ?? '',
-                    keys: json.keys ?? {},
-                    content_encoding:
-                        (
-                            PushManager as unknown as {
-                                supportedContentEncodings?: string[];
-                            }
-                        ).supportedContentEncodings?.[0] ?? 'aesgcm',
-                },
-                { preserveScroll: true, preserveState: true },
-            );
-            state.value = 'on';
+            error.value = await save(subscription);
+            state.value = error.value === null ? 'on' : 'off';
+        } catch {
+            error.value =
+                'Telefonen kunde inte slå på påminnelser. Prova igen, eller starta om appen.';
+            state.value = 'off';
         } finally {
             busy.value = false;
         }
@@ -135,11 +205,10 @@ export function usePush(vapidPublicKey: string | null) {
                 await registration.pushManager.getSubscription();
 
             if (subscription) {
-                router.delete(PushSubscriptionController.destroy.url(), {
-                    data: { endpoint: subscription.endpoint },
-                    preserveScroll: true,
-                    preserveState: true,
-                });
+                remove.endpoint = subscription.endpoint;
+                await remove
+                    .delete(PushSubscriptionController.destroy.url())
+                    .catch(() => null);
                 await subscription.unsubscribe();
             }
 
@@ -149,5 +218,5 @@ export function usePush(vapidPublicKey: string | null) {
         }
     }
 
-    return { state, busy, refresh, turnOn, turnOff };
+    return { state, busy, error, refresh, turnOn, turnOff };
 }

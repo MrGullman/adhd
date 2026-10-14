@@ -30,6 +30,7 @@ Route::middleware(['auth', 'verified', 'role:adult'])->group(function () {
 
     Route::get('settings/paminnelser', [ReminderController::class, 'edit'])->name('reminders.edit');
     Route::put('settings/paminnelser', [ReminderController::class, 'update'])->name('reminders.update');
+    Route::post('settings/paminnelser/test', [ReminderController::class, 'test'])->middleware('throttle:5,1')->name('reminders.test');
 });
 
 Route::get('.well-known/passkey-endpoints', function () {
