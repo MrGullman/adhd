@@ -2,9 +2,10 @@
 import { Head, Link } from '@inertiajs/vue3';
 import { ChevronLeft, ChevronRight } from '@lucide/vue';
 import ActivityCard from '@/components/ActivityCard.vue';
+import CalendarEventRow from '@/components/CalendarEventRow.vue';
 import { formatDay } from '@/lib/format';
 import { week } from '@/routes';
-import type { ActivityEntry } from '@/types';
+import type { ActivityEntry, CalendarEventEntry } from '@/types';
 
 defineOptions({
     layout: {
@@ -20,6 +21,7 @@ defineProps<{
         isToday: boolean;
         isPast: boolean;
         activities: ActivityEntry[];
+        calendarEvents: CalendarEventEntry[];
         more: number;
     }>;
 }>();
@@ -80,7 +82,7 @@ const navClass =
                 </span>
             </h2>
             <p
-                v-if="!day.activities.length"
+                v-if="!day.activities.length && !day.calendarEvents.length"
                 class="text-caption text-ink-muted"
             >
                 Inget särskilt.
@@ -88,6 +90,9 @@ const navClass =
             <ul class="flex flex-col gap-2">
                 <li v-for="activity in day.activities" :key="activity.id">
                     <ActivityCard :activity="activity" compact />
+                </li>
+                <li v-for="event in day.calendarEvents" :key="`k${event.id}`">
+                    <CalendarEventRow :event="event" />
                 </li>
             </ul>
         </section>

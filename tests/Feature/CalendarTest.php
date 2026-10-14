@@ -248,6 +248,34 @@ class CalendarTest extends TestCase
                 ->where('widgets.1.data.days.0.events.0.title', 'Jobbar natt'));
     }
 
+    public function test_tomorrow_and_the_weeks_show_calendar_events_too()
+    {
+        $work = Calendar::factory()->for($this->family)->create(['user_id' => $this->parent->id]);
+        $shared = Calendar::factory()->for($this->family)->create(['visible_to_children' => true]);
+        CalendarEvent::factory()->for($work)->create(['title' => 'Lönesamtal', 'starts_at' => '2026-10-14 08:00:00', 'ends_at' => '2026-10-14 09:00:00']);
+        CalendarEvent::factory()->for($shared)->create(['title' => 'Höstlov', 'all_day' => true, 'starts_at' => '2026-10-26 00:00:00', 'ends_at' => '2026-10-31 00:00:00']);
+
+        $this->actingAs($this->parent)
+            ->get(route('tomorrow'))
+            ->assertInertia(fn (Assert $page) => $page->where('calendarEvents.0.title', 'Lönesamtal')->where('calendarEvents.0.time', '10:00'));
+
+        // In two weeks, Monday 26 October: the autumn break.
+        $this->actingAs($this->parent)
+            ->get(route('week', ['vecka' => 2]))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('days.0.date', '2026-10-26')
+                ->where('days.0.calendarEvents.0.title', 'Höstlov')
+                ->where('days.0.calendarEvents.0.allDay', true));
+
+        // The child sees the shared calendar, never the parent's work.
+        $this->actingAs($this->child)
+            ->get(route('child.week'))
+            ->assertInertia(fn (Assert $page) => $page->has('days.2.calendarEvents', 0));
+        $this->actingAs($this->child)
+            ->get(route('child.week', ['vecka' => 2]))
+            ->assertInertia(fn (Assert $page) => $page->where('days.0.calendarEvents.0.title', 'Höstlov'));
+    }
+
     public function test_another_familys_calendar_is_never_reached()
     {
         $theirs = Calendar::factory()->create(['name' => 'Deras']);

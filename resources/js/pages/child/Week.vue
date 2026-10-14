@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowLeft } from '@lucide/vue';
+import { ArrowLeft, CalendarDays } from '@lucide/vue';
 import PictureThumb from '@/components/PictureThumb.vue';
 import { awayText } from '@/lib/activities';
 import { formatDay } from '@/lib/format';
 import { home as childHome } from '@/routes/child';
-import type { ActivityEntry } from '@/types';
+import type { ActivityEntry, CalendarEventEntry } from '@/types';
 
 defineProps<{
     offset: number;
@@ -15,6 +15,7 @@ defineProps<{
         isToday: boolean;
         isPast: boolean;
         activities: ActivityEntry[];
+        calendarEvents: CalendarEventEntry[];
         more: number;
     }>;
 }>();
@@ -57,7 +58,9 @@ defineProps<{
                         {{ day.isToday ? 'Idag' : formatDay(day.date) }}
                     </h2>
                     <p
-                        v-if="!day.activities.length"
+                        v-if="
+                            !day.activities.length && !day.calendarEvents.length
+                        "
                         class="font-display text-child-label text-ink-muted"
                     >
                         En vanlig dag
@@ -89,6 +92,41 @@ defineProps<{
                                 class="font-display text-child-label"
                             >
                                 {{ awayText(activity) }}
+                            </span>
+                        </div>
+                    </div>
+                    <div
+                        v-for="event in day.calendarEvents"
+                        :key="`k${event.id}`"
+                        class="flex items-center gap-3"
+                    >
+                        <PictureThumb
+                            v-if="event.picture"
+                            :picture="event.picture"
+                            size="md"
+                        />
+                        <CalendarDays
+                            v-else
+                            class="size-10 shrink-0 text-ink-muted"
+                            aria-hidden="true"
+                        />
+                        <div class="flex min-w-0 flex-col">
+                            <span
+                                class="font-display text-child-label break-words"
+                            >
+                                {{ event.title }}
+                            </span>
+                            <span
+                                class="font-display text-child-label text-ink-muted tabular-nums"
+                            >
+                                {{
+                                    event.allDay
+                                        ? 'Hela dagen'
+                                        : (event.time ??
+                                          (event.endTime
+                                              ? `Till ${event.endTime}`
+                                              : ''))
+                                }}
                             </span>
                         </div>
                     </div>
