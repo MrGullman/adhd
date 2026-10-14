@@ -1007,6 +1007,7 @@ calendar_events
 
 I version 2 (Milestone 15):
 
+- Händelserna visas i Idag, Imorgon, Veckan, barnens Min dag och Min vecka (högst tre saker om dagen, aktiviteter först) och på hemskärmen.
 - Vuxna ser alla kalendrar. Ett barn ser sin egen kalender och de som är valda med "Visa för barnen" (inte ett syskons). Hemskärmen visar det som något barn får se.
 - Heldagshändelser lagras som datum (starts_at 00:00, ends_at dagen efter). Händelser med tid lagras i UTC.
 - En händelse som heter som en aktivitet (t.ex. "Simskola") får aktivitetens bild, och visas inte en gång till de dagar aktiviteten redan syns.

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import ActivityCard from '@/components/ActivityCard.vue';
+import CalendarEventRow from '@/components/CalendarEventRow.vue';
 import { formatDay } from '@/lib/format';
 import { tomorrow } from '@/routes';
-import type { ActivityEntry } from '@/types';
+import type { ActivityEntry, CalendarEventEntry } from '@/types';
 
 defineOptions({
     layout: {
@@ -14,6 +15,7 @@ defineOptions({
 defineProps<{
     date: string;
     activities: ActivityEntry[];
+    calendarEvents: CalendarEventEntry[];
 }>();
 </script>
 
@@ -29,13 +31,19 @@ defineProps<{
             </p>
         </header>
 
-        <p v-if="!activities.length" class="text-ink-muted">
+        <p
+            v-if="!activities.length && !calendarEvents.length"
+            class="text-ink-muted"
+        >
             Inget särskilt imorgon. En vanlig dag.
         </p>
 
         <ul class="flex flex-col gap-2">
             <li v-for="activity in activities" :key="activity.id">
                 <ActivityCard :activity="activity" />
+            </li>
+            <li v-for="event in calendarEvents" :key="`k${event.id}`">
+                <CalendarEventRow :event="event" />
             </li>
         </ul>
     </div>
