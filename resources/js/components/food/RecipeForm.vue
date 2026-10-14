@@ -106,7 +106,7 @@ const fieldClass =
             </div>
             <div class="grid gap-2">
                 <span class="text-sm font-medium">Bild (valfritt)</span>
-                <PicturePicker v-model="form.picture" />
+                <PicturePicker v-model="form.picture" purpose="food" />
             </div>
         </div>
 

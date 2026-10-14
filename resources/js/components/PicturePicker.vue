@@ -24,8 +24,15 @@ const props = withDefaults(
         /** "child": big tiles and no upload. */
         size?: 'adult' | 'child';
         buttonLabel?: string;
+        /** "food" for recipes: food photos are kept apart from bildstöd. */
+        purpose?: 'support' | 'food';
     }>(),
-    { name: undefined, size: 'adult', buttonLabel: 'Välj bild' },
+    {
+        name: undefined,
+        size: 'adult',
+        buttonLabel: 'Välj bild',
+        purpose: 'support',
+    },
 );
 
 const model = defineModel<PictureItem | null>({ default: null });
@@ -53,7 +60,11 @@ const http = useHttp<
 async function load(): Promise<void> {
     const response = await http.get(
         PictureController.index.url({
-            query: { sok: search.value, kategori: category.value },
+            query: {
+                sok: search.value,
+                kategori: category.value,
+                till: props.purpose === 'food' ? 'mat' : '',
+            },
         }),
     );
 
@@ -85,9 +96,9 @@ function choose(picture: PictureItem): void {
 
 // The family's own photo, e.g. from the phone's camera.
 const upload = useHttp<
-    { photo: File | null; label: string },
+    { photo: File | null; label: string; purpose: string },
     { picture: PictureItem }
->({ photo: null, label: '' });
+>({ photo: null, label: '', purpose: props.purpose });
 
 function onFile(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0] ?? null;
@@ -98,7 +109,7 @@ async function submitUpload(): Promise<void> {
     const response = await upload.post(PictureController.store.url());
 
     if (response) {
-        upload.reset();
+        upload.reset('photo', 'label');
         choose(response.picture);
     }
 }
@@ -161,10 +172,14 @@ const chip =
             <DialogContent
                 class="flex max-h-[90svh] flex-col gap-4 sm:max-w-3xl"
             >
-                <DialogHeader>
+                <DialogHeader class="shrink-0">
                     <DialogTitle>{{ buttonLabel }}</DialogTitle>
                     <DialogDescription>
-                        Sök i galleriet och familjens egna foton.
+                        {{
+                            purpose === 'food'
+                                ? 'Sök i galleriet och familjens matfoton.'
+                                : 'Sök i galleriet och familjens egna foton.'
+                        }}
                         <Link
                             :href="pictureSources()"
                             class="underline"
@@ -174,7 +189,7 @@ const chip =
                     </DialogDescription>
                 </DialogHeader>
 
-                <div class="relative">
+                <div class="relative shrink-0">
                     <Search
                         class="pointer-events-none absolute top-1/2 left-3 size-5 -translate-y-1/2 text-ink-muted"
                         aria-hidden="true"
@@ -188,7 +203,7 @@ const chip =
                     />
                 </div>
 
-                <div class="flex gap-2 overflow-x-auto pb-1">
+                <div class="flex shrink-0 gap-2 overflow-x-auto pb-1">
                     <button
                         type="button"
                         :class="chip"
@@ -203,7 +218,7 @@ const chip =
                         :aria-pressed="category === 'egna'"
                         @click="category = 'egna'"
                     >
-                        Egna foton
+                        {{ purpose === 'food' ? 'Matfoton' : 'Egna foton' }}
                     </button>
                     <button
                         v-for="item in categories"
@@ -217,7 +232,8 @@ const chip =
                     </button>
                 </div>
 
-                <div class="min-h-40 overflow-y-auto">
+                <!-- The pictures scroll; search and filters above stay in view. -->
+                <div class="min-h-40 flex-1 overflow-y-auto">
                     <p v-if="loaded && !pictures.length" class="text-ink-muted">
                         Inga bilder hittades.
                     </p>
@@ -251,7 +267,7 @@ const chip =
 
                 <form
                     v-if="canUpload"
-                    class="grid gap-3 rounded-lg bg-surface-sunken p-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
+                    class="grid shrink-0 gap-3 rounded-lg bg-surface-sunken p-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
                     @submit.prevent="submitUpload"
                 >
                     <label

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PicturePurpose;
 use App\Enums\PictureSource;
 use App\Models\Scopes\SharedOrFamilyScope;
 use Database\Factories\PictureFactory;
@@ -25,6 +26,7 @@ use Illuminate\Support\Facades\Storage;
  * @property int|null $family_id
  * @property int|null $picture_category_id
  * @property PictureSource $source
+ * @property PicturePurpose $purpose
  * @property string $path
  * @property Carbon|null $processed_at
  * @property string $label
@@ -64,6 +66,7 @@ class Picture extends Model
     {
         return [
             'source' => PictureSource::class,
+            'purpose' => PicturePurpose::class,
             'processed_at' => 'datetime',
         ];
     }

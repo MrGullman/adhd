@@ -3,6 +3,7 @@
 namespace Tests\Feature\Pictures;
 
 use App\Enums\FamilyRole;
+use App\Enums\PicturePurpose;
 use App\Models\Family;
 use App\Models\FamilyList;
 use App\Models\Picture;
@@ -107,6 +108,34 @@ class PictureTest extends TestCase
         $this->assertSame(['Tandborste'], $labels(['sok' => 'borsta']));
         $this->assertSame(['Mjölk'], $labels(['kategori' => (string) $food->id]));
         $this->assertSame(['Vår katt'], $labels(['kategori' => 'egna']));
+    }
+
+    public function test_recipe_photos_are_kept_apart_from_bildstod()
+    {
+        $family = Family::factory()->create();
+        $parent = User::factory()->inFamily($family)->create();
+        Picture::factory()->create(['label' => 'Mjölk']);
+        Picture::factory()->ofFamily($family)->create(['label' => 'Vår katt']);
+
+        $this->actingAs($parent)
+            ->postJson(route('pictures.store'), [
+                'photo' => UploadedFile::fake()->image('pannkakor.jpg'),
+                'label' => 'Pannkakor',
+                'purpose' => 'food',
+            ])
+            ->assertCreated();
+
+        $this->assertSame(PicturePurpose::Food, $this->stored('Pannkakor')->purpose);
+
+        $labels = fn (array $query) => collect($this->actingAs($parent)->getJson(route('pictures.index', $query))->json('pictures'))
+            ->pluck('label')
+            ->all();
+
+        // Bildstöd: the gallery and the family's own photos, never the recipe photos.
+        $this->assertSame(['Mjölk', 'Vår katt'], $labels([]));
+        // Choosing a picture for a recipe: the gallery and the family's food photos.
+        $this->assertSame(['Mjölk', 'Pannkakor'], $labels(['till' => 'mat']));
+        $this->assertSame(['Pannkakor'], $labels(['till' => 'mat', 'kategori' => 'egna']));
     }
 
     public function test_picture_files_are_shown_to_the_family_but_not_to_others_or_guests()

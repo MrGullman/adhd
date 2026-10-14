@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests\Pictures;
 
+use App\Enums\PicturePurpose;
 use App\Models\Picture;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\File;
 
 class StorePictureRequest extends FormRequest
@@ -24,6 +26,7 @@ class StorePictureRequest extends FormRequest
         return [
             'photo' => ['required', File::image()->types(['jpeg', 'png', 'webp', 'gif'])->max('15mb')],
             'label' => ['required', 'string', 'max:50'],
+            'purpose' => ['nullable', Rule::enum(PicturePurpose::class)],
         ];
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Actions\Pictures;
 
+use App\Enums\PicturePurpose;
 use App\Enums\PictureSource;
 use App\Jobs\ProcessPicture;
 use App\Models\Family;
@@ -15,22 +16,23 @@ use Illuminate\Http\UploadedFile;
  */
 class StorePicture
 {
-    public function upload(UploadedFile $file, string $label, ?Family $family, ?User $uploader, ?int $categoryId = null): Picture
+    public function upload(UploadedFile $file, string $label, ?Family $family, ?User $uploader, ?int $categoryId = null, PicturePurpose $purpose = PicturePurpose::Support): Picture
     {
         $path = $file->store('pictures/originals', Picture::DISK);
 
-        return $this->fromStoredFile((string) $path, $label, $family, $uploader, $categoryId);
+        return $this->fromStoredFile((string) $path, $label, $family, $uploader, $categoryId, $purpose);
     }
 
     /**
      * For files already on the private disk, e.g. from the admin portal's upload.
      */
-    public function fromStoredFile(string $path, string $label, ?Family $family, ?User $uploader, ?int $categoryId = null): Picture
+    public function fromStoredFile(string $path, string $label, ?Family $family, ?User $uploader, ?int $categoryId = null, PicturePurpose $purpose = PicturePurpose::Support): Picture
     {
         $picture = new Picture(['label' => $label, 'picture_category_id' => $categoryId]);
         $picture->forceFill([
             'family_id' => $family?->id,
             'source' => $family === null ? PictureSource::Gallery : PictureSource::Upload,
+            'purpose' => $purpose,
             'path' => $path,
             'uploaded_by' => $uploader?->id,
         ])->save();

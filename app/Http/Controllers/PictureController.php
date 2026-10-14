@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Pictures\StorePicture;
+use App\Enums\PicturePurpose;
 use App\Http\Requests\Pictures\StorePictureRequest;
 use App\Models\Picture;
 use App\Models\PictureCategory;
@@ -23,8 +24,11 @@ class PictureController extends Controller
     {
         $search = trim($request->string('sok')->toString());
         $category = $request->string('kategori')->toString();
+        // "mat" when choosing a picture for a recipe: the family's food photos.
+        $purpose = $request->string('till')->toString() === 'mat' ? PicturePurpose::Food : PicturePurpose::Support;
 
         $pictures = Picture::query()
+            ->where(fn ($query) => $query->whereNull('family_id')->orWhere('purpose', $purpose))
             ->when($search !== '', fn ($query) => $query->where(fn ($query) => $query
                 ->where('label', 'like', "%{$search}%")
                 ->orWhere('keywords', 'like', "%{$search}%")))
@@ -73,6 +77,7 @@ class PictureController extends Controller
             $request->string('label')->toString(),
             $current->getOrFail(),
             $request->user(),
+            purpose: $request->enum('purpose', PicturePurpose::class) ?? PicturePurpose::Support,
         );
 
         return response()->json(['picture' => $picture->refresh()->toPicker()], 201);

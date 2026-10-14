@@ -502,6 +502,8 @@ Task::where('family_id', $device->family_id)
 
 Uppgifter, listor, belöningar och familjemedlemmar ska kunna visas med bild + kort text, så att den som inte läser (eller inte orkar läsa) förstår ändå.
 
+Familjens egna foton har ett syfte (pictures.purpose): bildstöd (support) eller mat (food). Foton som laddas upp till ett recept är matfoton och visas bara när man väljer bild till ett recept, aldrig bland bildstödet. Galleriet visas överallt.
+
 ## Bildkällor
 
 1. Bildgalleri (gemensamt): bilder som admin laddar upp i adminportalen. Alla familjer väljer från galleriet.
