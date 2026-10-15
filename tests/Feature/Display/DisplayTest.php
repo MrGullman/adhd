@@ -261,6 +261,33 @@ class DisplayTest extends TestCase
             );
     }
 
+    public function test_a_widget_is_never_added_on_top_of_another()
+    {
+        [$device] = $this->display();
+        // Everything but a strip at the bottom is taken.
+        $this->widget($device, 'week', ['x' => 0, 'y' => 0, 'w' => 12, 'h' => 5]);
+
+        $this->actingAs($this->parent)->post(route('displays.widgets.store', $device), ['type' => 'shopping_list'])->assertRedirect();
+        $shopping = DisplayWidget::query()->withoutGlobalScopes()->where('type', 'shopping_list')->sole();
+        $this->assertSame([0, 5, 3, 1], [$shopping->x, $shopping->y, $shopping->w, $shopping->h], 'made smaller to fit');
+
+        $this->widget($device, 'activities', ['x' => 3, 'y' => 5, 'w' => 9, 'h' => 1]);
+        $this->actingAs($this->parent)->post(route('displays.widgets.store', $device), ['type' => 'tasks'])->assertRedirect();
+        $this->assertSame(0, DisplayWidget::query()->withoutGlobalScopes()->where('type', 'tasks')->count(), 'a full display takes no more');
+    }
+
+    public function test_the_editor_moves_widgets_that_are_on_top_of_each_other()
+    {
+        [$device] = $this->display();
+        $first = $this->widget($device, 'child', ['x' => 0, 'y' => 0, 'w' => 3, 'h' => 4, 'settings' => ['child_id' => $this->child->id]]);
+        $onTop = $this->widget($device, 'points', ['x' => 0, 'y' => 0, 'w' => 3, 'h' => 3]);
+
+        $this->actingAs($this->parent)->get(route('displays.edit', $device))->assertOk();
+
+        $this->assertSame([0, 0], [$first->fresh()?->x, $first->fresh()?->y]);
+        $this->assertSame([3, 0, 3, 3], [$onTop->fresh()?->x, $onTop->fresh()?->y, $onTop->fresh()?->w, $onTop->fresh()?->h]);
+    }
+
     public function test_the_display_is_dark_in_the_evening()
     {
         [, $token] = $this->display();

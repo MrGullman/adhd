@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Family;
 
 use App\Display\DisplayContext;
+use App\Display\Layout;
 use App\Display\WidgetRegistry;
 use App\Display\Widgets\DisplayWidgetType;
 use App\Enums\DeviceType;
@@ -44,6 +45,7 @@ class DisplayController extends Controller
         $this->authorizeDisplay($current, $device);
         $family = $current->getOrFail();
         $context = new DisplayContext($family);
+        $this->repair($device);
 
         return Inertia::render('display/Edit', [
             'device' => [
@@ -102,7 +104,16 @@ class DisplayController extends Controller
         $type = WidgetRegistry::find($request->string('type')->toString());
         [$w, $h] = $type?->defaultSize() ?? [4, 2];
 
-        [$x, $y] = $this->freeSpot($device, $w, $h);
+        // Never on top of another widget: smaller if needed, or not at all.
+        $spot = Layout::place($this->taken($device), $w, $h);
+
+        if ($spot === null) {
+            Inertia::flash('toast', ['type' => 'error', 'message' => 'Skärmen är full. Gör en widget mindre eller ta bort en först.']);
+
+            return to_route('displays.edit', $device);
+        }
+
+        ['x' => $x, 'y' => $y, 'w' => $w, 'h' => $h] = $spot;
 
         $widget = new DisplayWidget([
             'type' => $request->string('type')->toString(),
@@ -150,29 +161,38 @@ class DisplayController extends Controller
     }
 
     /**
-     * The first place, row by row, where a widget of this size fits without
-     * covering another. On a full display it goes top left and is moved there.
-     *
-     * @return array{0: int, 1: int}
+     * Widgets on top of each other are moved apart, so that the editor and
+     * the display always show a layout that works.
      */
-    private function freeSpot(Device $device, int $w, int $h): array
+    private function repair(Device $device): void
     {
-        $taken = DisplayWidget::query()->where('device_id', $device->id)->get(['x', 'y', 'w', 'h']);
+        $widgets = DisplayWidget::query()->where('device_id', $device->id)->orderBy('id')->get();
 
-        for ($y = 0; $y + $h <= DisplayWidget::ROWS; $y++) {
-            for ($x = 0; $x + $w <= DisplayWidget::COLUMNS; $x++) {
-                $free = $taken->every(fn (DisplayWidget $other) => $x + $w <= $other->x
-                    || $other->x + $other->w <= $x
-                    || $y + $h <= $other->y
-                    || $other->y + $other->h <= $y);
+        $changes = Layout::arrange(array_values($widgets->map(fn (DisplayWidget $widget) => [
+            'id' => $widget->id,
+            'x' => $widget->x,
+            'y' => $widget->y,
+            'w' => $widget->w,
+            'h' => $widget->h,
+        ])->all()));
 
-                if ($free) {
-                    return [$x, $y];
-                }
-            }
+        foreach ($changes as $id => $spot) {
+            $widgets->firstWhere('id', $id)?->update($spot);
         }
+    }
 
-        return [0, 0];
+    /**
+     * Where the display's widgets are now.
+     *
+     * @return list<array{x: int, y: int, w: int, h: int}>
+     */
+    private function taken(Device $device): array
+    {
+        return array_values(DisplayWidget::query()
+            ->where('device_id', $device->id)
+            ->get(['x', 'y', 'w', 'h'])
+            ->map(fn (DisplayWidget $widget) => ['x' => $widget->x, 'y' => $widget->y, 'w' => $widget->w, 'h' => $widget->h])
+            ->all());
     }
 
     private function authorizeDisplay(CurrentFamily $current, Device $device): void

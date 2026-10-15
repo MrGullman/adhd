@@ -405,6 +405,8 @@ Tillgängliga widgets:
 
 Dagbok kan aldrig visas på hemskärmen.
 
+Widgetar ligger aldrig ovanpå varandra (App\Display\Layout). En ny widget hamnar på första lediga plats i sin storlek, annars mindre, och på en full skärm läggs den inte till. Redigeraren flyttar isär widgetar som ändå överlappar.
+
 ## Täthet
 
 Varje skärm har en täthet efter hur långt bort man brukar stå. Upplösningen spelar ingen roll: sidan skalar om sig, så 1080p och 4K ger samma storlek på samma skärm.

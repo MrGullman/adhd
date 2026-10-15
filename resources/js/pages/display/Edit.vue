@@ -117,6 +117,7 @@ function describe(widget: DisplayWidgetItem): string {
 // Arranging: drag and resize in the same 12 × 6 grid as the display.
 const gridElement = ref<HTMLElement | null>(null);
 let grid: GridStack | null = null;
+const gridFailed = ref(false);
 let timer: ReturnType<typeof setTimeout> | undefined;
 
 function save(): void {
@@ -158,19 +159,26 @@ function initGrid(): void {
     }
 
     // "float": widgets stay where they are put, only pushed when they collide.
-    const instance = GridStack.init(
-        {
-            column: 12,
-            row: 6,
-            cellHeight: 70,
-            margin: 6,
-            mode: 'float',
-            animate: true,
-        },
-        gridElement.value,
-    );
-    instance?.on('change', save);
-    grid = instance;
+    try {
+        const instance = GridStack.init(
+            {
+                column: 12,
+                row: 6,
+                cellHeight: 70,
+                margin: 6,
+                mode: 'float',
+                animate: true,
+            },
+            gridElement.value,
+        );
+        instance?.on('change', save);
+        grid = instance;
+        gridFailed.value = false;
+    } catch {
+        // E.g. widgets on top of each other: say so instead of a broken grid.
+        grid = null;
+        gridFailed.value = true;
+    }
 }
 
 onMounted(initGrid);
@@ -390,9 +398,19 @@ const chip =
             <p v-if="!widgets.length" class="text-ink-muted">
                 Skärmen är tom. Lägg till något här ovanför.
             </p>
+            <p
+                v-if="gridFailed"
+                class="rounded-lg border-2 border-orange-strong bg-orange-soft p-3"
+            >
+                Widgetarna går inte att ordna just nu. Ladda om sidan, så läggs
+                de i ordning. Hjälper det inte, ta bort en widget och lägg till
+                den igen.
+            </p>
             <div class="rounded-lg bg-surface-sunken p-2">
+                <!-- Always the full height of the grid, also before it is ready. -->
                 <div
                     ref="gridElement"
+                    style="min-height: calc(6 * 70px)"
                     :key="widgets.map((widget) => widget.id).join(',')"
                     class="grid-stack"
                 >
