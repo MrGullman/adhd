@@ -29,7 +29,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             // Admins log in through the app's own login (with two-factor), see User::canAccessPanel().
             ->brandName('NPF-familjen admin')
-            ->favicon(asset('icons/favicon-32.png'))
+            ->favicon(asset('icons/favicon-32.png').'?v=2')
             ->defaultAvatarProvider(InitialsAvatarProvider::class)
             ->colors([
                 'primary' => Color::Teal,
