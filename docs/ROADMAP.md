@@ -82,6 +82,10 @@ Milestone 19: konton och missbruk i adminportalen (klar).
 
 Milestone 21 före 20: mat (inventering, laga och importera), sedan visningsläge för äldre barn.
 
+## Smart Display (kan göras parallellt)
+
+Milestone 22–25: NPF Familjen Smart Display. Börjar på befintlig Raspberry Pi 3 och bygger vidare på hemskärmen (Milestone 11). Kamera och pekskärm kommer sist och kräver beslut först (se respektive milestone).
+
 ---
 
 # Milestone 0 – Setup
@@ -454,7 +458,7 @@ Appen körs på en server så att familjen kan använda den på telefonerna och 
 - [x] Bilder på privat disk i delad mapp som överlever deployer
 - [x] Backup varje natt till en egen mapp på servern (spatie/laravel-backup, 14 dagar)
 - [ ] Testa återställning av en backup
-- [ ] Raspberry Pi: Chromium i kioskläge mot hemskärmslänken, skärmen av på natten (instruktioner i DRIFT.md, inte provat på en Pi än)
+- [ ] Raspberry Pi: Chromium i kioskläge mot hemskärmslänken, skärmen av på natten (instruktioner i DRIFT.md, inte provat på en Pi än). Fortsätter i Milestone 22.
 
 ## Definition of Done
 
@@ -702,6 +706,100 @@ Lägena heter **Barn** och **Ungdom**. Reglerna står i STYLEGUIDE.md under "Bar
 
 ---
 
+# Milestone 22 – Smart Display: första skärmen
+
+## Mål
+
+En fristående skärm hemma som startar direkt i NPF-familjen, visar familjens planering och kan växla till en familjemedlems egen vy. Byggs först på befintlig Raspberry Pi 3 Model B (1 GB), innan ny hårdvara köps.
+
+Mycket finns redan: hemskärmen med hemlig länk, widgets som Veckoschema, Barnets dag, Kalender, Skollunch och Poäng, täthet efter avstånd, mörkt tema kvällstid och automatisk uppdatering (Milestone 11).
+
+## Tasks
+
+### Fas 1 – Grundinstallation (Raspberry Pi 3)
+
+- [ ] Installera Raspberry Pi OS (64-bit) på Pi 3, nätverk, SSH och tidszon
+- [ ] Starta direkt i hemskärmen i helskärm, utan synligt skrivbord (kiosk). På 1 GB: prova en lätt kioskmiljö i stället för hela skrivbordet.
+- [ ] Mät prestanda på Pi 3: laddtid, minne och hur ofta skärmen orkar uppdatera. Avgör om Pi 3 räcker eller om Pi 4/5 behövs.
+- [ ] Skärmen av och på efter tid (natt)
+- [ ] Uppdatera DRIFT.md med det som faktiskt fungerade
+
+### Fas 2 – Familjevy och personlig vy
+
+- [ ] Familjevy som standard (finns: widgets och Veckoschema)
+- [ ] Personlig vy för en familjemedlem: dagens schema, veckan, rutiner, uppgifter och påminnelser med bildstöd, i barnets visningsläge (Barn/Ungdom)
+- [ ] Byta vy från telefonen: "Visa Alvas dag på köksskärmen" i appen. Skärmen förblir en visning utan knappar.
+- [ ] Tillbaka till familjevyn automatiskt efter en vald tid
+- [ ] Fortsätter visa senast hämtade vid internetavbrott, med en diskret markering att den inte är uppdaterad
+
+## Definition of Done
+
+- Pi 3 startar själv i NPF-familjen utan att något Linux-skrivbord syns
+- Familjen ser sin vecka, och en vuxen kan växla till ett barns dag från telefonen
+- Vi vet om Pi 3 räcker, eller vilken modell som behövs
+
+---
+
+# Milestone 23 – Smart Display: enkel installation
+
+## Mål
+
+Vem som helst ska kunna sätta upp skärmen utan tekniska kunskaper: koppla in, skanna en QR-kod, klart.
+
+## Tasks
+
+- [ ] Färdig systemavbildning (image) som startar i en välkomstguide på tv:n eller skärmen
+- [ ] Wifi utan tangentbord: skärmen visar ett tillfälligt eget nätverk eller en QR-kod, och wifi väljs från telefonen
+- [ ] Koppla skärmen till familjen med QR-kod (samma princip som barnens egna enheter)
+- [ ] "Lägg till skärm" i appen: välj widgets och funktioner direkt i installationen
+- [ ] Hantera skärmen på distans: namn, widgets, ny länk, ta bort. Se när den senast var igång.
+- [ ] Uppdateringar utan ominstallation: appen uppdateras via servern, systemet med automatiska säkerhetsuppdateringar
+
+## Definition of Done
+
+- En familj utan teknikvana får igång skärmen på några minuter med bara telefonen
+
+---
+
+# Milestone 24 – Smart Display: pekskärm (kräver beslut)
+
+## Beslut innan bygget
+
+Idag är hemskärmen bara en visning: ingen meny och inga knappar (ARCHITECTURE.md, CLAUDE.md "Hemskärmen är skrivskyddad"). Pekskärm betyder att den regeln ändras. Det måste beslutas först, och hur en skärm som alla i familjen når ska skyddas (vem får bocka av vad).
+
+## Tasks (om beslutet blir ja)
+
+- [ ] Barnet bockar av en uppgift eller ett rutinsteg på skärmen, och det syns i appen
+- [ ] Checklista för morgon- och kvällsrutiner
+- [ ] Byta mellan familjemedlemmarnas vyer
+- [ ] Visuella timers (lugna, utan stressande nedräkning enligt stilguiden)
+- [ ] Interaktivt bildstöd och belöningar
+
+---
+
+# Milestone 25 – Smart Display: kamera och ansiktsigenkänning (utredning först)
+
+## Mål
+
+Skärmen känner igen vem som står framför den och visar personens egen vy, och går tillbaka till familjevyn när personen går. Helt frivilligt.
+
+## Utreds innan något byggs
+
+- Ansiktsdata är biometriska uppgifter, en särskild kategori i GDPR (artikel 9), och här gäller det barn. Det kräver uttryckligt samtycke från vårdnadshavare, en konsekvensbedömning (DPIA) och säker lagring.
+- All igenkänning sker på enheten. Inga bilder och inga ansiktsmått skickas till servern.
+- Fungerar det tillförlitligt nog på en Raspberry Pi (troligen Pi 5)? Vid osäkerhet eller flera personer: familjevyn.
+- Finns enklare sätt som räcker, t.ex. att byta vy från telefonen (Milestone 22)?
+
+## Tasks (efter utredningen)
+
+- [ ] Prova kamera (t.ex. Camera Module 3 Wide) och lokal igenkänning (OpenCV, ONNX Runtime) på Pi 5
+- [ ] Samtycke per familjemedlem, som kan dras tillbaka och då raderar ansiktsdatan på enheten
+- [ ] Integritetspolicyn uppdateras innan funktionen erbjuds andra familjer
+
+---
+
+---
+
 # Framtida funktioner
 
 ## Möjliga features
@@ -711,7 +809,7 @@ Lägena heter **Barn** och **Ungdom**. Reglerna står i STYLEGUIDE.md under "Bar
 - Betalversion (Laravel Cashier, familjen betalar)
 - Kalender: tvåvägssynk med Google och Outlook
 - Hemskärm: väder, foton
-- Hemskärm: bocka av tasks via pekskärm
+- Smart Display som färdig produkt: installerbar programvara för egen Raspberry Pi, och ett färdigt hårdvarupaket med skärm och eventuellt kamera. Pris och affärsmodell är inte bestämda.
 - Egen domän och e-posttjänst inom EU (t.ex. Brevo eller Mailgun EU)
 - Backup även utanför servern
 - Flytta servern till en nyare Debian innan Debian 12:s LTS-stöd tar slut (juni 2028)

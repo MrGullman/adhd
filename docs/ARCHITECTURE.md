@@ -498,6 +498,17 @@ Task::where('family_id', $device->family_id)
 
 ---
 
+# Smart Display (planerad, Milestone 22–25)
+
+En fristående skärm (Raspberry Pi) som startar direkt i hemskärmen. Samma programvara ska fungera på flera modeller och skärmar.
+
+- Hybrid: servern har familjen, scheman och bildstöd. Skärmen visar och cachar det senaste, så att den fungerar vid internetavbrott. Den bygger på hemskärmen som redan finns (devices, display_widgets, hemlig länk).
+- Skärmen är fortfarande bara en visning. Personlig vy väljs från telefonen, inte på skärmen.
+- Pekskärm kräver att regeln "hemskärmen är skrivskyddad" ändras genom ett beslut (Milestone 24).
+- Kamera och ansiktsigenkänning är frivilligt och sker bara på enheten. Inga bilder eller ansiktsmått lämnar den. Det gäller barns biometriska uppgifter, så samtycke och konsekvensbedömning krävs innan det byggs (Milestone 25).
+
+---
+
 # Bildstöd
 
 Uppgifter, listor, belöningar och familjemedlemmar ska kunna visas med bild + kort text, så att den som inte läser (eller inte orkar läsa) förstår ändå.
