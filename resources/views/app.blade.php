@@ -33,10 +33,11 @@
         <meta name="theme-color" content="#f5f9fa" media="(prefers-color-scheme: light)">
         <meta name="theme-color" content="#10171c" media="(prefers-color-scheme: dark)">
 
-        <link rel="icon" href="/favicon.ico" sizes="any">
-        <link rel="icon" href="/icons/favicon-32.png" type="image/png" sizes="32x32">
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-        <link rel="manifest" href="/manifest.webmanifest">
+        {{-- ?v= makes browsers fetch a changed icon instead of their saved copy. Raise it when the icon changes. --}}
+        <link rel="icon" href="/favicon.ico?v=2" sizes="any">
+        <link rel="icon" href="/icons/favicon-32.png?v=2" type="image/png" sizes="32x32">
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
+        <link rel="manifest" href="/manifest.webmanifest?v=2">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-title" content="NPF-familjen">
