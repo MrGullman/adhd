@@ -22,6 +22,10 @@ declare module '@inertiajs/core' {
             family: CurrentFamily | null;
             families: FamilyOption[];
             sidebarOpen: boolean;
+            feedback: {
+                mode: 'off' | 'development' | 'all';
+                pages: string[];
+            } | null;
             [key: string]: unknown;
         };
         flashDataType: {

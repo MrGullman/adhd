@@ -110,6 +110,7 @@ class FamilyExporter
             'hemskarmar_widgets' => $own('display_widgets'),
             'inloggningar' => $own('login_events'),
             'bilder' => $own('pictures'),
+            'feedback' => $own('feedback'),
         ];
 
         $result = array_map(fn (Builder $query) => $this->rows($query), $parts);

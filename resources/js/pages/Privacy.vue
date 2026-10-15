@@ -71,6 +71,10 @@ defineProps<{
                     webbläsare) och de enheter där påminnelser är påslagna.
                 </li>
                 <li>
+                    Feedback som skickas med Tyck till, och vilken sida den
+                    skrevs på. Den läses av administratören.
+                </li>
+                <li>
                     I Community: det man skriver, under ett visningsnamn man
                     väljer själv. Familjen och det riktiga namnet visas inte.
                 </li>

@@ -1296,6 +1296,12 @@ I version 2 (Milestone 17):
 - Adminkonton kan aldrig stängas av. Varje avstängning och upphävning loggas i admin_actions.
 - Abonnemang (senare, Laravel Cashier): familjen är kunden. Ett abonnemang som gått ut kan använda samma spärr som en avstängd familj, med eget meddelande.
 
+## Tyck till (feedback)
+
+- En knapp, Tyck till, nere till höger på vuxnas sidor öppnar en ruta. Det man skriver sparas i feedback med sidan (Inertia-komponent och adress), vem, familj och när.
+- Admin väljer i adminportalen (Konton → Feedback → Var visas knappen?) om knappen är av, visas på sidor under utveckling eller på alla sidor (app_settings). Sidorna under utveckling står i config/feedback.php och uppdateras när något nytt byggs.
+- Barn ser aldrig knappen. Feedback tas bort med kontot eller familjen och ingår i familjens export.
+
 ---
 
 # Security
