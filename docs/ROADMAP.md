@@ -54,13 +54,13 @@ Rekommenderad byggordning, så att familjen kan börja använda appen tidigt:
 
 1. Milestone 0 – Setup (klar)
 2. Milestone 1 – Familjer och konton (klar)
-3. Milestone 12 – Drift (tidigt, så att servern och Raspberry Pi:n testas från början) (i drift, några tester och Raspberry Pi kvar)
+3. Milestone 12 – Drift (tidigt, så att servern och Raspberry Pi:n testas från början) (i drift, några tester kvar)
 4. Milestone 2 – Uppgifter och listor (klar)
 5. Milestone 3 – Återkommande uppgifter (klar)
 6. Milestone 4 – Bildstöd (klar)
 7. Milestone 5 – Idag-vy (klar)
 8. Milestone 7 – Rutiner (klar)
-9. Milestone 11 – Hemskärm (klar, Raspberry Pi provas när den finns)
+9. Milestone 11 – Hemskärm (klar, provad på Raspberry Pi 3)
 10. Milestone 6 – Aktiviteter, händelser och packlistor (klar)
 11. Milestone 8 – Skolmat (klar)
 12. Milestone 9 – Receptbank och skafferi (klar)
@@ -458,7 +458,7 @@ Appen körs på en server så att familjen kan använda den på telefonerna och 
 - [x] Bilder på privat disk i delad mapp som överlever deployer
 - [x] Backup varje natt till en egen mapp på servern (spatie/laravel-backup, 14 dagar)
 - [ ] Testa återställning av en backup
-- [ ] Raspberry Pi: Chromium i kioskläge mot hemskärmslänken, skärmen av på natten (instruktioner i DRIFT.md, inte provat på en Pi än). Fortsätter i Milestone 22.
+- [x] Raspberry Pi: Chromium i kioskläge mot hemskärmslänken, skärmen av på natten (provat på Pi 3, se DRIFT.md och Milestone 22)
 
 ## Definition of Done
 
@@ -718,11 +718,11 @@ Mycket finns redan: hemskärmen med hemlig länk, widgets som Veckoschema, Barne
 
 ### Fas 1 – Grundinstallation (Raspberry Pi 3)
 
-- [ ] Installera Raspberry Pi OS (64-bit) på Pi 3, nätverk, SSH och tidszon
-- [ ] Starta direkt i hemskärmen i helskärm, utan synligt skrivbord (kiosk). På 1 GB: prova en lätt kioskmiljö i stället för hela skrivbordet.
-- [ ] Mät prestanda på Pi 3: laddtid, minne och hur ofta skärmen orkar uppdatera. Avgör om Pi 3 räcker eller om Pi 4/5 behövs.
-- [ ] Skärmen av och på efter tid (natt)
-- [ ] Uppdatera DRIFT.md med det som faktiskt fungerade
+- [x] Installera Raspberry Pi OS (64-bit) på Pi 3, nätverk, SSH och tidszon (Lite, Debian 13 Trixie)
+- [x] Starta direkt i hemskärmen i helskärm, utan synligt skrivbord (labwc och Chromium i kioskläge, svenska, ingen översättning, ingen muspekare)
+- [x] Mät prestanda på Pi 3: cirka 500 MB minne ledigt, belastning under 1, 54 °C. Pi 3 räcker för hemskärmen.
+- [x] Skärmen av och på efter tid (av 21:30, omstart och på 06:30)
+- [x] Uppdatera DRIFT.md med det som faktiskt fungerade
 
 ### Fas 2 – Familjevy och personlig vy
 
