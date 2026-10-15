@@ -2,10 +2,12 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\FamilyRole;
 use App\Models\Family;
 use App\Models\Membership;
 use App\Models\User;
 use App\Support\CurrentFamily;
+use App\Support\FeedbackButton;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -57,6 +59,10 @@ class HandleInertiaRequests extends Middleware
             ],
             'families' => fn () => $this->families($request, $current),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            // "Tyck till" for adults: where it is shown (FeedbackButton).
+            'feedback' => fn () => $request->user() !== null && $current->role() !== FamilyRole::Child
+                ? ['mode' => FeedbackButton::mode(), 'pages' => array_values((array) config('feedback.pages'))]
+                : null,
         ];
     }
 

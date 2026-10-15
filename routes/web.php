@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\TodayController;
 use App\Http\Controllers\WelcomeController;
@@ -24,6 +25,11 @@ Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function 
 Route::middleware(['auth', 'family', 'role:child'])->group(function () {
     Route::get('min-dag', [TodayController::class, 'child'])->name('child.home');
 });
+
+// "Tyck till" from the adults' pages.
+Route::post('tyck-till', [FeedbackController::class, 'store'])
+    ->middleware(['auth', 'role:adult', 'throttle:10,1'])
+    ->name('feedback.store');
 
 // Push reminders on the device the user is on, for adults and children.
 Route::middleware(['auth', 'throttle:20,1'])->group(function () {
