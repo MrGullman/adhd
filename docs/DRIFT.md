@@ -228,51 +228,108 @@ Det här gäller hela servern och alla projekt på den, så skriptet gör det in
 
 ## Hemskärm på Raspberry Pi
 
-Skärmen är en vanlig webbsida på en hemlig länk. Raspberry Pi:n visar den i Chromium i helskärm. Det här är förberett men inte provat på en riktig Pi än.
+Skärmen är en vanlig webbsida på en hemlig länk. Raspberry Pi:n startar direkt i den, i helskärm och utan skrivbord. Provat och fungerar på **Raspberry Pi 3 Model B (1 GB)** med Raspberry Pi OS Lite (Debian 13 Trixie), oktober 2026.
 
-**Det här behövs:** Raspberry Pi 4 eller 5 (2 GB räcker), ett minneskort på minst 16 GB, en strömadapter, en skärm eller tv med HDMI och wifi eller nätverkskabel.
+**Det här behövs:** Raspberry Pi 3, 4 eller 5, ett minneskort på minst 8 GB (16 GB är bättre), en strömadapter som räcker (Pi 3: micro-USB 5 V, minst 2,5 A), en skärm eller tv med HDMI och wifi eller nätverkskabel.
+
+**Uppmätt på Pi 3:** cirka 500 MB minne ledigt med hemskärmen igång, belastning under 1, 54 °C och ingen strypning (`vcgencmd get_throttled` ger `0x0`). Pi 3 räcker.
 
 ### 1. Skapa skärmen i appen
 
 Familjen → Hemskärmar → Skapa hemskärm. Kopiera länken som visas (den visas bara en gång, annars "Skapa ny länk"). Välj widgets och storlek i redigeraren.
 
-### 2. Installera Raspberry Pi OS
+### 2. Skriv systemet till minneskortet
 
-Använd Raspberry Pi Imager på datorn:
+I Raspberry Pi Imager på datorn:
 
-- Välj **Raspberry Pi OS (64-bit)**, med skrivbord.
-- Under inställningar (kugghjulet): sätt användarnamn och lösenord, wifi, land **SE** och tidszon **Europe/Stockholm**, och slå på SSH.
+- **Enhet:** din Pi. **Operativsystem:** Raspberry Pi OS (other) → **Raspberry Pi OS Lite (64-bit)**, utan skrivbord, så att webbläsaren får så mycket minne som möjligt.
+- **Redigera inställningar:** värdnamn `npf-skarm`, användare (t.ex. `npf`) och lösenord, wifi, land **SE**, tidszon **Europe/Stockholm**, tangentbord **se**, och slå på **SSH**.
 
-### 3. Starta Chromium i helskärm vid uppstart
+Sätt kortet i Pi:n, koppla in HDMI och sist strömmen. Efter 3–5 minuter: `ssh npf@npf-skarm.local` från datorn.
 
-Logga in på Pi:n (med skärm och tangentbord, eller `ssh användare@raspberrypi.local`) och kör:
-
-```bash
-sudo apt-get update && sudo apt-get -y install chromium unclutter
-mkdir -p ~/.config/autostart
-cat > ~/.config/autostart/hemskarm.desktop <<'EOF2'
-[Desktop Entry]
-Type=Application
-Name=Hemskärm
-Exec=sh -c 'sleep 10; chromium --kiosk --noerrdialogs --disable-infobars --disable-session-crashed-bubble --check-for-update-interval=31536000 "LÄNKEN"'
-EOF2
-```
-
-Byt `LÄNKEN` mot länken från steg 1, med citattecknen kvar. Starta om med `sudo reboot`. Skärmen startar efter en kort stund. Muspekaren döljs av `unclutter`.
-
-### 4. Skärmen av på natten (valfritt)
-
-Stänger av bilden 22:00 och slår på den 06:00:
+### 3. Installera och spara länken
 
 ```bash
-(crontab -l 2>/dev/null; echo "0 22 * * * wlr-randr --output HDMI-A-1 --off"; echo "0 6 * * * wlr-randr --output HDMI-A-1 --on") | crontab -
+sudo apt update && sudo apt full-upgrade -y
+sudo apt install -y labwc chromium wlopm wlrctl
+nano ~/hemskarm-url          # klistra in länken från steg 1, spara med Ctrl+O, stäng med Ctrl+X
 ```
 
-Namnet på utgången (`HDMI-A-1`) visas med `wlr-randr`. Fungerar på Raspberry Pi OS Bookworm och senare (Wayland).
+### 4. Webbläsaren i helskärm, på svenska och utan översättning
+
+```bash
+sudo mkdir -p /etc/chromium/policies/managed
+echo '{"TranslateEnabled": false}' | sudo tee /etc/chromium/policies/managed/npf-familjen.json
+cat > ~/kiosk.sh <<'EOF'
+#!/bin/sh
+# Visar hemskärmen i helskärm. Startar om webbläsaren om den skulle stänga.
+URL="$(cat "$HOME/hemskarm-url")"
+while true; do
+  chromium \
+    --kiosk --lang=sv --accept-lang=sv-SE --noerrdialogs --disable-infobars \
+    --disable-session-crashed-bubble --disable-features=Translate \
+    --overscroll-history-navigation=0 --check-for-update-interval=31536000 \
+    --ozone-platform=wayland \
+    "$URL"
+  sleep 5
+done
+EOF
+chmod +x ~/kiosk.sh
+```
+
+### 5. Starta direkt i hemskärmen, utan skrivbord
+
+labwc är en liten skärmhanterare (samma som Raspberry Pi OS använder) som bara visar webbläsaren. Muspekaren flyttas till hörnet där den inte syns. (`cage` fungerar också för kiosk, men kan inte släcka skärmen.)
+
+```bash
+mkdir -p ~/.config/labwc
+cat > ~/.config/labwc/autostart <<'EOF'
+# Muspekaren till hörnet längst ner till höger, där den inte syns.
+wlrctl pointer move 10000 10000
+"$HOME/kiosk.sh" &
+EOF
+sudo raspi-config nonint do_boot_behaviour B2
+cat >> ~/.bash_profile <<'EOF'
+
+# NPF-familjen: hemskärmen startar på skärmen (inte när man loggar in med ssh).
+if [ "$(tty)" = "/dev/tty1" ]; then
+  exec labwc
+fi
+EOF
+sudo reboot
+```
+
+Efter 1–2 minuter visas hemskärmen.
+
+### 6. Skärmen av på kvällen, omstart på morgonen
+
+```bash
+cat > ~/skarm.sh <<'EOF'
+#!/bin/sh
+# Släcker eller tänder skärmen: skarm.sh off | on
+export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+export WAYLAND_DISPLAY="$(ls "$XDG_RUNTIME_DIR" | grep -m1 '^wayland-[0-9]*$')"
+wlopm --"$1" '*'
+EOF
+chmod +x ~/skarm.sh
+( crontab -l 2>/dev/null; echo '30 21 * * * $HOME/skarm.sh off' ) | crontab -
+( sudo crontab -l 2>/dev/null; echo '30 6 * * * /sbin/reboot' ) | sudo crontab -
+```
+
+Skärmen släcks 21:30: en datorskärm går i viloläge, en tv visar "ingen signal" och går oftast i standby av sig själv. Pi:n startar om 06:30, så webbläsaren börjar fräsch varje dag och skärmen tänds. Prova direkt med `~/skarm.sh off` och `~/skarm.sh on`. Tiderna ändras med `crontab -e` och `sudo crontab -e`.
+
+### Kontrollera hur Pi:n mår
+
+```bash
+free -h; uptime; vcgencmd measure_temp; vcgencmd get_throttled
+```
+
+Mindre än 100 MB under "available", belastning över 4, över 70 °C eller `throttled` annat än `0x0` betyder att något behöver ses över (oftast strömadaptern).
 
 ### Bra att veta
 
 - Skärmen uppdateras varje minut och byter till mörkt tema på kvällen.
+- Ny länk i appen? Byt innehållet i `~/hemskarm-url` och starta om Pi:n (`sudo reboot`).
 - Står Pi:n på ett nätverk som blockerar duckdns.org (t.ex. ett jobbnätverk) syns ingenting.
 - Ta bort skärmen i appen så slutar länken fungera direkt.
 
