@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowLeft, Check, Volume2 } from '@lucide/vue';
+import { ArrowLeft, Check, ListChecks, Volume2 } from '@lucide/vue';
 import { computed } from 'vue';
 import ChildRoutineController from '@/actions/App/Http/Controllers/Routines/ChildRoutineController';
 import CompletionToggle from '@/components/CompletionToggle.vue';
 import PictureThumb from '@/components/PictureThumb.vue';
 import QuarterDots from '@/components/QuarterDots.vue';
+import { useChildStyle } from '@/composables/useChildStyle';
 import { home as childHome } from '@/routes/child';
 import { childPacking } from '@/lib/activities';
 import type { ActivityEntry, RoutineFocus, RoutineStepItem } from '@/types';
@@ -15,6 +16,9 @@ const props = defineProps<{
     /** Today's packing lists, for the step "Kolla packningen". */
     packing: ActivityEntry[];
 }>();
+
+// Läget Ungdom chose the focus view: back to the checklist from here.
+const style = useChildStyle();
 
 const current = computed(() =>
     props.routine.steps.find((step) => step.id === props.routine.currentStepId),
@@ -62,7 +66,15 @@ function stepHref(step: RoutineStepItem) {
                     class="flex h-tap-child items-center gap-2 rounded-full bg-surface-sunken px-5 font-display text-child-label font-semibold"
                 >
                     <ArrowLeft class="size-8" aria-hidden="true" />
-                    Min dag
+                    {{ style.youth ? 'Idag' : 'Min dag' }}
+                </Link>
+                <Link
+                    v-if="style.youth"
+                    :href="ChildRoutineController.show(routine.id)"
+                    class="flex min-h-tap-adult items-center gap-2 rounded-full border border-line bg-surface-raised px-4 font-bold"
+                >
+                    <ListChecks class="size-5" aria-hidden="true" />
+                    Visa alla steg
                 </Link>
                 <p class="font-display text-child-label text-ink-muted">
                     {{ routine.progress.completed }} av

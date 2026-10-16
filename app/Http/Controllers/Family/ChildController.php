@@ -10,7 +10,9 @@ use App\Http\Requests\Family\UpdateChildRequest;
 use App\Http\Requests\Privacy\RemoveChildRequest;
 use App\Models\Device;
 use App\Models\LoginEvent;
+use App\Models\Membership;
 use App\Models\User;
+use App\Points\Points;
 use App\Privacy\RemoveChild;
 use App\Support\ChildPins;
 use App\Support\CurrentFamily;
@@ -63,6 +65,15 @@ class ChildController extends Controller
                 'pin' => $child->pin,
                 'loginEnabled' => $child->loginEnabled(),
                 'failedPinAttempts' => $child->failed_pin_attempts,
+                'view' => [
+                    'childView' => $child->child_view->value,
+                    'childPictures' => $child->child_pictures,
+                    'rewardsEnabled' => (bool) Membership::query()
+                        ->where('family_id', $family->id)
+                        ->where('user_id', $child->id)
+                        ->value('rewards_enabled'),
+                    'pointsEnabled' => Points::settings($family)['enabled'],
+                ],
                 'reminders' => [
                     'remindersEnabled' => $child->reminders_enabled,
                     'quietFrom' => $child->quiet_from === null ? null : substr($child->quiet_from, 0, 5),

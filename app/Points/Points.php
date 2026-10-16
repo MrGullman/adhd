@@ -2,8 +2,10 @@
 
 namespace App\Points;
 
+use App\Enums\FamilyRole;
 use App\Enums\RedemptionStatus;
 use App\Models\Family;
+use App\Models\Membership;
 use App\Models\PointTransaction;
 use App\Models\RewardRedemption;
 use App\Models\User;
@@ -39,6 +41,19 @@ class Points
     }
 
     /**
+     * Points and rewards are on for the family and for this child.
+     */
+    public static function enabledFor(Family $family, User $child): bool
+    {
+        return self::settings($family)['enabled'] && Membership::query()
+            ->where('family_id', $family->id)
+            ->where('user_id', $child->id)
+            ->where('role', FamilyRole::Child->value)
+            ->where('rewards_enabled', true)
+            ->exists();
+    }
+
+    /**
      * Automatic points for something a child did, e.g. ('task', 12). Adults
      * never get points.
      *
@@ -49,7 +64,7 @@ class Points
         $family = app(CurrentFamily::class)->getOrFail();
         $settings = self::settings($family);
 
-        if (! $settings['enabled'] || $settings[$kind] <= 0 || ! $family->children()->whereKey($child->id)->exists()) {
+        if ($settings[$kind] <= 0 || ! self::enabledFor($family, $child)) {
             return;
         }
 

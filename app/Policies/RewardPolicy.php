@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Enums\FamilyRole;
 use App\Models\Reward;
 use App\Models\User;
+use App\Points\Points;
 use App\Policies\Concerns\ResolvesFamilyRole;
 
 /**
@@ -37,6 +38,8 @@ class RewardPolicy
 
     public function wish(User $user, Reward $reward): bool
     {
-        return $reward->active && $this->roleIn($user, $reward->family_id) === FamilyRole::Child;
+        return $reward->active
+            && $this->roleIn($user, $reward->family_id) === FamilyRole::Child
+            && Points::enabledFor($reward->family, $user);
     }
 }

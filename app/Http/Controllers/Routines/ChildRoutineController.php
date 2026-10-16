@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Routines;
 
 use App\Actions\Routines\CheckRoutineStep;
+use App\Enums\ChildView;
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
 use App\Models\Routine;
@@ -34,7 +35,10 @@ class ChildRoutineController extends Controller
         $today = LocalTime::now()->startOfDay();
         $calendar = ActivityCalendar::between($today, $today);
 
-        return Inertia::render('child/Routine', [
+        // Läget Ungdom: a checklist with every step, and the focus view when the child chooses it.
+        $checklist = $child->child_view === ChildView::Youth && ! $request->boolean('fokus');
+
+        return Inertia::render($checklist ? 'child/YouthRoutine' : 'child/Routine', [
             'routine' => RoutineDay::for($routine, $child)->focus(LocalTime::now()),
             // For the step "Kolla packningen": what to have with you today.
             'packing' => $calendar->on($today, $child)

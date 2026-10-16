@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\ChildView;
 use App\Enums\FamilyRole;
 use App\Models\Task;
 use App\Models\User;
@@ -25,6 +26,24 @@ class TaskPolicy
     public function create(User $user): bool
     {
         return $this->currentRole($user)?->canEdit() ?? false;
+    }
+
+    /**
+     * A child in läget Ungdom adds tasks for themselves.
+     */
+    public function createOwn(User $user): bool
+    {
+        return $this->currentRole($user) === FamilyRole::Child && $user->child_view === ChildView::Youth;
+    }
+
+    /**
+     * A child removes a task they added themselves.
+     */
+    public function deleteOwn(User $user, Task $task): bool
+    {
+        return $this->roleIn($user, $task->family_id) === FamilyRole::Child
+            && $task->isOwnTask()
+            && $task->assigned_to === $user->id;
     }
 
     public function update(User $user, Task $task): bool

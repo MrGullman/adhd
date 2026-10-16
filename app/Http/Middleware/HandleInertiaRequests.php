@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\ChildView;
 use App\Enums\FamilyRole;
 use App\Models\Family;
 use App\Models\Membership;
@@ -58,12 +59,30 @@ class HandleInertiaRequests extends Middleware
                 'canManage' => $current->role()?->canManage() ?? false,
             ],
             'families' => fn () => $this->families($request, $current),
+            // A child's own views: Barn or Ungdom, and bildstöd (docs/STYLEGUIDE.md).
+            'childView' => fn () => $this->childView($request, $current),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             // "Tyck till" for adults: where it is shown (FeedbackButton).
             'feedback' => fn () => $request->user() !== null && $current->role() !== FamilyRole::Child
                 ? ['mode' => FeedbackButton::mode(), 'pages' => array_values((array) config('feedback.pages'))]
                 : null,
         ];
+    }
+
+    /**
+     * @return array{youth: bool, pictures: bool}|null
+     */
+    private function childView(Request $request, CurrentFamily $current): ?array
+    {
+        $user = $request->user();
+
+        if (! $user instanceof User || $current->role() !== FamilyRole::Child) {
+            return null;
+        }
+
+        $youth = $user->child_view === ChildView::Youth;
+
+        return ['youth' => $youth, 'pictures' => ! $youth || $user->child_pictures];
     }
 
     /**

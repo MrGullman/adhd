@@ -27,6 +27,8 @@ export type TaskRowData = {
     dayPart: DayPart | null;
     completed: boolean;
     recurring: boolean;
+    /** Added by the child for themselves. */
+    ownTask: boolean;
     assignee: Member | null;
 };
 

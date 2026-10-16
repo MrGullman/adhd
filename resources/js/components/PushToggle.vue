@@ -2,6 +2,7 @@
 import { Bell, BellOff, Share, SquarePlus } from '@lucide/vue';
 import { onMounted } from 'vue';
 import { Button } from '@/components/ui/button';
+import { useChildStyle } from '@/composables/useChildStyle';
 import { usePush } from '@/lib/push';
 
 const props = withDefaults(
@@ -12,6 +13,8 @@ const props = withDefaults(
 const { state, busy, error, refresh, turnOn, turnOff } = usePush(
     props.vapidPublicKey,
 );
+
+const style = useChildStyle();
 
 onMounted(refresh);
 </script>
@@ -25,11 +28,11 @@ onMounted(refresh);
         <button
             v-if="state === 'off'"
             type="button"
-            class="flex h-tap-child items-center gap-3 rounded-full border-2 border-line bg-surface-raised px-8 font-display text-child-label font-semibold"
+            :class="style.pill"
             :disabled="busy"
             @click="turnOn"
         >
-            <Bell class="size-8" aria-hidden="true" />
+            <Bell :class="style.icon" aria-hidden="true" />
             Slå på påminnelser
         </button>
     </div>

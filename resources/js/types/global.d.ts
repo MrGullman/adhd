@@ -22,6 +22,8 @@ declare module '@inertiajs/core' {
             family: CurrentFamily | null;
             families: FamilyOption[];
             sidebarOpen: boolean;
+            /** Only for a logged-in child. */
+            childView: { youth: boolean; pictures: boolean } | null;
             feedback: {
                 mode: 'off' | 'development' | 'all';
                 pages: string[];

@@ -84,6 +84,14 @@ class Task extends Model
         return $this->belongsTo(RecurringTask::class);
     }
 
+    /**
+     * A task a child added for themselves (läget Ungdom). It never gives points.
+     */
+    public function isOwnTask(): bool
+    {
+        return $this->created_by !== null && $this->created_by === $this->assigned_to;
+    }
+
     public function isRecurring(): bool
     {
         return $this->recurring_task_id !== null;
