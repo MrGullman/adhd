@@ -209,10 +209,46 @@ class SchoolMealTest extends TestCase
         $this->get(route('display.show', $token))
             ->assertInertia(fn (Assert $page) => $page
                 ->where('widgets.0.data.label', 'Skollunch idag')
-                ->where('widgets.0.data.children.0.child.name', 'Alva')
-                ->where('widgets.0.data.children.0.courses.0.name', 'Tacos'));
+                ->has('widgets.0.data.days', 1)
+                ->where('widgets.0.data.days.0.children.0.child.name', 'Alva')
+                ->where('widgets.0.data.days.0.children.0.courses.0.name', 'Tacos'));
 
         Http::assertNothingSent();
+    }
+
+    public function test_a_wider_lunch_widget_shows_more_school_days()
+    {
+        $this->school();
+        $menuId = SchoolMenu::query()->withoutGlobalScopes()->value('id');
+
+        // Wednesday to the next Wednesday: no lunch at the weekend, a holiday on Monday.
+        foreach (['2026-10-14' => 'Tacos', '2026-10-15' => 'Soppa', '2026-10-16' => 'Pizza', '2026-10-19' => null, '2026-10-20' => 'Lasagne', '2026-10-21' => 'Fisk'] as $date => $dish) {
+            DB::table('school_meals')->insert([
+                'school_menu_id' => $menuId,
+                'date' => $date,
+                'meal_name' => 'Lunch',
+                'holiday_name' => $dish === null ? 'Studiedag' : null,
+                'courses' => json_encode($dish === null ? [] : [['name' => $dish, 'option' => null]]),
+                'fetched_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        [$device, $token] = Device::issue(DeviceType::Display, 'Köket', null, $this->family);
+        $widget = DisplayWidget::factory()->for($device)->create(['family_id' => $this->family->id, 'type' => 'school_meals', 'x' => 0, 'w' => 12]);
+
+        $this->get(route('display.show', $token))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('widgets.0.data.label', 'Skollunch')
+                ->where('widgets.0.data.days', fn ($days) => collect($days)->pluck('label')->all() === ['Idag', 'Imorgon', 'Fredag', 'Måndag', 'Tisdag'])
+                ->where('widgets.0.data.days.3.children.0.holiday', 'Studiedag')
+                ->where('widgets.0.data.days.4.children.0.courses.0.name', 'Lasagne'));
+
+        $widget->update(['w' => 6]);
+
+        $this->get(route('display.show', $token))
+            ->assertInertia(fn (Assert $page) => $page->has('widgets.0.data.days', 2));
     }
 
     public function test_a_child_cannot_be_given_another_familys_school()
