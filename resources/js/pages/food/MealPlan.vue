@@ -12,6 +12,7 @@ import {
     X,
 } from '@lucide/vue';
 import { ref } from 'vue';
+import CookController from '@/actions/App/Http/Controllers/Food/CookController';
 import MealPlanController from '@/actions/App/Http/Controllers/Food/MealPlanController';
 import RecipeController from '@/actions/App/Http/Controllers/Food/RecipeController';
 import FoodTabs from '@/components/food/FoodTabs.vue';
@@ -222,6 +223,19 @@ const selectClass =
                             <Plus class="size-5" />
                         </Button>
                     </div>
+                    <!-- Laga: step by step, for this meal's portions. -->
+                    <Link
+                        v-if="entry.recipeId && !entry.cooked"
+                        :href="
+                            CookController.show(entry.recipeId, {
+                                query: { maltid: entry.id },
+                            })
+                        "
+                        class="flex min-h-tap-adult items-center gap-2 rounded-full border-2 border-line px-4 font-bold hover:border-primary"
+                    >
+                        <ChefHat class="size-5" aria-hidden="true" />
+                        Laga
+                    </Link>
                     <!-- Lagad: what the meal used comes off the pantry. -->
                     <template
                         v-if="

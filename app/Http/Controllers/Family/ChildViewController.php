@@ -12,7 +12,7 @@ use Inertia\Inertia;
 
 /**
  * Parents choose the child's view (Barn or Ungdom) and bildstöd, which follow
- * the child, and points and rewards, which are this family's decision.
+ * the child, and points, rewards and recipes, which are this family's decision.
  */
 class ChildViewController extends Controller
 {
@@ -29,7 +29,10 @@ class ChildViewController extends Controller
         Membership::query()
             ->where('family_id', $family->id)
             ->where('user_id', $child->id)
-            ->update(['rewards_enabled' => $request->boolean('rewards_enabled')]);
+            ->update([
+                'rewards_enabled' => $request->boolean('rewards_enabled'),
+                'all_recipes' => $request->boolean('all_recipes'),
+            ]);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Sparat.']);
 

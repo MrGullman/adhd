@@ -53,6 +53,7 @@ class ChildController extends Controller
         Gate::authorize('manageMembers', $family);
 
         $child = $family->findChildOrFail($child);
+        $membership = Membership::query()->where('family_id', $family->id)->where('user_id', $child->id)->first();
 
         return Inertia::render('family/Child', [
             'child' => [
@@ -68,10 +69,8 @@ class ChildController extends Controller
                 'view' => [
                     'childView' => $child->child_view->value,
                     'childPictures' => $child->child_pictures,
-                    'rewardsEnabled' => (bool) Membership::query()
-                        ->where('family_id', $family->id)
-                        ->where('user_id', $child->id)
-                        ->value('rewards_enabled'),
+                    'rewardsEnabled' => (bool) $membership?->rewards_enabled,
+                    'allRecipes' => (bool) $membership?->all_recipes,
                     'pointsEnabled' => Points::settings($family)['enabled'],
                 ],
                 'reminders' => [

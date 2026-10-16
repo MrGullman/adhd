@@ -33,6 +33,7 @@ const props = defineProps<{
             childView: 'child' | 'youth';
             childPictures: boolean;
             rewardsEnabled: boolean;
+            allRecipes: boolean;
             pointsEnabled: boolean;
         };
         reminders: {

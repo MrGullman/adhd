@@ -2,6 +2,7 @@
 import { Head, Link, router } from '@inertiajs/vue3';
 import {
     CalendarDays,
+    ChefHat,
     Check,
     LogOut,
     ShoppingCart,
@@ -11,6 +12,7 @@ import {
 import { computed } from 'vue';
 import ChildRoutineController from '@/actions/App/Http/Controllers/Routines/ChildRoutineController';
 import TaskCompletionController from '@/actions/App/Http/Controllers/Tasks/TaskCompletionController';
+import CookController from '@/actions/App/Http/Controllers/Food/CookController';
 import CalendarEventRow from '@/components/CalendarEventRow.vue';
 import ChildActivity from '@/components/ChildActivity.vue';
 import CompletionToggle from '@/components/CompletionToggle.vue';
@@ -24,6 +26,7 @@ import { formatDay } from '@/lib/format';
 import { logout } from '@/routes';
 import {
     avatar as childAvatar,
+    recipes as childRecipes,
     shopping,
     week as childWeek,
 } from '@/routes/child';
@@ -52,7 +55,7 @@ const props = defineProps<{
     packTomorrow: ActivityEntry[];
     tomorrow: ActivityEntry[];
     lunch: SchoolLunchData | null;
-    dinner: MealEntry | null;
+    dinner: (MealEntry & { canCook?: boolean }) | null;
     points: number | null;
     vapidPublicKey: string | null;
 }>();
@@ -372,6 +375,18 @@ const allDone = computed(
                 aria-label="Middag"
             >
                 <DinnerCard :dinner="dinner" size="child" />
+                <Link
+                    v-if="dinner.canCook && dinner.recipeId"
+                    :href="
+                        CookController.show(dinner.recipeId, {
+                            query: { maltid: dinner.id },
+                        })
+                    "
+                    class="mt-3 flex h-tap-child w-fit items-center gap-3 rounded-full border-2 border-primary bg-primary-soft px-8 font-display text-child-label font-semibold"
+                >
+                    <ChefHat class="size-8" aria-hidden="true" />
+                    Laga
+                </Link>
             </section>
 
             <!-- Imorgon: packa dagen innan, och det som händer -->
@@ -413,6 +428,13 @@ const allDone = computed(
                 >
                     <ShoppingCart class="size-8" aria-hidden="true" />
                     Handla
+                </Link>
+                <Link
+                    :href="childRecipes()"
+                    class="flex h-tap-child items-center gap-3 rounded-full border-2 border-line bg-surface-raised px-8 font-display text-child-label font-semibold"
+                >
+                    <ChefHat class="size-8" aria-hidden="true" />
+                    Laga mat
                 </Link>
                 <PushToggle
                     v-if="vapidPublicKey"

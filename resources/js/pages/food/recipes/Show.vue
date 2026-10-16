@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Form, Head, Link } from '@inertiajs/vue3';
-import { Check, Clock, Pencil } from '@lucide/vue';
+import { ChefHat, Check, Clock, Pencil } from '@lucide/vue';
 import { computed } from 'vue';
+import CookController from '@/actions/App/Http/Controllers/Food/CookController';
 import RecipeController from '@/actions/App/Http/Controllers/Food/RecipeController';
 import PictureThumb from '@/components/PictureThumb.vue';
 import { Button } from '@/components/ui/button';
@@ -95,6 +96,13 @@ function site(url: string): string {
                     Källa: {{ site(recipe.sourceUrl) }}
                 </a>
             </div>
+            <Link
+                :href="CookController.show(recipe.id)"
+                class="flex min-h-tap-adult items-center gap-2 rounded-full bg-primary px-5 font-bold text-on-primary"
+            >
+                <ChefHat class="size-5" aria-hidden="true" />
+                Laga steg för steg
+            </Link>
             <Link
                 v-if="canEdit"
                 :href="RecipeController.edit(recipe.id)"

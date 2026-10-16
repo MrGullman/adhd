@@ -12,6 +12,8 @@ const props = defineProps<{
         childView: 'child' | 'youth';
         childPictures: boolean;
         rewardsEnabled: boolean;
+        /** May cook every recipe, not only the week's dinners. */
+        allRecipes: boolean;
         /** Points for the whole family (Belöningar). */
         pointsEnabled: boolean;
     };
@@ -21,6 +23,7 @@ const form = useForm({
     child_view: props.settings.childView,
     child_pictures: props.settings.childPictures,
     rewards_enabled: props.settings.rewardsEnabled,
+    all_recipes: props.settings.allRecipes,
 });
 
 function save(): void {
@@ -213,6 +216,20 @@ const modes = [
                 class="text-caption text-ink-muted"
             >
                 Poäng är avstängda för hela familjen under Belöningar.
+            </p>
+        </div>
+
+        <div class="flex flex-col gap-1">
+            <label class="flex min-h-tap-adult items-center gap-3">
+                <input
+                    v-model="form.all_recipes"
+                    type="checkbox"
+                    class="size-5"
+                />
+                {{ name }} får laga alla familjens recept
+            </label>
+            <p class="text-caption text-ink-muted">
+                Annars bara veckans middagar.
             </p>
         </div>
 
