@@ -172,3 +172,12 @@ export type CalendarEventEntry = {
     owner: Member | null;
     picture: PictureItem | null;
 };
+
+/** What a home display shows, chosen from an adult's phone. */
+export type DisplayViewData = {
+    mode: 'family' | 'member' | 'off';
+    member: Member | null;
+    /** Back to the family view (or on again) at this time, e.g. 08:15. */
+    until: string | null;
+    untilRoutine: boolean;
+};

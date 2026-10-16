@@ -726,10 +726,11 @@ Mycket finns redan: hemskärmen med hemlig länk, widgets som Veckoschema, Barne
 
 ### Fas 2 – Familjevy och personlig vy
 
-- [ ] Familjevy som standard (finns: widgets och Veckoschema)
-- [ ] Personlig vy för en familjemedlem: dagens schema, veckan, rutiner, uppgifter och påminnelser med bildstöd, i barnets visningsläge (Barn/Ungdom)
-- [ ] Byta vy från telefonen: "Visa Alvas dag på köksskärmen" i appen. Skärmen förblir en visning utan knappar.
-- [ ] Tillbaka till familjevyn automatiskt efter en vald tid
+- [x] Familjevy som standard (finns: widgets och Veckoschema)
+- [x] Personlig vy för en familjemedlem: barnets dag (rutin, nu, aktiviteter, skollunch) och dagens uppgifter med bildstöd. Ser ut som resten av hemskärmen, oavsett barnets läge (STYLEGUIDE.md). För en vuxen bara det som är valt med "Visa för barnen" och den vuxnas uppgifter.
+- [x] Byta vy från telefonen: "Visa Alvas dag på köksskärmen" under Hemskärmen. Vårdnadshavare och redigerare styr. Skärmen förblir en visning utan knappar och märker ändringen inom 10 sekunder.
+- [x] Tillbaka till familjevyn automatiskt efter en vald tid (5, 15, 30 eller 60 min, eller tills barnets rutin är klar, högst 2 timmar)
+- [x] Släcka skärmen från telefonen. Den tänds igen när någon väljer det, eller när morgonen börjar.
 - [ ] Fortsätter visa senast hämtade vid internetavbrott, med en diskret markering att den inte är uppdaterad
 
 ## Definition of Done

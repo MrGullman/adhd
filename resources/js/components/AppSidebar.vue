@@ -11,6 +11,7 @@ import {
     ListOrdered,
     ListTodo,
     MessagesSquare,
+    Monitor,
     Sunrise,
     Users,
 } from '@lucide/vue';
@@ -29,6 +30,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard, tomorrow, week } from '@/routes';
 import { index as activitiesIndex } from '@/routes/activities';
+import { control as displayControl } from '@/routes/displays';
 import { show as familyShow } from '@/routes/family';
 import { index as communityIndex } from '@/routes/community';
 import { index as listsIndex } from '@/routes/lists';
@@ -103,19 +105,28 @@ const allItems: NavItem[] = [
         icon: MessagesSquare,
     },
     {
+        title: 'Hemskärmen',
+        href: displayControl(),
+        icon: Monitor,
+    },
+    {
         title: 'Familjen',
         href: familyShow(),
         icon: Users,
     },
 ];
 
-// Dagboken, Belöningar and Community are for parents only.
+// Dagboken, Belöningar and Community are for parents only. Hemskärmen is
+// for adults who may change the planning.
 const parentOnly = ['Dagbok', 'Belöningar', 'Community'];
+const editorsOnly = ['Hemskärmen'];
 const mainNavItems = computed(() =>
     allItems.filter(
         (item) =>
-            !parentOnly.includes(item.title) ||
-            (page.props.family?.canManage ?? false),
+            (!parentOnly.includes(item.title) ||
+                (page.props.family?.canManage ?? false)) &&
+            (!editorsOnly.includes(item.title) ||
+                (page.props.family?.canEdit ?? false)),
     ),
 );
 </script>

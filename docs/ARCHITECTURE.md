@@ -501,12 +501,15 @@ Task::where('family_id', $device->family_id)
 
 ---
 
-# Smart Display (planerad, Milestone 22–25)
+# Smart Display (Milestone 22–25)
 
 En fristående skärm (Raspberry Pi) som startar direkt i hemskärmen. Samma programvara ska fungera på flera modeller och skärmar.
 
 - Hybrid: servern har familjen, scheman och bildstöd. Skärmen visar och cachar det senaste, så att den fungerar vid internetavbrott. Den bygger på hemskärmen som redan finns (devices, display_widgets, hemlig länk).
 - Skärmen är fortfarande bara en visning. Personlig vy väljs från telefonen, inte på skärmen.
+- Styrning från telefonen (Milestone 22, fas 2): sidan Hemskärmen (DisplayControlController) för vuxna som får ändra planeringen (DevicePolicy::control: parent och editor). Valet sparas i devices.settings.view (App\Display\DisplayView): familjevyn, en familjemedlems dag med en sluttid (5–60 min, eller tills barnets rutin är klar, högst 2 timmar) eller släckt till morgonen. Ett val som har gått ut tas bort när skärmen frågar.
+- Den personliga vyn byggs av widgets som aldrig sparas: Barnets dag och uppgifter för ett barn, Händer idag (bara "Visa för barnen" där den vuxna är med) och uppgifter för en vuxen.
+- Skärmen frågar var tionde sekund bara efter viewKey (partial reload) och laddar om allt när den har ändrats. Allt annat uppdateras varje minut som förut.
 - Pekskärm kräver att regeln "hemskärmen är skrivskyddad" ändras genom ett beslut (Milestone 24).
 - Kamera och ansiktsigenkänning är frivilligt och sker bara på enheten. Inga bilder eller ansiktsmått lämnar den. Det gäller barns biometriska uppgifter, så samtycke och konsekvensbedömning krävs innan det byggs (Milestone 25).
 

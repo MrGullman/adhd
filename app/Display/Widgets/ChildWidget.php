@@ -62,7 +62,7 @@ class ChildWidget implements DisplayWidgetType
      *
      * @return array<string, mixed>|null
      */
-    private function routine(DisplayContext $context, User $child): ?array
+    public function routine(DisplayContext $context, User $child): ?array
     {
         $routines = Routine::query()
             ->with(['steps.picture'])
