@@ -96,6 +96,17 @@ watch(open, (isOpen) => {
     }
 });
 
+// On a phone the keyboard would cover the pictures and Ladda upp: close it
+// when the picker opens (e.g. after typing in the packing list), and do not
+// put the cursor in the search field.
+function onOpenAutoFocus(event: Event): void {
+    event.preventDefault();
+
+    if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+    }
+}
+
 function choose(picture: PictureItem): void {
     model.value = picture;
     emit('select', picture);
@@ -184,6 +195,7 @@ const chip =
         <Dialog v-model:open="open">
             <DialogContent
                 class="flex max-h-[90svh] flex-col gap-4 sm:max-w-3xl"
+                @open-auto-focus="onOpenAutoFocus"
             >
                 <DialogHeader class="shrink-0">
                     <DialogTitle>{{ buttonLabel }}</DialogTitle>
