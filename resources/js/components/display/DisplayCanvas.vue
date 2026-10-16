@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import type { Density, DisplayHeaderData, DisplayWidgetItem } from '@/types';
+import FamilyAvatar from '@/components/FamilyAvatar.vue';
+import { possessive } from '@/lib/format';
+import type {
+    Density,
+    DisplayHeaderData,
+    DisplayViewData,
+    DisplayWidgetItem,
+} from '@/types';
 import DisplayHeader from './DisplayHeader.vue';
 import DisplayWidgetView from './DisplayWidgetView.vue';
 
@@ -8,6 +15,8 @@ const props = defineProps<{
     header: DisplayHeaderData;
     density: Density;
     widgets: DisplayWidgetItem[];
+    /** A member's day, chosen from the phone. */
+    view?: DisplayViewData | null;
 }>();
 
 /*
@@ -58,6 +67,26 @@ const inner = computed(() => ({
             :style="inner"
         >
             <DisplayHeader :header="header" />
+            <div
+                v-if="view?.mode === 'member' && view.member"
+                class="flex items-center gap-4 rounded-full bg-primary-soft py-2 pr-8 pl-2"
+            >
+                <FamilyAvatar
+                    :name="view.member.name"
+                    :color="view.member.avatarColor"
+                    :picture-url="view.member.avatarUrl"
+                />
+                <span class="font-display text-[2.25rem] font-semibold">
+                    {{ possessive(view.member.name) }} dag
+                </span>
+                <span class="ml-auto font-display text-[1.5rem] text-ink-muted">
+                    {{
+                        view.untilRoutine
+                            ? 'Familjen igen när rutinen är klar'
+                            : `Familjen igen ${view.until}`
+                    }}
+                </span>
+            </div>
             <div class="grid min-h-0 flex-1 grid-cols-12 grid-rows-6 gap-8">
                 <div
                     v-for="widget in widgets"

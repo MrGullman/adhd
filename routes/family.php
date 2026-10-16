@@ -13,6 +13,7 @@ use App\Http\Controllers\Family\ChildViewController;
 use App\Http\Controllers\Family\DataController;
 use App\Http\Controllers\Family\DayPartController;
 use App\Http\Controllers\Family\DeviceController;
+use App\Http\Controllers\Family\DisplayControlController;
 use App\Http\Controllers\Family\DisplayController;
 use App\Http\Controllers\Family\FamilyController;
 use App\Http\Controllers\Family\FamilyInvitationController;
@@ -76,6 +77,10 @@ Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function 
     Route::put('familj/hemskarmar/{device}/widgets', [DisplayController::class, 'layout'])->name('displays.layout');
     Route::delete('familj/hemskarmar/{device}/widgets/{widget}', [DisplayController::class, 'removeWidget'])->name('displays.widgets.destroy');
     Route::delete('familj/enheter/{device}', [DeviceController::class, 'destroy'])->name('devices.destroy');
+
+    // Hemskärmen from the phone, for adults who may change the planning.
+    Route::get('hemskarmen', [DisplayControlController::class, 'index'])->name('displays.control');
+    Route::put('hemskarmen/{device}', [DisplayControlController::class, 'update'])->middleware('throttle:30,1')->name('displays.view.update');
 });
 
 // The link in an invitation e-mail, for guests and logged-in adults.
