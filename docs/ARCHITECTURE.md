@@ -889,9 +889,17 @@ I version 1 (Milestone 10):
 - Lagad (App\Actions\Meals\CookMeal): receptets mängder × portioner / receptets portioner dras av från skafferiet i samma enhetsgrupp (vikt eller volym, annars samma enhet). Smör eller margarin: den första som finns hemma med mängd. Det som tar slut tas bort. Skafferiet före sparas i meal_plan_entries.pantry_before, så Ångra lägger tillbaka exakt.
 - Recept från länk (App\Food\RecipeImport): sidan hämtas med App\Support\PublicHttp (bara https till publika adresser, högst 3 MB), schema.org/Recipe läses ur JSON-LD och App\Food\IngredientLine tolkar varje rad. Utkastet fyller i receptformuläret, och föräldern sparar. recipes.source_url visas som Källa. Sajtens bild hämtas aldrig.
 
+### Laga steg för steg
+
+- /laga/{recept} (CookController, RecipePolicy::cook): för vuxna och barn i familjen. ?portioner räknar om mängderna, ?maltid kopplar till veckomatsedeln så att vuxna som får ändra kan trycka Lagad i slutet (CookMeal).
+- Stegen kommer från receptets instruktioner (App\Food\CookingSteps): en rad per steg, numrering tas bort och en rad som slutar med ":" blir rubrik för stegen efter. Tider i texten blir timrar (högst två per steg, intervall räknas från det första värdet). Inget extra sparas på receptet.
+- Barn lagar veckans måltider med recept (App\Food\ChildRecipes) eller alla recept om family_user.all_recipes är på. Det är familjens beslut och väljs på barnets sida.
+- Timrarna och skärmlåset (Wake Lock) finns bara i webbläsaren medan sidan är öppen.
+
 # Skolmat (Matilda)
 
 Skolmåltider hämtas från Matilda Menu (menu.matildaplatform.com).
+
 
 ## Tabeller
 

@@ -4,7 +4,9 @@ use App\Http\Controllers\Activities\ActivityController;
 use App\Http\Controllers\Activities\CalendarController;
 use App\Http\Controllers\Activities\ChildActivityController;
 use App\Http\Controllers\ChildAvatarController;
+use App\Http\Controllers\ChildRecipeController;
 use App\Http\Controllers\ChildShoppingListController;
+use App\Http\Controllers\Food\CookController;
 use App\Http\Controllers\Food\IngredientController;
 use App\Http\Controllers\Food\InventoryController;
 use App\Http\Controllers\Food\MealPlanController;
@@ -145,6 +147,7 @@ Route::middleware(['auth', 'verified', 'family'])->group(function () {
 Route::middleware(['auth', 'family', 'role:child'])->group(function () {
     Route::get('handla', ChildShoppingListController::class)->name('child.shopping');
 
+    Route::get('min-dag/recept', [ChildRecipeController::class, 'index'])->name('child.recipes');
     Route::get('min-dag/uppgift', [ChildTaskController::class, 'create'])->name('child.tasks.create');
     Route::post('min-dag/uppgift', [ChildTaskController::class, 'store'])->name('child.tasks.store');
     Route::delete('min-dag/uppgift/{task}', [ChildTaskController::class, 'destroy'])->name('child.tasks.destroy');
@@ -169,6 +172,11 @@ Route::middleware(['auth', 'family', 'role:child'])->group(function () {
         Route::delete('min-dag/rutin/{routine}/steg/{step}', [ChildRoutineController::class, 'uncheck'])->name('child.routines.steps.uncheck');
         Route::post('min-dag/rutin/{routine}/steg/{step}/hoppa', [ChildRoutineController::class, 'skip'])->name('child.routines.steps.skip');
     });
+});
+
+// Laga: a recipe step by step, for adults and children (RecipePolicy::cook).
+Route::middleware(['auth', 'family'])->group(function () {
+    Route::get('laga/{recipe}', [CookController::class, 'show'])->name('recipes.cook');
 });
 
 // Picture files: for members and trusted devices such as the home display.

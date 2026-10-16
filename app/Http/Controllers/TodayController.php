@@ -10,6 +10,7 @@ use App\Models\Activity;
 use App\Models\CalendarEvent;
 use App\Models\Family;
 use App\Models\Membership;
+use App\Models\Recipe;
 use App\Models\Routine;
 use App\Models\Task;
 use App\Models\User;
@@ -109,10 +110,23 @@ class TodayController extends Controller
             'routines' => $this->routines($family, LocalTime::now(), $child),
             ...$this->childActivities($child),
             'lunch' => SchoolLunch::now($family)->forMenu($family->schoolMenuIdOf($child)),
-            'dinner' => Dinner::next($family, LocalTime::now()),
+            'dinner' => $this->childDinner($family, $child),
             'points' => Points::enabledFor($family, $child) ? Points::balance($child) : null,
             'vapidPublicKey' => $child->reminders_enabled ? config('webpush.vapid.public_key') : null,
         ]);
+    }
+
+    /**
+     * Tonight's dinner, and whether the child may cook it (RecipePolicy::cook).
+     *
+     * @return array<string, mixed>|null
+     */
+    private function childDinner(Family $family, User $child): ?array
+    {
+        $dinner = Dinner::next($family, LocalTime::now());
+        $recipe = $dinner === null || $dinner['recipeId'] === null ? null : Recipe::query()->find($dinner['recipeId']);
+
+        return $dinner === null ? null : [...$dinner, 'canCook' => $recipe !== null && $child->can('cook', $recipe)];
     }
 
     /**

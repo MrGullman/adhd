@@ -658,6 +658,10 @@ Det är lätt att hålla koll på vad som finns hemma, skafferiet följer med n�
 - [x] Recept från länk: schema.org/Recipe (JSON-LD), ingrediensrader tolkas till mängd, enhet, namn och anteckning och matchas mot grundlistan
 - [x] Samma skydd som kalenderlänkar: bara https till publika adresser, även efter omdirigering
 - [x] Tester med Http::fake() och en påhittad receptsida
+- [x] Laga steg för steg, för vuxna och barn: först ingredienserna att ta fram (i rätt mängd för portionerna), sedan ett steg i taget med Läs upp. Skärmen hålls tänd.
+- [x] Timer i steget: en tid i texten ("Koka i 10 minuter") blir en knapp. Klar timer: mjukt pling och vibration, inget rött.
+- [x] Barn lagar veckans middagar (Laga mat i Min dag, Laga på middagen). Vårdnadshavare kan låta ett barn laga alla recept (family_user.all_recipes).
+- [x] Lagad i slutet för vuxna som får ändra, när receptet öppnas från veckomatsedeln
 
 ## Definition of Done
 

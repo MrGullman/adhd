@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property FamilyRole $role
  * @property int|null $school_menu_id
  * @property bool $rewards_enabled
+ * @property bool $all_recipes
  */
 class Membership extends Pivot
 {
@@ -31,6 +32,7 @@ class Membership extends Pivot
         return [
             'role' => FamilyRole::class,
             'rewards_enabled' => 'boolean',
+            'all_recipes' => 'boolean',
         ];
     }
 }

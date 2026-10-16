@@ -10,7 +10,7 @@ use Illuminate\Validation\Rule;
 
 /**
  * Parents choose how a child's own views look, and whether the child has
- * bildstöd and points.
+ * bildstöd, points and which recipes the child may cook.
  */
 class UpdateChildViewRequest extends FormRequest
 {
@@ -30,6 +30,7 @@ class UpdateChildViewRequest extends FormRequest
             'child_view' => ['required', Rule::enum(ChildView::class)],
             'child_pictures' => ['required', 'boolean'],
             'rewards_enabled' => ['required', 'boolean'],
+            'all_recipes' => ['required', 'boolean'],
         ];
     }
 
@@ -38,6 +39,6 @@ class UpdateChildViewRequest extends FormRequest
      */
     public function attributes(): array
     {
-        return ['child_view' => 'läge', 'child_pictures' => 'bildstöd', 'rewards_enabled' => 'poäng och belöningar'];
+        return ['child_view' => 'läge', 'child_pictures' => 'bildstöd', 'rewards_enabled' => 'poäng och belöningar', 'all_recipes' => 'alla recept'];
     }
 }

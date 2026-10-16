@@ -2,6 +2,7 @@
 import { Head, Link, router } from '@inertiajs/vue3';
 import {
     CalendarDays,
+    ChefHat,
     Check,
     LogOut,
     Plus,
@@ -13,6 +14,7 @@ import { computed } from 'vue';
 import ChildTaskController from '@/actions/App/Http/Controllers/Tasks/ChildTaskController';
 import ChildRoutineController from '@/actions/App/Http/Controllers/Routines/ChildRoutineController';
 import TaskCompletionController from '@/actions/App/Http/Controllers/Tasks/TaskCompletionController';
+import CookController from '@/actions/App/Http/Controllers/Food/CookController';
 import CalendarEventRow from '@/components/CalendarEventRow.vue';
 import ChildActivity from '@/components/ChildActivity.vue';
 import CompletionToggle from '@/components/CompletionToggle.vue';
@@ -27,6 +29,7 @@ import { formatDay } from '@/lib/format';
 import { logout } from '@/routes';
 import {
     avatar as childAvatar,
+    recipes as childRecipes,
     shopping,
     week as childWeek,
 } from '@/routes/child';
@@ -55,7 +58,7 @@ const props = defineProps<{
     packTomorrow: ActivityEntry[];
     tomorrow: ActivityEntry[];
     lunch: SchoolLunchData | null;
-    dinner: MealEntry | null;
+    dinner: (MealEntry & { canCook?: boolean }) | null;
     points: number | null;
     vapidPublicKey: string | null;
 }>();
@@ -336,6 +339,18 @@ function removeOwnTask(task: TaskRowData): void {
                 aria-label="Middag"
             >
                 <DinnerCard :dinner="dinner" />
+                <Link
+                    v-if="dinner.canCook && dinner.recipeId"
+                    :href="
+                        CookController.show(dinner.recipeId, {
+                            query: { maltid: dinner.id },
+                        })
+                    "
+                    :class="[style.pill, 'mt-3 w-fit']"
+                >
+                    <ChefHat class="size-5" aria-hidden="true" />
+                    Laga
+                </Link>
             </section>
 
             <!-- Imorgon -->
@@ -372,6 +387,10 @@ function removeOwnTask(task: TaskRowData): void {
                 <Link :href="shopping()" :class="style.pill">
                     <ShoppingCart class="size-5" aria-hidden="true" />
                     Handla
+                </Link>
+                <Link :href="childRecipes()" :class="style.pill">
+                    <ChefHat class="size-5" aria-hidden="true" />
+                    Laga mat
                 </Link>
                 <Link
                     v-if="points !== null"
