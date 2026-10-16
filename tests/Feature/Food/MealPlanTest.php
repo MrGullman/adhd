@@ -13,6 +13,7 @@ use App\Models\ListItem;
 use App\Models\MealPlanEntry;
 use App\Models\PantryItem;
 use App\Models\Recipe;
+use App\Models\SchoolMenu;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -303,5 +304,29 @@ class MealPlanTest extends TestCase
         $this->actingAs($this->parent)->post(route('meal-plan.cook', $theirs->id))->assertNotFound();
 
         $this->assertNull($entry->fresh()?->cooked_at);
+    }
+
+    public function test_the_week_shows_each_schools_lunch_next_to_the_dinners()
+    {
+        $alva = User::factory()->child()->inFamily($this->family, FamilyRole::Child)->create(['name' => 'Alva']);
+        $bo = User::factory()->child()->inFamily($this->family, FamilyRole::Child)->create(['name' => 'Bo']);
+        $school = SchoolMenu::factory()->for($this->family)->create(['name' => 'Ekskolan']);
+        $school->meals()->create(['date' => '2026-10-12', 'meal_name' => 'Frukost', 'courses' => [['name' => 'Gröt', 'option' => null]], 'fetched_at' => now()]);
+        $school->meals()->create(['date' => '2026-10-12', 'meal_name' => 'Lunch', 'courses' => [['name' => 'Fiskgratäng', 'option' => 'Lunch 1'], ['name' => 'Linsgryta', 'option' => 'Lunch 2']], 'fetched_at' => now()]);
+        $school->meals()->create(['date' => '2026-10-16', 'meal_name' => 'Lunch', 'holiday_name' => 'Studiedag', 'courses' => [], 'fetched_at' => now()]);
+        $school->meals()->create(['date' => '2026-10-19', 'meal_name' => 'Lunch', 'courses' => [['name' => 'Nästa vecka', 'option' => null]], 'fetched_at' => now()]);
+        $this->family->children()->updateExistingPivot($alva->id, ['school_menu_id' => $school->id]);
+        $this->family->children()->updateExistingPivot($bo->id, ['school_menu_id' => $school->id]);
+
+        // Another family's school is never shown.
+        SchoolMenu::factory()->for(Family::factory())->create(['name' => 'Deras skola']);
+
+        $this->actingAs($this->parent)->get(route('meal-plan.index'))->assertInertia(fn (Assert $page) => $page
+            ->has('schoolMeals', 1)
+            ->where('schoolMeals.0.name', 'Ekskolan')
+            ->where('schoolMeals.0.children', ['Alva', 'Bo'])
+            ->where('schoolMeals.0.days.2026-10-12.courses', ['Fiskgratäng', 'Linsgryta'])
+            ->where('schoolMeals.0.days.2026-10-16.holiday', 'Studiedag')
+            ->missing('schoolMeals.0.days.2026-10-19'));
     }
 }

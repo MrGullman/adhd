@@ -8,10 +8,11 @@ import {
     CookingPot,
     Minus,
     Plus,
+    School,
     ShoppingCart,
     X,
 } from '@lucide/vue';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import CookController from '@/actions/App/Http/Controllers/Food/CookController';
 import MealPlanController from '@/actions/App/Http/Controllers/Food/MealPlanController';
 import RecipeController from '@/actions/App/Http/Controllers/Food/RecipeController';
@@ -30,7 +31,7 @@ defineOptions({
     },
 });
 
-defineProps<{
+const props = defineProps<{
     offset: number;
     weekNumber: number;
     days: Array<{
@@ -43,7 +44,42 @@ defineProps<{
     canEdit: boolean;
     canManage: boolean;
     dinnerSwitch: string;
+    /** The week's school lunch per school the children eat at. */
+    schoolMeals: Array<{
+        id: number;
+        name: string;
+        children: string[];
+        days: Record<string, { holiday: string | null; courses: string[] }>;
+    }>;
 }>();
+
+// Skolmaten visas eller döljs. Valet sparas på den här enheten.
+const SCHOOL_MEALS_KEY = 'npf-familjen.mealPlan.schoolMeals';
+
+function savedChoice(): boolean {
+    try {
+        return localStorage.getItem(SCHOOL_MEALS_KEY) !== 'hidden';
+    } catch {
+        return true;
+    }
+}
+
+const showSchoolMeals = ref(savedChoice());
+
+watch(showSchoolMeals, (shown) => {
+    try {
+        localStorage.setItem(SCHOOL_MEALS_KEY, shown ? 'shown' : 'hidden');
+    } catch {
+        // Private browsing: the choice lasts until the page is left.
+    }
+});
+
+/** The lunch at each school on a day, if the school has one. */
+function lunchesOn(date: string) {
+    return props.schoolMeals
+        .map((menu) => ({ menu, meal: menu.days[date] }))
+        .filter((lunch) => lunch.meal !== undefined);
+}
 
 // The day whose add form is open.
 const adding = ref<string | null>(null);
@@ -64,7 +100,7 @@ const selectClass =
     'h-12 w-full rounded-md border-2 border-input bg-surface-raised px-3 text-body';
 </script>
 
-<!-- Veckomatsedeln: familjens middagar. Skolmaten visas för sig. -->
+<!-- Veckomatsedeln: familjens middagar, och skolmaten om den visas. -->
 <template>
     <Head title="Veckomatsedel" />
 
@@ -98,6 +134,21 @@ const selectClass =
                 class="font-bold underline"
                 >Den här veckan</Link
             >
+            <button
+                v-if="schoolMeals.length"
+                type="button"
+                class="ml-auto flex min-h-tap-adult items-center gap-2 rounded-full border-2 px-4 font-bold"
+                :class="
+                    showSchoolMeals
+                        ? 'border-primary bg-primary-soft'
+                        : 'border-line bg-surface-raised'
+                "
+                :aria-pressed="showSchoolMeals"
+                @click="showSchoolMeals = !showSchoolMeals"
+            >
+                <School class="size-5" aria-hidden="true" />
+                {{ showSchoolMeals ? 'Dölj skolmat' : 'Visa skolmat' }}
+            </button>
         </header>
 
         <section
@@ -157,6 +208,36 @@ const selectClass =
                         <Plus class="size-5" />
                         Middag
                     </Button>
+                </div>
+
+                <!-- Skolmat: lunchen i skolan, för att planera middagen efter -->
+                <div
+                    v-if="showSchoolMeals && lunchesOn(day.date).length"
+                    class="flex flex-col gap-1 rounded-md bg-surface-sunken px-3 py-2"
+                >
+                    <p
+                        v-for="lunch in lunchesOn(day.date)"
+                        :key="lunch.menu.id"
+                        class="flex gap-2 text-caption"
+                    >
+                        <School
+                            class="mt-0.5 size-4 shrink-0 text-ink-muted"
+                            aria-hidden="true"
+                        />
+                        <span>
+                            <span class="font-bold">
+                                {{
+                                    schoolMeals.length > 1
+                                        ? `Skolmat ${lunch.menu.children.join(', ')}:`
+                                        : 'Skolmat:'
+                                }}
+                            </span>
+                            {{
+                                lunch.meal.holiday ??
+                                lunch.meal.courses.join(' · ')
+                            }}
+                        </span>
+                    </p>
                 </div>
 
                 <p
