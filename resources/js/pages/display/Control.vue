@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Head, Link, useForm } from '@inertiajs/vue3';
-import { Monitor, MonitorOff, Users } from '@lucide/vue';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import { Monitor, MonitorOff, RefreshCw, Users } from '@lucide/vue';
 import { reactive } from 'vue';
 import DisplayControlController from '@/actions/App/Http/Controllers/Family/DisplayControlController';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
@@ -10,17 +10,28 @@ import { formatDateTime, possessive } from '@/lib/format';
 import { show as familyShow } from '@/routes/family';
 import type { DisplayViewData, Member } from '@/types';
 
-const props = defineProps<{
+type Props = {
     displays: Array<{
         id: number;
         name: string;
         lastSeenAt: string | null;
         view: DisplayViewData;
+        status: {
+            on: boolean;
+            nextOn: string;
+            browserSeenAt: string | null;
+            piSeenAt: string | null;
+            piPower: 'on' | 'off' | null;
+            piUptime: number | null;
+            schedule: string;
+        };
     }>;
     members: Array<Member & { isChild: boolean }>;
     durations: number[];
     canSetUp: boolean;
-}>();
+};
+
+const props = defineProps<Props>();
 
 // One choice per display: who and for how long.
 const choices = reactive<
@@ -62,9 +73,15 @@ function isChild(userId: number | null): boolean {
     );
 }
 
-function status(view: DisplayViewData): string {
+function status(display: Props['displays'][number]): string {
+    const view = display.view;
+
     if (view.mode === 'off') {
         return `Släckt. Tänds igen ${view.until}.`;
+    }
+
+    if (!display.status.on) {
+        return `Släckt enligt schemat. Tänds ${display.status.nextOn}.`;
     }
 
     if (view.mode === 'member' && view.member) {
@@ -74,6 +91,39 @@ function status(view: DisplayViewData): string {
     }
 
     return 'Visar familjen.';
+}
+
+/** E.g. "för 3 min sedan" or "för 2 tim sedan". */
+function ago(iso: string | null): string | null {
+    if (!iso) {
+        return null;
+    }
+
+    const minutes = Math.max(
+        0,
+        Math.round((Date.now() - Date.parse(iso)) / 60000),
+    );
+
+    return minutes < 2
+        ? 'nyss'
+        : minutes < 120
+          ? `för ${minutes} min sedan`
+          : `för ${Math.round(minutes / 60)} tim sedan`;
+}
+
+/** The Pi asks every minute: more than a few minutes of silence is worth saying. */
+function piQuiet(iso: string | null): boolean {
+    return !iso || Date.now() - Date.parse(iso) > 5 * 60000;
+}
+
+function reload(displayId: number): void {
+    router.post(
+        DisplayControlController.reload.url(displayId),
+        {},
+        {
+            preserveScroll: true,
+        },
+    );
 }
 
 const chip =
@@ -117,14 +167,49 @@ const chip =
                     <Monitor class="size-6" aria-hidden="true" />
                     {{ display.name }}
                 </h2>
-                <p class="font-bold">{{ status(display.view) }}</p>
-                <p
-                    v-if="display.lastSeenAt"
-                    class="text-caption text-ink-muted"
-                >
-                    Senast i kontakt {{ formatDateTime(display.lastSeenAt) }}
+                <p class="font-bold">{{ status(display) }}</p>
+                <p class="text-caption text-ink-muted">
+                    {{ display.status.schedule }}.
                 </p>
             </div>
+
+            <!-- Status: skärmens webbläsare och Raspberry Pi:n -->
+            <dl
+                class="grid gap-x-4 gap-y-1 rounded-md bg-surface-sunken p-3 text-caption sm:grid-cols-[auto_1fr]"
+            >
+                <dt class="font-bold">Skärmen</dt>
+                <dd>
+                    {{
+                        display.lastSeenAt
+                            ? `Visade sidan ${formatDateTime(display.lastSeenAt)}`
+                            : 'Har inte visat sidan än'
+                    }}
+                </dd>
+                <dt class="font-bold">Raspberry Pi</dt>
+                <dd>
+                    <template v-if="display.status.piSeenAt">
+                        I kontakt {{ ago(display.status.piSeenAt)
+                        }}<template v-if="display.status.piPower">
+                            · skärmen
+                            {{
+                                display.status.piPower === 'on' ? 'på' : 'av'
+                            }}</template
+                        ><template v-if="display.status.piUptime !== null">
+                            · igång
+                            {{ Math.round(display.status.piUptime / 3600) }}
+                            tim</template
+                        >
+                    </template>
+                    <template v-else>Har inte hört av sig</template>
+                    <span
+                        v-if="piQuiet(display.status.piSeenAt)"
+                        class="block text-ink-muted"
+                    >
+                        Pi:n frågar varje minut när skriptet är installerat
+                        (DRIFT.md, Hemskärm på Raspberry Pi).
+                    </span>
+                </dd>
+            </dl>
 
             <fieldset class="flex flex-col gap-2">
                 <legend class="mb-2 font-bold">Vems dag?</legend>
@@ -206,20 +291,20 @@ const chip =
                     Visa på skärmen
                 </Button>
                 <Button
-                    v-if="display.view.mode !== 'family'"
+                    v-if="display.view.mode !== 'family' || !display.status.on"
                     variant="outline"
                     :disabled="form.processing"
                     @click="send(display.id, 'family')"
                 >
                     <Users aria-hidden="true" />
                     {{
-                        display.view.mode === 'off'
-                            ? 'Tänd skärmen'
-                            : 'Tillbaka till familjen'
+                        display.view.mode === 'member'
+                            ? 'Tillbaka till familjen'
+                            : 'Tänd skärmen'
                     }}
                 </Button>
                 <Button
-                    v-if="display.view.mode !== 'off'"
+                    v-if="display.status.on"
                     variant="ghost"
                     :disabled="form.processing"
                     @click="send(display.id, 'off')"
@@ -227,12 +312,21 @@ const chip =
                     <MonitorOff aria-hidden="true" />
                     Släck skärmen
                 </Button>
+                <Button
+                    variant="ghost"
+                    :disabled="form.processing"
+                    @click="reload(display.id)"
+                >
+                    <RefreshCw aria-hidden="true" />
+                    Ladda om skärmen
+                </Button>
             </div>
-            <p
-                v-if="display.view.mode !== 'off'"
-                class="text-caption text-ink-muted"
-            >
-                Släckt skärm tänds igen av sig själv när morgonen börjar.
+            <p class="text-caption text-ink-muted">
+                {{
+                    display.status.on
+                        ? `Släckt skärm tänds igen av sig själv ${display.status.nextOn}.`
+                        : 'Tänd skärmen håller den på en timme, sedan gäller schemat igen.'
+                }}
             </p>
         </section>
     </div>

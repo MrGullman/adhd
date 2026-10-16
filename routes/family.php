@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ChildSessionController;
 use App\Http\Controllers\DisplayController as HomeDisplayController;
+use App\Http\Controllers\DisplayStatusController;
 use App\Http\Controllers\Family\ActiveFamilyController;
 use App\Http\Controllers\Family\CalendarController;
 use App\Http\Controllers\Family\ChildAccessController;
@@ -72,6 +73,7 @@ Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function 
     Route::post('familj/hemskarmar', [DisplayController::class, 'store'])->name('displays.store');
     Route::get('familj/hemskarmar/{device}', [DisplayController::class, 'edit'])->name('displays.edit');
     Route::put('familj/hemskarmar/{device}', [DisplayController::class, 'update'])->name('displays.update');
+    Route::put('familj/hemskarmar/{device}/schema', [DisplayController::class, 'schedule'])->name('displays.schedule');
     Route::post('familj/hemskarmar/{device}/lank', [DisplayController::class, 'link'])->name('displays.link');
     Route::post('familj/hemskarmar/{device}/widgets', [DisplayController::class, 'addWidget'])->name('displays.widgets.store');
     Route::put('familj/hemskarmar/{device}/widgets', [DisplayController::class, 'layout'])->name('displays.layout');
@@ -81,6 +83,7 @@ Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function 
     // Hemskärmen from the phone, for adults who may change the planning.
     Route::get('hemskarmen', [DisplayControlController::class, 'index'])->name('displays.control');
     Route::put('hemskarmen/{device}', [DisplayControlController::class, 'update'])->middleware('throttle:30,1')->name('displays.view.update');
+    Route::post('hemskarmen/{device}/ladda-om', [DisplayControlController::class, 'reload'])->middleware('throttle:10,1')->name('displays.reload');
 });
 
 // The link in an invitation e-mail, for guests and logged-in adults.
@@ -106,3 +109,9 @@ Route::get('display/{token}', [HomeDisplayController::class, 'show'])
     ->middleware('display')
     ->where('token', '[A-Za-z0-9]{40,128}')
     ->name('display.show');
+
+// The Raspberry Pi asks every minute whether the screen should be on (docs/DRIFT.md).
+Route::get('display/{token}/status', [DisplayStatusController::class, 'show'])
+    ->middleware(['display', 'throttle:10,1'])
+    ->where('token', '[A-Za-z0-9]{40,128}')
+    ->name('display.status');

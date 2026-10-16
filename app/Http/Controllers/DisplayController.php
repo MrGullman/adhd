@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Display\DisplayContext;
 use App\Display\DisplayView;
+use App\Display\ScreenSchedule;
 use App\Display\WidgetRegistry;
 use App\Models\DisplayWidget;
 use App\Support\CurrentFamily;
@@ -23,11 +24,19 @@ class DisplayController extends Controller
 
         $context = new DisplayContext($current->getOrFail());
         $view = DisplayView::current($device, $context);
+        $on = ScreenSchedule::isOn($device, $view, $context->now);
+
+        // Outside the schedule the page is dark too, also on a tablet without the Pi's script.
+        $shown = $on || $view->mode !== 'family'
+            ? $view->present()
+            : [...$view->present(), 'mode' => 'off', 'until' => ScreenSchedule::nextOn($device, $context->now)->format('H:i')];
 
         return Inertia::render('display/Index', [
             // Asked for every few seconds: when it changes, the display loads the new view.
-            'viewKey' => $view->key(),
-            'view' => $view->present(),
+            'viewKey' => $view->key().':'.(int) $on,
+            // "Ladda om skärmen" from the phone: the browser loads everything again.
+            'reloadKey' => (string) ($device->settings['reload_at'] ?? ''),
+            'view' => $shown,
             ...self::header($context),
             'density' => $device->settings['density'] ?? 'medium',
             'widgets' => fn () => WidgetRegistry::render($context, match ($view->mode) {
