@@ -151,8 +151,37 @@ function save(): void {
     }, 400);
 }
 
+/*
+ * The grid has the same shape as the widgets' area on a 16:9 screen
+ * (measured in the preview), so what is arranged here looks the same there.
+ */
+const gridRatio = ref(2.1);
+const cellHeight = ref(70);
+let gridResize: ResizeObserver | undefined;
+
+function fitCells(): void {
+    const width = gridElement.value?.clientWidth ?? 0;
+
+    if (width === 0) {
+        return;
+    }
+
+    const height = Math.max(40, Math.round(width / gridRatio.value / 6));
+
+    if (height !== cellHeight.value) {
+        cellHeight.value = height;
+        grid?.cellHeight(height);
+    }
+}
+
+function onGridRatio(ratio: number): void {
+    gridRatio.value = ratio;
+    fitCells();
+}
+
 function initGrid(): void {
     grid?.destroy(false);
+    gridResize?.disconnect();
 
     if (!gridElement.value) {
         return;
@@ -164,7 +193,7 @@ function initGrid(): void {
             {
                 column: 12,
                 row: 6,
-                cellHeight: 70,
+                cellHeight: cellHeight.value,
                 margin: 6,
                 mode: 'float',
                 animate: true,
@@ -174,6 +203,9 @@ function initGrid(): void {
         instance?.on('change', save);
         grid = instance;
         gridFailed.value = false;
+        gridResize = new ResizeObserver(fitCells);
+        gridResize.observe(gridElement.value);
+        fitCells();
     } catch {
         // E.g. widgets on top of each other: say so instead of a broken grid.
         grid = null;
@@ -184,6 +216,7 @@ function initGrid(): void {
 onMounted(initGrid);
 onBeforeUnmount(() => {
     clearTimeout(timer);
+    gridResize?.disconnect();
     grid?.destroy(false);
 });
 
@@ -393,7 +426,8 @@ const chip =
             <h2 id="ordna" class="text-title">Ordna</h2>
             <p class="text-caption text-ink-muted">
                 Dra för att flytta och dra i hörnet för att ändra storlek. Det
-                sparas direkt. Lättast på dator eller läsplatta.
+                sparas direkt. Ytan har samma form som på en 16:9-skärm. Lättast
+                på dator eller läsplatta.
             </p>
             <p v-if="!widgets.length" class="text-ink-muted">
                 Skärmen är tom. Lägg till något här ovanför.
@@ -410,7 +444,7 @@ const chip =
                 <!-- Always the full height of the grid, also before it is ready. -->
                 <div
                     ref="gridElement"
-                    style="min-height: calc(6 * 70px)"
+                    :style="{ minHeight: `${6 * cellHeight}px` }"
                     :key="widgets.map((widget) => widget.id).join(',')"
                     class="grid-stack"
                 >
@@ -460,6 +494,7 @@ const chip =
                     :header="header"
                     :density="device.density"
                     :widgets="widgets"
+                    @grid-ratio="onGridRatio"
                 />
             </div>
         </section>

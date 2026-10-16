@@ -59,7 +59,7 @@ function today(index: number): boolean {
     <WidgetCard title="Veckoschema" :icon="Table2">
         <p
             v-if="!data.rows.length"
-            class="font-display text-[1.5rem] text-ink-muted"
+            class="font-display text-[length:calc(1.5rem*var(--fit))] text-ink-muted"
         >
             Välj vilka som ska vara med.
         </p>
@@ -84,11 +84,13 @@ function today(index: number): boolean {
                 ]"
             >
                 <span
-                    class="font-display text-[1.3rem] font-semibold first-letter:uppercase"
+                    class="font-display text-[length:calc(1.3rem*var(--fit))] font-semibold first-letter:uppercase"
                 >
                     {{ column.isToday ? 'Idag' : day(column.date).name }}
                 </span>
-                <span class="font-display text-[1.05rem] tabular-nums">
+                <span
+                    class="font-display text-[length:calc(1.05rem*var(--fit))] tabular-nums"
+                >
                     {{ day(column.date).date }}
                 </span>
             </span>
@@ -104,10 +106,10 @@ function today(index: number): boolean {
                         :name="row.member.name"
                         :color="row.member.avatarColor"
                         :picture-url="row.member.avatarUrl"
-                        size="sm"
+                        size="fit-sm"
                     />
                     <span
-                        class="font-display text-[1.35rem] font-semibold break-words"
+                        class="font-display text-[length:calc(1.35rem*var(--fit))] font-semibold break-words"
                     >
                         {{ row.label }}
                     </span>
@@ -127,9 +129,12 @@ function today(index: number): boolean {
                         :key="`${row.key}-${item.id}-${item.name}`"
                         class="flex min-w-0 items-center gap-2"
                     >
-                        <Thumb :picture="item.picture" size="size-8" />
+                        <Thumb
+                            :picture="item.picture"
+                            size="size-[calc(2rem*var(--fit))]"
+                        />
                         <span
-                            class="line-clamp-2 min-w-0 font-display text-[1.15rem] leading-tight font-semibold break-words"
+                            class="line-clamp-2 min-w-0 font-display text-[length:calc(1.15rem*var(--fit))] leading-tight font-semibold break-words"
                         >
                             <span
                                 v-if="item.time"
@@ -141,7 +146,7 @@ function today(index: number): boolean {
                     </span>
                     <span
                         v-if="cell.length > PER_CELL"
-                        class="font-display text-[1rem] text-ink-muted"
+                        class="font-display text-[length:calc(1rem*var(--fit))] text-ink-muted"
                     >
                         och {{ cell.length - PER_CELL }} till
                     </span>

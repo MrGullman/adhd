@@ -126,6 +126,8 @@ Vårdnadshavare väljer läge per barn. Mognad och behov följer inte alltid ål
 
 - Ingen meny och inga knappar. Hemskärmen är bara en visning.
 - Täthet per skärm efter avstånd: Stor (3–4 m), Mellan (2–3 m), Kompakt (1–2 m). Samma tokens, bara storleksstegen ändras.
+- Innehållet växer med widgeten: text, bilder och avatarer blir så stora som får plats (upp till 2,4 gånger), aldrig mindre än normalt. Rubriken växer mindre. Mellanrummen följer tätheten, minst på Kompakt.
+- Redigerarens rutnät har samma form som widgetytan på en 16:9-skärm.
 - Mörkt tema kvällstid.
 - Widgets per barn delas upp med barnets avatar och namn.
 

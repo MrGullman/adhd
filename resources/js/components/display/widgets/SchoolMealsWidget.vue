@@ -23,7 +23,7 @@ defineProps<{
     <WidgetCard :title="data.label" :icon="Utensils">
         <p
             v-if="!data.days.length"
-            class="font-display text-[1.5rem] text-ink-muted"
+            class="font-display text-[length:calc(1.5rem*var(--fit))] text-ink-muted"
         >
             Ingen skollunch att visa.
         </p>
@@ -40,7 +40,7 @@ defineProps<{
             >
                 <h3
                     v-if="data.days.length > 1"
-                    class="font-display text-[1.4rem] font-semibold text-ink-muted"
+                    class="font-display text-[length:calc(1.4rem*var(--fit))] font-semibold text-ink-muted"
                 >
                     {{ day.label }}
                 </h3>
@@ -54,19 +54,19 @@ defineProps<{
                             :name="item.child.name"
                             :color="item.child.avatarColor"
                             :picture-url="item.child.avatarUrl"
-                            size="sm"
+                            size="fit-sm"
                         />
                         <div class="flex min-w-0 flex-col gap-1">
                             <span
                                 v-if="item.holiday && !item.courses.length"
-                                class="font-display text-[1.6rem]"
+                                class="font-display text-[length:calc(1.6rem*var(--fit))]"
                             >
                                 {{ item.holiday }}
                             </span>
                             <span
                                 v-for="course in item.courses"
                                 :key="course.name"
-                                class="font-display text-[1.6rem] leading-tight break-words"
+                                class="font-display text-[length:calc(1.6rem*var(--fit))] leading-tight break-words"
                             >
                                 {{ course.name }}
                             </span>

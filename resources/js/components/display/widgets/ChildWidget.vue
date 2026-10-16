@@ -68,11 +68,14 @@ const dots = computed(() => {
         <template v-if="data.child">
             <div class="flex items-center gap-4">
                 <FamilyAvatar
+                    size="fit-md"
                     :name="data.child.name"
                     :color="data.child.avatarColor"
                     :picture-url="data.child.avatarUrl"
                 />
-                <span class="font-display text-[2rem] font-semibold">
+                <span
+                    class="font-display text-[length:calc(2rem*var(--fit))] font-semibold"
+                >
                     {{ data.child.name }}
                 </span>
             </div>
@@ -86,17 +89,17 @@ const dots = computed(() => {
                 <div class="flex items-center gap-5">
                     <Thumb
                         :picture="data.routine.step.picture"
-                        size="size-32"
+                        size="size-[calc(8rem*var(--fit))]"
                     />
                     <div class="flex min-w-0 flex-col">
                         <span
-                            class="font-display text-[1.25rem] text-ink-muted"
+                            class="font-display text-[length:calc(1.25rem*var(--fit))] text-ink-muted"
                         >
                             Nu · steg {{ data.routine.step.number }} av
                             {{ data.routine.step.total }}
                         </span>
                         <span
-                            class="font-display text-[2.4rem] leading-tight font-semibold break-words"
+                            class="font-display text-[length:calc(2.4rem*var(--fit))] leading-tight font-semibold break-words"
                         >
                             {{ data.routine.step.label }}
                         </span>
@@ -107,18 +110,20 @@ const dots = computed(() => {
                         <span
                             v-for="dot in dots.total"
                             :key="dot"
-                            class="size-9 rounded-full border-[3px] border-primary"
+                            class="size-[calc(2.25rem*var(--fit))] rounded-full border-[3px] border-primary"
                             :class="dot <= dots.lit ? 'bg-primary' : ''"
                         />
                     </div>
-                    <span class="font-display text-[1.4rem]">
+                    <span
+                        class="font-display text-[length:calc(1.4rem*var(--fit))]"
+                    >
                         {{ data.routine.minutesLeft }} min kvar · klar
                         {{ data.routine.doneBy }}
                     </span>
                 </div>
                 <p
                     v-if="data.routine.next"
-                    class="border-t border-line pt-3 font-display text-[1.5rem]"
+                    class="border-t border-line pt-3 font-display text-[length:calc(1.5rem*var(--fit))]"
                 >
                     Sen: {{ data.routine.next }}
                 </p>
@@ -127,9 +132,13 @@ const dots = computed(() => {
             <!-- Rutin klar -->
             <p
                 v-else-if="data.routine?.completed"
-                class="flex items-center gap-3 font-display text-[2rem] font-semibold text-success"
+                class="flex items-center gap-3 font-display text-[length:calc(2rem*var(--fit))] font-semibold text-success"
             >
-                <Check class="size-10" stroke-width="3" aria-hidden="true" />
+                <Check
+                    class="size-[calc(2.5rem*var(--fit))]"
+                    stroke-width="3"
+                    aria-hidden="true"
+                />
                 {{ data.routine.name }} klar
             </p>
 
@@ -138,13 +147,18 @@ const dots = computed(() => {
                 v-if="data.task && !data.routine?.step"
                 class="flex items-center gap-5"
             >
-                <Thumb :picture="data.task.picture" size="size-28" />
+                <Thumb
+                    :picture="data.task.picture"
+                    size="size-[calc(7rem*var(--fit))]"
+                />
                 <div class="flex min-w-0 flex-col">
-                    <span class="font-display text-[1.25rem] text-ink-muted">
+                    <span
+                        class="font-display text-[length:calc(1.25rem*var(--fit))] text-ink-muted"
+                    >
                         {{ data.routine?.completed ? 'Sen' : 'Nu' }}
                     </span>
                     <span
-                        class="font-display text-[2.2rem] leading-tight font-semibold break-words"
+                        class="font-display text-[length:calc(2.2rem*var(--fit))] leading-tight font-semibold break-words"
                     >
                         {{ data.task.title }}
                         <template v-if="data.task.time">
@@ -156,7 +170,7 @@ const dots = computed(() => {
 
             <p
                 v-if="!data.task && !data.routine"
-                class="font-display text-[1.6rem] text-ink-muted"
+                class="font-display text-[length:calc(1.6rem*var(--fit))] text-ink-muted"
             >
                 Inget mer just nu.
             </p>
@@ -170,11 +184,11 @@ const dots = computed(() => {
                     class="flex items-center gap-4 border-t border-line pt-3"
                 >
                     <Utensils
-                        class="size-8 shrink-0 text-ink-muted"
+                        class="size-[calc(2rem*var(--fit))] shrink-0 text-ink-muted"
                         aria-hidden="true"
                     />
                     <span
-                        class="flex-1 font-display text-[1.4rem] leading-tight"
+                        class="flex-1 font-display text-[length:calc(1.4rem*var(--fit))] leading-tight"
                     >
                         {{ data.lunch.courses[0]?.name ?? data.lunch.holiday }}
                     </span>
@@ -184,8 +198,13 @@ const dots = computed(() => {
                     :key="`${activity.when}-${activity.id}`"
                     class="flex items-center gap-4 border-t border-line pt-3"
                 >
-                    <Thumb :picture="activity.picture" size="size-12" />
-                    <span class="flex-1 font-display text-[1.5rem]">
+                    <Thumb
+                        :picture="activity.picture"
+                        size="size-[calc(3rem*var(--fit))]"
+                    />
+                    <span
+                        class="flex-1 font-display text-[length:calc(1.5rem*var(--fit))]"
+                    >
                         {{ activity.name }}
                         {{
                             activity.when === 'imorgon'
@@ -195,10 +214,10 @@ const dots = computed(() => {
                     </span>
                     <span
                         v-if="activity.packed"
-                        class="flex items-center gap-1 rounded-full bg-success-soft px-3 py-1 font-display text-[1.2rem]"
+                        class="flex items-center gap-1 rounded-full bg-success-soft px-3 py-1 font-display text-[length:calc(1.2rem*var(--fit))]"
                     >
                         <Check
-                            class="size-5"
+                            class="size-[calc(1.25rem*var(--fit))]"
                             stroke-width="3"
                             aria-hidden="true"
                         />
@@ -207,7 +226,10 @@ const dots = computed(() => {
                 </li>
             </ul>
         </template>
-        <p v-else class="font-display text-[1.5rem] text-ink-muted">
+        <p
+            v-else
+            class="font-display text-[length:calc(1.5rem*var(--fit))] text-ink-muted"
+        >
             Välj ett barn för widgeten.
         </p>
     </WidgetCard>

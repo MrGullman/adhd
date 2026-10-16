@@ -17,7 +17,7 @@ defineProps<{
     <WidgetCard :title="title" :icon="CalendarDays">
         <p
             v-if="!data.activities.length"
-            class="font-display text-[1.5rem] text-ink-muted"
+            class="font-display text-[length:calc(1.5rem*var(--fit))] text-ink-muted"
         >
             {{ empty }}
         </p>
@@ -28,9 +28,14 @@ defineProps<{
                 class="flex items-center gap-4 rounded-2xl p-2"
                 :class="activity.unusual && 'bg-orange-soft'"
             >
-                <Thumb :picture="activity.picture" size="size-14" />
+                <Thumb
+                    :picture="activity.picture"
+                    size="size-[calc(3.5rem*var(--fit))]"
+                />
                 <div class="flex min-w-0 flex-1 flex-col">
-                    <span class="font-display text-[1.6rem] break-words">
+                    <span
+                        class="font-display text-[length:calc(1.6rem*var(--fit))] break-words"
+                    >
                         {{ activity.name }}
                         <span v-if="activity.time" class="tabular-nums">
                             {{ activity.time }}
@@ -38,14 +43,14 @@ defineProps<{
                     </span>
                     <span
                         v-if="awayText(activity)"
-                        class="font-display text-[1.3rem]"
+                        class="font-display text-[length:calc(1.3rem*var(--fit))]"
                     >
                         {{ awayText(activity) }}
                     </span>
                     <span
                         v-for="status in packingStatuses(activity)"
                         :key="status.child"
-                        class="font-display text-[1.25rem] text-ink-muted"
+                        class="font-display text-[length:calc(1.25rem*var(--fit))] text-ink-muted"
                     >
                         {{ packingStatusText(status) }}
                     </span>
@@ -57,7 +62,7 @@ defineProps<{
                         :name="person.name"
                         :color="person.avatarColor"
                         :picture-url="person.avatarUrl"
-                        size="sm"
+                        size="fit-sm"
                     />
                 </div>
             </li>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, provide, ref, toRef } from 'vue';
+import { DISPLAY_DENSITY } from '@/components/display/density';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import { possessive } from '@/lib/format';
 import type {
@@ -19,6 +20,20 @@ const props = defineProps<{
     view?: DisplayViewData | null;
 }>();
 
+const emit = defineEmits<{
+    /** Width ÷ height of the area the widgets share, for the editor's grid. */
+    gridRatio: [ratio: number];
+}>();
+
+provide(DISPLAY_DENSITY, toRef(props, 'density'));
+
+// Less space between widgets the closer people stand.
+const spacing: Record<Density, { page: string; grid: string }> = {
+    large: { page: 'gap-8 p-12', grid: 'gap-8' },
+    medium: { page: 'gap-6 p-10', grid: 'gap-6' },
+    compact: { page: 'gap-4 p-6', grid: 'gap-4' },
+};
+
 /*
  * The display is drawn for a 1920 px wide screen and zoomed to fit, so 1080p
  * and 4K look the same. Density only changes how big things are:
@@ -31,19 +46,33 @@ const factors: Record<Density, number> = {
 };
 
 const root = ref<HTMLElement | null>(null);
+const gridArea = ref<HTMLElement | null>(null);
 const size = ref({ width: 1920, height: 1080 });
 let observer: ResizeObserver | undefined;
 
 onMounted(() => {
-    observer = new ResizeObserver(([entry]) => {
-        size.value = {
-            width: entry.contentRect.width,
-            height: entry.contentRect.height,
-        };
+    observer = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+            if (entry.target === root.value) {
+                size.value = {
+                    width: entry.contentRect.width,
+                    height: entry.contentRect.height,
+                };
+            } else if (entry.contentRect.height > 0) {
+                emit(
+                    'gridRatio',
+                    entry.contentRect.width / entry.contentRect.height,
+                );
+            }
+        }
     });
 
     if (root.value) {
         observer.observe(root.value);
+    }
+
+    if (gridArea.value) {
+        observer.observe(gridArea.value);
     }
 });
 onBeforeUnmount(() => observer?.disconnect());
@@ -63,7 +92,8 @@ const inner = computed(() => ({
         :class="header.evening && 'dark'"
     >
         <div
-            class="flex flex-col gap-8 bg-surface p-12 text-ink"
+            class="flex flex-col bg-surface text-ink"
+            :class="spacing[density].page"
             :style="inner"
         >
             <DisplayHeader :header="header" />
@@ -87,7 +117,11 @@ const inner = computed(() => ({
                     }}
                 </span>
             </div>
-            <div class="grid min-h-0 flex-1 grid-cols-12 grid-rows-6 gap-8">
+            <div
+                ref="gridArea"
+                class="grid min-h-0 flex-1 grid-cols-12 grid-rows-6"
+                :class="spacing[density].grid"
+            >
                 <div
                     v-for="widget in widgets"
                     :key="widget.id"

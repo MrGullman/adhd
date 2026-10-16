@@ -2,7 +2,7 @@
 import type { PictureItem } from '@/types';
 
 withDefaults(defineProps<{ picture: PictureItem | null; size?: string }>(), {
-    size: 'size-14',
+    size: 'size-[calc(3.5rem*var(--fit))]',
 });
 </script>
 

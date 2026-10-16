@@ -21,7 +21,7 @@ defineProps<{
     <WidgetCard title="Poäng" :icon="Star">
         <p
             v-if="!data.children.length"
-            class="font-display text-[1.5rem] text-ink-muted"
+            class="font-display text-[length:calc(1.5rem*var(--fit))] text-ink-muted"
         >
             Inga barn i familjen än.
         </p>
@@ -36,18 +36,18 @@ defineProps<{
                         :name="child.name"
                         :color="child.avatarColor"
                         :picture-url="child.avatarUrl"
-                        size="sm"
+                        size="fit-sm"
                     />
                     <span
-                        class="min-w-0 flex-1 font-display text-[1.6rem] font-semibold break-words"
+                        class="min-w-0 flex-1 font-display text-[length:calc(1.6rem*var(--fit))] font-semibold break-words"
                     >
                         {{ child.name }}
                     </span>
                     <span
-                        class="flex items-center gap-2 font-display text-[1.6rem] font-semibold"
+                        class="flex items-center gap-2 font-display text-[length:calc(1.6rem*var(--fit))] font-semibold"
                     >
                         <Star
-                            class="size-7 text-orange-strong"
+                            class="size-[calc(1.75rem*var(--fit))] text-orange-strong"
                             aria-hidden="true"
                         />
                         {{ child.points }}
@@ -65,7 +65,9 @@ defineProps<{
                             }"
                         />
                     </div>
-                    <p class="font-display text-[1.2rem] text-ink-muted">
+                    <p
+                        class="font-display text-[length:calc(1.2rem*var(--fit))] text-ink-muted"
+                    >
                         {{ child.next.cost - child.points }} kvar till
                         {{ child.next.name }}
                     </p>

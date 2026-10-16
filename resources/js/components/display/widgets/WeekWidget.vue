@@ -45,7 +45,7 @@ function label(date: string): string {
                 ]"
             >
                 <span
-                    class="flex justify-between gap-2 font-display text-[1.2rem] font-semibold uppercase"
+                    class="flex justify-between gap-2 font-display text-[length:calc(1.2rem*var(--fit))] font-semibold uppercase"
                 >
                     {{ day.isToday ? 'Idag' : label(day.date) }}
                     <span
@@ -60,16 +60,19 @@ function label(date: string): string {
                     :key="activity.id"
                     class="flex items-center gap-2"
                 >
-                    <Thumb :picture="activity.picture" size="size-9" />
+                    <Thumb
+                        :picture="activity.picture"
+                        size="size-[calc(2.25rem*var(--fit))]"
+                    />
                     <div class="flex min-w-0 flex-col">
                         <span
-                            class="truncate font-display text-[1.2rem] font-semibold"
+                            class="truncate font-display text-[length:calc(1.2rem*var(--fit))] font-semibold"
                         >
                             {{ activity.name }}
                         </span>
                         <span
                             v-if="activity.time"
-                            class="font-display text-[1.05rem] text-ink-muted tabular-nums"
+                            class="font-display text-[length:calc(1.05rem*var(--fit))] text-ink-muted tabular-nums"
                         >
                             {{ activity.time }}
                         </span>
@@ -77,7 +80,7 @@ function label(date: string): string {
                 </div>
                 <span
                     v-if="day.more"
-                    class="font-display text-[1.05rem] text-ink-muted"
+                    class="font-display text-[length:calc(1.05rem*var(--fit))] text-ink-muted"
                 >
                     och {{ day.more }} till
                 </span>

@@ -23,7 +23,7 @@ defineProps<{
     >
         <p
             v-if="!data.tasks.length"
-            class="font-display text-[1.5rem] text-ink-muted"
+            class="font-display text-[length:calc(1.5rem*var(--fit))] text-ink-muted"
         >
             Inga uppgifter idag.
         </p>
@@ -34,18 +34,25 @@ defineProps<{
                 class="flex items-center gap-4"
                 :class="task.completed && 'text-ink-muted'"
             >
-                <Thumb :picture="task.picture" size="size-12" />
+                <Thumb
+                    :picture="task.picture"
+                    size="size-[calc(3rem*var(--fit))]"
+                />
+                <!-- Klockslag i en egen kolumn, bara när någon uppgift har ett. -->
                 <span
-                    class="w-20 shrink-0 font-display text-[1.3rem] tabular-nums"
+                    v-if="data.tasks.some((row) => row.time)"
+                    class="w-[calc(5rem*var(--fit))] shrink-0 font-display text-[length:calc(1.3rem*var(--fit))] tabular-nums"
                 >
                     {{ task.time ?? '' }}
                 </span>
-                <span class="flex-1 font-display text-[1.6rem] break-words">
+                <span
+                    class="flex-1 font-display text-[length:calc(1.6rem*var(--fit))] break-words"
+                >
                     {{ task.title }}
                 </span>
                 <Check
                     v-if="task.completed"
-                    class="size-7 text-success"
+                    class="size-[calc(1.75rem*var(--fit))] text-success"
                     stroke-width="3"
                     aria-label="Klar"
                 />
@@ -54,11 +61,14 @@ defineProps<{
                     :name="task.assignee.name"
                     :color="task.assignee.avatarColor"
                     :picture-url="task.assignee.avatarUrl"
-                    size="sm"
+                    size="fit-sm"
                 />
             </li>
         </ul>
-        <p v-if="data.more" class="font-display text-[1.3rem] text-ink-muted">
+        <p
+            v-if="data.more"
+            class="font-display text-[length:calc(1.3rem*var(--fit))] text-ink-muted"
+        >
             och {{ data.more }} till
         </p>
     </WidgetCard>
