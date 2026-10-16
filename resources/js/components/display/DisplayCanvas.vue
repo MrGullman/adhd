@@ -1,5 +1,14 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, provide, ref, toRef } from 'vue';
+import {
+    computed,
+    nextTick,
+    onBeforeUnmount,
+    onMounted,
+    onUpdated,
+    provide,
+    ref,
+    toRef,
+} from 'vue';
 import { DISPLAY_DENSITY } from '@/components/display/density';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import { possessive } from '@/lib/format';
@@ -59,6 +68,7 @@ onMounted(() => {
                     height: entry.contentRect.height,
                 };
             } else if (entry.contentRect.height > 0) {
+                scheduleFit();
                 emit(
                     'gridRatio',
                     entry.contentRect.width / entry.contentRect.height,
@@ -76,6 +86,69 @@ onMounted(() => {
     }
 });
 onBeforeUnmount(() => observer?.disconnect());
+
+/*
+ * Bigger text when there is room, the same size in every widget: --fit is
+ * the largest scale (1 to MAX) where nothing in any widget is cut off.
+ */
+const MAX = 1.4;
+const fit = ref(1);
+let scheduled = false;
+
+function overflows(): boolean {
+    const cards =
+        gridArea.value?.querySelectorAll<HTMLElement>('[data-widget-card]') ??
+        [];
+
+    return [...cards].some(
+        (card) =>
+            card.scrollHeight > card.clientHeight + 1 ||
+            card.scrollWidth > card.clientWidth + 1,
+    );
+}
+
+function measure(): void {
+    const area = gridArea.value;
+
+    if (!area || area.clientHeight === 0) {
+        return;
+    }
+
+    let low = 1;
+    let high = MAX;
+
+    for (let step = 0; step < 6; step++) {
+        const middle = (low + high) / 2;
+        area.style.setProperty('--fit', String(middle));
+
+        if (overflows()) {
+            high = middle;
+        } else {
+            low = middle;
+        }
+    }
+
+    area.style.setProperty('--fit', String(low));
+    fit.value = low;
+}
+
+function scheduleFit(): void {
+    if (scheduled) {
+        return;
+    }
+
+    scheduled = true;
+    requestAnimationFrame(() => {
+        scheduled = false;
+        measure();
+    });
+}
+
+onMounted(() => {
+    void document.fonts?.ready.then(scheduleFit);
+    scheduleFit();
+});
+onUpdated(() => void nextTick(scheduleFit));
 
 const zoom = computed(() => (size.value.width / 1920) * factors[props.density]);
 const inner = computed(() => ({
@@ -120,6 +193,7 @@ const inner = computed(() => ({
             <div
                 ref="gridArea"
                 class="grid min-h-0 flex-1 grid-cols-12 grid-rows-6"
+                :style="{ '--fit': fit }"
                 :class="spacing[density].grid"
             >
                 <div
