@@ -26,6 +26,8 @@
     --text-heading--line-height: 32px;
     --text-child-label: 22px;
     --text-child-label--line-height: 28px;
+    --text-youth-label: 18px;
+    --text-youth-label--line-height: 24px;
     --text-title: 18px;
     --text-title--line-height: 26px;
     --text-body: 17px;
@@ -45,6 +47,7 @@
     /* Storlekar: h-tap-child, size-picture-md … */
     --spacing-tap-adult: 48px;
     --spacing-tap-child: 64px;
+    --spacing-picture-xs: 32px;
     --spacing-picture-sm: 56px;
     --spacing-picture-md: 96px;
     --spacing-picture-lg: 200px;

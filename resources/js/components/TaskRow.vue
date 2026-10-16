@@ -60,6 +60,13 @@ defineProps<{
                 class="size-4 shrink-0 text-ink-muted"
                 aria-label="Återkommande"
             />
+            <!-- Added by the child for themselves (läget Ungdom). -->
+            <span
+                v-if="task.ownTask"
+                class="shrink-0 rounded-full bg-surface-sunken px-2 text-caption"
+            >
+                Egen
+            </span>
         </component>
         <DoneChip v-if="task.completed" />
         <FamilyAvatar

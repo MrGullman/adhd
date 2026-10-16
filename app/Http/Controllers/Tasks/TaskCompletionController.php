@@ -26,8 +26,10 @@ class TaskCompletionController extends Controller
             $task->complete($user);
         }
 
-        // The child the task is for, or the child who did it.
-        $points->award($task->assignee ?? $user, 'task', $task->id, $task->title);
+        // The child the task is for, or the child who did it. A child's own tasks give no points.
+        if (! $task->isOwnTask()) {
+            $points->award($task->assignee ?? $user, 'task', $task->id, $task->title);
+        }
 
         return back();
     }

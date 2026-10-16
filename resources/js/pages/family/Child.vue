@@ -7,6 +7,7 @@ import ChildPairingController from '@/actions/App/Http/Controllers/Family/ChildP
 import ChildPinController from '@/actions/App/Http/Controllers/Family/ChildPinController';
 import ChildReminderController from '@/actions/App/Http/Controllers/Family/ChildReminderController';
 import DeviceController from '@/actions/App/Http/Controllers/Family/DeviceController';
+import ChildViewSettings from '@/components/ChildViewSettings.vue';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import InputError from '@/components/InputError.vue';
 import PicturePicker from '@/components/PicturePicker.vue';
@@ -28,6 +29,12 @@ const props = defineProps<{
         pin: string | null;
         loginEnabled: boolean;
         failedPinAttempts: number;
+        view: {
+            childView: 'child' | 'youth';
+            childPictures: boolean;
+            rewardsEnabled: boolean;
+            pointsEnabled: boolean;
+        };
         reminders: {
             remindersEnabled: boolean;
             quietFrom: string | null;
@@ -76,6 +83,18 @@ const avatarPicture = ref<PictureItem | null>(props.child.picture);
                 </p>
             </div>
         </header>
+
+        <!-- Visning -->
+        <section class="flex flex-col gap-3" aria-labelledby="visning">
+            <h2 id="visning" class="text-title">
+                Så ser {{ possessive(child.name) }} vy ut
+            </h2>
+            <ChildViewSettings
+                :child-id="child.id"
+                :name="child.name"
+                :settings="child.view"
+            />
+        </section>
 
         <!-- Kod -->
         <section class="flex flex-col gap-4" aria-labelledby="kod">

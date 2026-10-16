@@ -688,15 +688,15 @@ Lägena heter **Barn** och **Ungdom**. Reglerna står i STYLEGUIDE.md under "Bar
 - [x] Avatarer i två stilar (Barn och Ungdom): admin laddar upp under Bildgalleri → Avatarer, barnet väljer själv i Min dag
 - [x] Vuxna väljer bild under Inställningar → Profil: avatarer i vuxenstil eller ett eget foto (barnen ser aldrig vuxenstilen)
 - [ ] Ladda upp avatarer i vuxenstil
-- [ ] Läge per barn: users.child_view (child, youth). Det följer barnet, även om barnet senare finns i två familjer (växelvis boende).
-- [ ] Bildstöd av eller på per barn i läget Ungdom (users.child_pictures)
-- [ ] Vårdnadshavare väljer läge och bildstöd på barnets sida, med en förhandsvisning av Min dag i båda lägena
-- [ ] Tokens i app.css: `youth-label` och `picture-xs`
-- [ ] Min dag, Min vecka, Mina poäng och handlingslistan i läget Ungdom
-- [ ] Rutin som checklista i läget Ungdom, med knapp till fokusläget
-- [ ] Poäng och belöningar av eller på per barn (family_user, eftersom det är familjens beslut)
-- [ ] Barn i läget Ungdom kan lägga in egna uppgifter till sig själva. Vuxna ser dem i Idag och kan ändra och ta bort dem.
-- [ ] Tester: läget ändrar bara barnets egna vyer, bara vårdnadshavare byter läge, ett barn kan bara lägga in uppgifter till sig själv, isolationstest för nya fält
+- [x] Läge per barn: users.child_view (child, youth). Det följer barnet, även om barnet senare finns i två familjer (växelvis boende).
+- [x] Bildstöd av eller på per barn i läget Ungdom (users.child_pictures)
+- [x] Vårdnadshavare väljer läge och bildstöd på barnets sida, med en förhandsvisning av Min dag i båda lägena
+- [x] Tokens i app.css: `youth-label` och `picture-xs`
+- [x] Min dag, Min vecka, Mina poäng och handlingslistan i läget Ungdom
+- [x] Rutin som checklista i läget Ungdom, med knapp till fokusläget
+- [x] Poäng och belöningar av eller på per barn (family_user, eftersom det är familjens beslut)
+- [x] Barn i läget Ungdom kan lägga in egna uppgifter till sig själva. Vuxna ser dem i Idag och kan ändra och ta bort dem.
+- [x] Tester: läget ändrar bara barnets egna vyer, bara vårdnadshavare byter läge, ett barn kan bara lägga in uppgifter till sig själv, isolationstest för nya fält
 
 ## Definition of Done
 

@@ -3,6 +3,7 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { ArrowLeft, Check } from '@lucide/vue';
 import { ref } from 'vue';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
+import { useChildStyle } from '@/composables/useChildStyle';
 import { home as childHome } from '@/routes/child';
 import { update as updateAvatar } from '@/routes/child/avatar';
 import type { PictureItem } from '@/types';
@@ -12,11 +13,16 @@ const props = defineProps<{
     groups: Array<{ value: string; label: string; avatars: PictureItem[] }>;
 }>();
 
-// The style the child has now, or the first.
+const style = useChildStyle();
+
+// The style the child has now, else the one for the child's mode, else the first.
 const shown = ref(
     props.groups.find((group) =>
         group.avatars.some((avatar) => avatar.id === props.child.pictureId),
     )?.value ??
+        props.groups.find(
+            (group) => group.value === (style.value.youth ? 'youth' : 'child'),
+        )?.value ??
         props.groups[0]?.value ??
         '',
 );
@@ -33,14 +39,14 @@ function choose(pictureId: number | null): void {
     <main class="min-h-svh bg-surface px-4 py-6 text-ink md:px-8">
         <div class="mx-auto flex w-full max-w-4xl flex-col gap-6">
             <header class="flex flex-wrap items-center gap-3">
-                <Link
-                    :href="childHome()"
-                    class="flex h-tap-child items-center gap-2 rounded-full bg-surface-sunken px-5 font-display text-child-label font-semibold"
-                >
-                    <ArrowLeft class="size-8" aria-hidden="true" />
-                    Min dag
+                <Link :href="childHome()" :class="style.pill">
+                    <ArrowLeft :class="style.icon" aria-hidden="true" />
+                    {{ style.youth ? 'Idag' : 'Min dag' }}
                 </Link>
-                <h1 class="font-display text-display-l font-semibold">
+                <h1
+                    class="font-display font-semibold"
+                    :class="style.youth ? 'text-heading' : 'text-display-l'"
+                >
                     Byt bild
                 </h1>
             </header>
@@ -50,12 +56,14 @@ function choose(pictureId: number | null): void {
                     v-for="group in groups"
                     :key="group.value"
                     type="button"
-                    class="flex h-tap-child items-center rounded-full border-2 px-6 font-display text-child-label font-semibold"
-                    :class="
+                    class="flex items-center rounded-full border-2 px-6 font-semibold"
+                    :class="[
+                        style.text,
+                        style.tap,
                         shown === group.value
                             ? 'border-primary bg-primary-soft'
-                            : 'border-line bg-surface-raised'
-                    "
+                            : 'border-line bg-surface-raised',
+                    ]"
                     :aria-pressed="shown === group.value"
                     @click="shown = group.value"
                 >
@@ -63,10 +71,7 @@ function choose(pictureId: number | null): void {
                 </button>
             </nav>
 
-            <p
-                v-if="!groups.length"
-                class="font-display text-child-label text-ink-muted"
-            >
+            <p v-if="!groups.length" class="text-ink-muted" :class="style.text">
                 Inga bilder än.
             </p>
 
@@ -87,9 +92,7 @@ function choose(pictureId: number | null): void {
                             :color="child.avatarColor"
                             size="lg"
                         />
-                        <span class="font-display text-child-label">
-                            Bokstav
-                        </span>
+                        <span :class="style.text"> Bokstav </span>
                     </button>
                 </li>
                 <template v-for="group in groups" :key="group.value">
@@ -112,7 +115,8 @@ function choose(pictureId: number | null): void {
                                     size="lg"
                                 />
                                 <span
-                                    class="flex items-center gap-1 font-display text-child-label"
+                                    class="flex items-center gap-1"
+                                    :class="style.text"
                                 >
                                     <Check
                                         v-if="child.pictureId === avatar.id"

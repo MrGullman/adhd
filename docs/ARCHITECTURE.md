@@ -119,11 +119,12 @@ family_user.role
 
 Rollen kontrolleras i policies.
 
-## Barnens visningsläge (Milestone 20, planerat)
+## Barnens visningsläge (Milestone 20)
 
-- users.child_view: child (läget Barn, som idag, ungefär 5–10 år) eller youth (läget Ungdom, ungefär 10–14 år). users.child_pictures stänger av bildstöd i läget Ungdom. Båda hör till barnet och följer med mellan familjer.
-- Bara vårdnadshavare byter läge. Poäng och belöningar av eller på per barn ligger på family_user, eftersom det är familjens beslut.
-- Läget påverkar bara barnets egna vyer, aldrig hemskärmen eller vuxnas vyer.
+- users.child_view: child (läget Barn, ungefär 5–10 år) eller youth (läget Ungdom, ungefär 10–14 år). users.child_pictures stänger av bildstöd i läget Ungdom. Båda hör till barnet och följer med mellan familjer.
+- Bara vårdnadshavare byter läge, på barnets sida (ChildViewController). Poäng och belöningar av eller på per barn ligger på family_user.rewards_enabled, eftersom det är familjens beslut. Points::enabledFor kräver både familjens inställning och barnets.
+- Läget påverkar bara barnets egna vyer, aldrig hemskärmen eller vuxnas vyer. Det delas till barnets sidor som childView (youth, pictures), och useChildStyle ger storlekarna. Min dag och rutinen har egna sidor i läget Ungdom (child/YouthHome, child/YouthRoutine). Rutinen visas som checklista och ?fokus=1 ger fokusläget.
+- Egna uppgifter: ett barn i läget Ungdom lägger in uppgifter till sig själv (ChildTaskController), idag eller inom 30 dagar. De är vanliga tasks med created_by = assigned_to = barnet (Task::isOwnTask), syns för vuxna i Idag märkta "Egen" och ger aldrig poäng. Barnet kan bara ta bort sina egna.
 
 ## Vuxenkonton
 

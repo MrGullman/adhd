@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\AvatarColor;
+use App\Enums\ChildView;
 use App\Enums\FamilyRole;
 use Carbon\CarbonInterface;
 use Database\Factories\UserFactory;
@@ -32,6 +33,8 @@ use NotificationChannels\WebPush\HasPushSubscriptions;
  * @property string|null $community_name
  * @property AvatarColor $avatar_color
  * @property int|null $picture_id
+ * @property ChildView $child_view
+ * @property bool $child_pictures
  * @property bool $is_admin
  * @property string|null $email
  * @property Carbon|null $email_verified_at
@@ -66,6 +69,8 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail, Pas
      */
     protected $attributes = [
         'avatar_color' => 'teal',
+        'child_view' => 'child',
+        'child_pictures' => true,
         'reminders_enabled' => true,
         'quiet_from' => '20:00:00',
         'quiet_until' => '07:00:00',
@@ -80,6 +85,8 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail, Pas
     {
         return [
             'avatar_color' => AvatarColor::class,
+            'child_view' => ChildView::class,
+            'child_pictures' => 'boolean',
             'is_admin' => 'boolean',
             'reminders_enabled' => 'boolean',
             'email_verified_at' => 'datetime',

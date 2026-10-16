@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Calendar\FamilyCalendar;
+use App\Enums\ChildView;
 use App\Enums\FamilyRole;
 use App\Food\Dinner;
 use App\Models\Activity;
@@ -94,7 +95,7 @@ class TodayController extends Controller
         $plan = DayPlan::for($family, LocalTime::today(), $child->id);
         $currentPart = $family->dayPartFor(LocalTime::now()->format('H:i'));
 
-        return Inertia::render('child/Home', [
+        return Inertia::render($child->child_view === ChildView::Youth ? 'child/YouthHome' : 'child/Home', [
             'child' => [
                 'name' => $child->name,
                 'avatarColor' => $child->avatar_color->value,
@@ -109,7 +110,7 @@ class TodayController extends Controller
             ...$this->childActivities($child),
             'lunch' => SchoolLunch::now($family)->forMenu($family->schoolMenuIdOf($child)),
             'dinner' => Dinner::next($family, LocalTime::now()),
-            'points' => Points::settings($family)['enabled'] ? Points::balance($child) : null,
+            'points' => Points::enabledFor($family, $child) ? Points::balance($child) : null,
             'vapidPublicKey' => $child->reminders_enabled ? config('webpush.vapid.public_key') : null,
         ]);
     }

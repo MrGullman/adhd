@@ -1,47 +1,55 @@
 <script setup lang="ts">
 import { CalendarDays } from '@lucide/vue';
+import { computed } from 'vue';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import PictureThumb from '@/components/PictureThumb.vue';
+import { useChildStyle } from '@/composables/useChildStyle';
 import type { CalendarEventEntry } from '@/types';
 
-withDefaults(defineProps<{ event: CalendarEventEntry; child?: boolean }>(), {
-    child: false,
-});
+const props = withDefaults(
+    defineProps<{ event: CalendarEventEntry; child?: boolean }>(),
+    { child: false },
+);
+
+const style = useChildStyle();
+// Big for children in läget Barn. Läget Ungdom is compact like the adults'.
+const big = computed(() => props.child && !style.value.youth);
+const showPicture = computed(() => !props.child || style.value.pictures);
 </script>
 
 <!-- En händelse från en kalender (Google, iPhone, Outlook). Barn ser bild och stor text. -->
 <template>
     <div
         class="flex items-center gap-3 rounded-lg border border-line bg-surface-raised"
-        :class="child ? 'rounded-xl border-2 p-4' : 'p-3'"
+        :class="big ? 'rounded-xl border-2 p-4' : 'p-3'"
     >
         <PictureThumb
-            v-if="event.picture"
+            v-if="showPicture && event.picture"
             :picture="event.picture"
-            :size="child ? 'md' : 'sm'"
+            :size="big ? 'md' : 'sm'"
         />
         <CalendarDays
             v-else
             class="shrink-0 text-ink-muted"
-            :class="child ? 'size-10' : 'size-6'"
+            :class="big ? 'size-10' : 'size-6'"
             aria-hidden="true"
         />
         <div class="min-w-0 flex-1">
             <p
                 class="break-words"
                 :class="
-                    child
+                    big
                         ? 'font-display text-child-label font-semibold'
-                        : 'font-bold'
+                        : child
+                          ? 'text-youth-label font-bold'
+                          : 'font-bold'
                 "
             >
                 {{ event.title }}
             </p>
             <p
                 class="text-ink-muted tabular-nums"
-                :class="
-                    child ? 'font-display text-child-label' : 'text-caption'
-                "
+                :class="big ? 'font-display text-child-label' : 'text-caption'"
             >
                 <template v-if="event.allDay">Hela dagen</template>
                 <template v-else-if="event.time">

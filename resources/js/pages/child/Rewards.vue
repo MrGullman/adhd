@@ -3,6 +3,7 @@ import { Head, Link } from '@inertiajs/vue3';
 import { ArrowLeft, Clock, Star } from '@lucide/vue';
 import ChildRewardController from '@/actions/App/Http/Controllers/Rewards/ChildRewardController';
 import PictureThumb from '@/components/PictureThumb.vue';
+import { useChildStyle } from '@/composables/useChildStyle';
 import { home as childHome } from '@/routes/child';
 import type { PictureItem } from '@/types';
 
@@ -17,6 +18,8 @@ defineProps<{
         waiting: boolean;
     }>;
 }>();
+
+const style = useChildStyle();
 </script>
 
 <!--
@@ -29,14 +32,14 @@ defineProps<{
     <main class="min-h-svh bg-surface px-4 py-6 text-ink md:px-8">
         <div class="mx-auto flex w-full max-w-4xl flex-col gap-6">
             <header class="flex flex-wrap items-center gap-3">
-                <Link
-                    :href="childHome()"
-                    class="flex h-tap-child items-center gap-2 rounded-full bg-surface-sunken px-5 font-display text-child-label font-semibold"
-                >
-                    <ArrowLeft class="size-8" aria-hidden="true" />
-                    Min dag
+                <Link :href="childHome()" :class="style.pill">
+                    <ArrowLeft :class="style.icon" aria-hidden="true" />
+                    {{ style.youth ? 'Idag' : 'Min dag' }}
                 </Link>
-                <h1 class="font-display text-display-l font-semibold">
+                <h1
+                    class="font-display font-semibold"
+                    :class="style.youth ? 'text-heading' : 'text-display-l'"
+                >
                     Mina poäng
                 </h1>
             </header>
@@ -53,7 +56,8 @@ defineProps<{
 
             <p
                 v-if="!rewards.length"
-                class="font-display text-child-label text-ink-muted"
+                class="text-ink-muted"
+                :class="style.text"
             >
                 Inga önskningar än.
             </p>
@@ -65,24 +69,23 @@ defineProps<{
                     class="flex flex-col items-center gap-3 rounded-xl border-2 border-line bg-surface-raised p-4 text-center"
                 >
                     <PictureThumb
-                        v-if="reward.picture"
+                        v-if="reward.picture && style.pictures"
                         :picture="reward.picture"
-                        size="lg"
+                        :size="style.youth ? 'sm' : 'lg'"
                     />
-                    <p
-                        class="font-display text-child-label font-semibold break-words"
-                    >
+                    <p class="font-semibold break-words" :class="style.text">
                         {{ reward.name }}
                     </p>
-                    <p class="font-display text-child-label text-ink-muted">
+                    <p class="text-ink-muted" :class="style.text">
                         {{ reward.cost }} poäng
                     </p>
 
                     <p
                         v-if="reward.waiting"
-                        class="flex h-tap-child items-center gap-2 rounded-full bg-surface-sunken px-6 font-display text-child-label font-semibold"
+                        class="flex items-center gap-2 rounded-full bg-surface-sunken px-6 font-semibold"
+                        :class="[style.text, style.tap]"
                     >
-                        <Clock class="size-8" aria-hidden="true" />
+                        <Clock :class="style.icon" aria-hidden="true" />
                         Väntar på ja
                     </p>
                     <Link
@@ -90,15 +93,13 @@ defineProps<{
                         :href="ChildRewardController.wish(reward.id)"
                         as="button"
                         preserve-scroll
-                        class="flex h-tap-child items-center gap-2 rounded-full border-2 border-primary bg-primary-soft px-8 font-display text-child-label font-semibold"
+                        class="flex items-center gap-2 rounded-full border-2 border-primary bg-primary-soft px-8 font-semibold"
+                        :class="[style.text, style.tap]"
                     >
-                        <Star class="size-8" aria-hidden="true" />
+                        <Star :class="style.icon" aria-hidden="true" />
                         Önska
                     </Link>
-                    <p
-                        v-else
-                        class="font-display text-child-label text-ink-muted"
-                    >
+                    <p v-else class="text-ink-muted" :class="style.text">
                         {{ reward.cost - available }} poäng kvar
                     </p>
                 </li>

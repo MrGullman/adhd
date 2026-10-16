@@ -4,14 +4,16 @@ import type { PictureItem } from '@/types';
 withDefaults(
     defineProps<{
         picture: PictureItem;
-        size?: 'sm' | 'md' | 'lg';
+        size?: 'xs' | 'sm' | 'md' | 'lg';
     }>(),
     { size: 'sm' },
 );
 
-// Bildstöd: square with rounded corners, picture-sm in lists,
+// Bildstöd: square with rounded corners, picture-xs in lists in läget
+// Ungdom, picture-sm in lists,
 // picture-md in children's cards and the picker (docs/STYLEGUIDE.md).
 const sizes = {
+    xs: 'size-picture-xs',
     sm: 'size-picture-sm',
     md: 'size-picture-md',
     lg: 'size-picture-lg',

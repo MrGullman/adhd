@@ -25,6 +25,7 @@ use App\Http\Controllers\Rewards\RewardController;
 use App\Http\Controllers\Routines\ChildRoutineController;
 use App\Http\Controllers\Routines\RoutineController;
 use App\Http\Controllers\Routines\RoutineTemplateController;
+use App\Http\Controllers\Tasks\ChildTaskController;
 use App\Http\Controllers\Tasks\RecurringTaskController;
 use App\Http\Controllers\Tasks\TaskCompletionController;
 use App\Http\Controllers\Tasks\TaskController;
@@ -143,6 +144,10 @@ Route::middleware(['auth', 'verified', 'family'])->group(function () {
 
 Route::middleware(['auth', 'family', 'role:child'])->group(function () {
     Route::get('handla', ChildShoppingListController::class)->name('child.shopping');
+
+    Route::get('min-dag/uppgift', [ChildTaskController::class, 'create'])->name('child.tasks.create');
+    Route::post('min-dag/uppgift', [ChildTaskController::class, 'store'])->name('child.tasks.store');
+    Route::delete('min-dag/uppgift/{task}', [ChildTaskController::class, 'destroy'])->name('child.tasks.destroy');
 
     Route::get('min-dag/veckan', [CalendarController::class, 'childWeek'])->name('child.week');
     Route::get('min-dag/beloningar', [ChildRewardController::class, 'index'])->name('child.rewards.index');

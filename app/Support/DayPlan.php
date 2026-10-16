@@ -116,6 +116,7 @@ class DayPlan
             'dayPart' => $task->day_part?->value,
             'completed' => $task->isCompleted(),
             'recurring' => $task->isRecurring(),
+            'ownTask' => $task->isOwnTask(),
             'assignee' => $task->assignee === null ? null : [
                 'id' => $task->assignee->id,
                 'name' => $task->assignee->name,

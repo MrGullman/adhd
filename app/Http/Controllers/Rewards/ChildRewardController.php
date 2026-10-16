@@ -8,6 +8,7 @@ use App\Models\Reward;
 use App\Models\RewardRedemption;
 use App\Models\User;
 use App\Points\Points;
+use App\Support\CurrentFamily;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -19,10 +20,15 @@ use Inertia\Response;
  */
 class ChildRewardController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request, CurrentFamily $current): Response|RedirectResponse
     {
         /** @var User $child */
         $child = $request->user();
+
+        // Turned off for the child: there is nothing to show.
+        if (! Points::enabledFor($current->getOrFail(), $child)) {
+            return to_route('child.home');
+        }
 
         $waiting = RewardRedemption::query()
             ->where('user_id', $child->id)
