@@ -112,6 +112,7 @@ class ActivityController extends Controller
                 'endDate' => $activity->end_date?->toDateString(),
                 'weekday' => $activity->weekday,
                 'time' => $activity->shortTime(),
+                'reminders' => $activity->reminders ?? [],
                 'visibleToChildren' => $activity->visible_to_children,
                 'unusual' => $activity->unusual,
                 'items' => $activity->items->map(fn (ActivityItem $item) => [

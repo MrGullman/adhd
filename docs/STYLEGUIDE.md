@@ -95,7 +95,7 @@ Barnen väljer själva en avatar i Min dag ("Byt bild"), och vårdnadshavare kan
 
 | Tillstånd | Utseende |
 | --- | --- |
-| Pågår nu | `primary-soft` bakgrund, `primary`-kant, etiketten "Nu" |
+| Pågår nu | `primary-soft` bakgrund, `primary`-kant, etiketten "Nu" bara när klockslaget har kommit. Annars "Nästa" och när, t.ex. "Under eftermiddagen", så att det inte känns som att det måste göras direkt. |
 | Kvar att göra | Vanligt kort, tom bockruta |
 | Behöver göras snart | Etiketten "Inte packat" i `orange-soft` och `orange-strong` |
 | Klar | Fylld bockruta i `success`, texten i `ink-muted`, etiketten "Klar" |

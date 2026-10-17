@@ -27,6 +27,8 @@ export type ActivityDraft = {
     endDate: string | null;
     weekday: number | null;
     time: string | null;
+    /** Minutes before, e.g. [120, 60]. */
+    reminders: number[];
     visibleToChildren: boolean;
     unusual: boolean;
     items: Array<{ id: number; label: string; picture: PictureItem | null }>;
@@ -53,6 +55,7 @@ const form = useForm({
     end_date: props.activity?.endDate ?? '',
     weekday: props.activity?.weekday ?? 1,
     time: props.activity?.time ?? '',
+    reminders: props.activity?.reminders ?? ([] as number[]),
     visible_to_children: props.activity?.visibleToChildren ?? true,
     unusual: props.activity?.unusual ?? false,
     items: (props.activity?.items ?? []) as ItemDraft[],
@@ -114,6 +117,20 @@ function onItemPicture(item: ItemDraft, picture: PictureItem): void {
     if (item.label.trim() === '') {
         item.label = picture.label;
     }
+}
+
+// "2 timmar kvar till Simskola": reminders to choose, when the activity has a time.
+const reminderOptions = [
+    { minutes: 120, label: '2 tim före' },
+    { minutes: 60, label: '1 tim före' },
+    { minutes: 30, label: '30 min före' },
+    { minutes: 15, label: '15 min före' },
+];
+
+function toggleReminder(minutes: number): void {
+    form.reminders = form.reminders.includes(minutes)
+        ? form.reminders.filter((chosen) => chosen !== minutes)
+        : [...form.reminders, minutes];
 }
 
 const chip =
@@ -259,6 +276,29 @@ const selectClass =
                     <Input id="activity-time" v-model="form.time" type="time" />
                     <InputError :message="form.errors.time" />
                 </div>
+            </div>
+
+            <!-- Påminnelser före aktiviteten, som notis till de som är med -->
+            <div v-if="form.time" class="flex flex-col gap-2">
+                <span class="text-sm font-medium">Påminnelse (valfritt)</span>
+                <div class="flex flex-wrap gap-2">
+                    <button
+                        v-for="option in reminderOptions"
+                        :key="option.minutes"
+                        type="button"
+                        :class="chip"
+                        :aria-pressed="form.reminders.includes(option.minutes)"
+                        @click="toggleReminder(option.minutes)"
+                    >
+                        {{ option.label }}
+                    </button>
+                </div>
+                <p class="text-caption text-ink-muted">
+                    De som är med får en notis, t.ex. "Simskola börjar 17:15. 2
+                    timmar kvar." Barn och vuxna slår på påminnelser på sin egen
+                    enhet.
+                </p>
+                <InputError :message="form.errors['reminders.0']" />
             </div>
         </fieldset>
 

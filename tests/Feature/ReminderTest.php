@@ -211,4 +211,41 @@ class ReminderTest extends TestCase
         $this->actingAs($withoutDevice)->post(route('reminders.test'))->assertRedirect();
         $this->assertSame([$this->parent->id], $sentTo, 'nothing is sent without a device');
     }
+
+    public function test_an_activity_reminds_everyone_taking_part_as_long_before_as_chosen()
+    {
+        $sibling = User::factory()->child()->inFamily($this->family, FamilyRole::Child)->create(['name' => 'Bo']);
+        $this->withDevice($sibling);
+        Activity::factory()->for($this->family)->concerning($this->child, $this->parent)->create([
+            'name' => 'Simskola', 'date' => '2026-10-13', 'time' => '09:45', 'reminders' => [120, 60],
+        ]);
+
+        // 07:45: two hours before.
+        $this->send();
+        $this->send();
+
+        $bodies = fn (User $user) => Notification::sent($user, ReminderNotification::class)->map(fn (ReminderNotification $notification) => $notification->body)->values()->all();
+        $this->assertSame(['Simskola'], $this->sentTo($this->child));
+        $this->assertSame(['Börjar 09:45. 2 timmar kvar.'], $bodies($this->child));
+        $this->assertSame(['Simskola'], $this->sentTo($this->parent));
+        $this->assertSame([], $this->sentTo($sibling), 'only to those who take part');
+
+        // 08:45: one hour before.
+        $this->travelTo('2026-10-13 06:45:00');
+        $this->send();
+        $this->assertSame(['Börjar 09:45. 2 timmar kvar.', 'Börjar 09:45. 1 timme kvar.'], $bodies($this->child));
+    }
+
+    public function test_reminders_are_chosen_on_the_activity_and_need_a_time()
+    {
+        $fields = ['type' => 'activity', 'name' => 'Fotboll', 'participants' => [$this->child->id], 'repeat' => 'once', 'date' => '2026-10-14', 'visible_to_children' => true, 'unusual' => false];
+
+        $this->actingAs($this->parent)->post(route('activities.store'), [...$fields, 'time' => '17:00', 'reminders' => [60, 120]])->assertRedirect();
+        $this->assertSame([120, 60], Activity::query()->withoutGlobalScopes()->where('name', 'Fotboll')->firstOrFail()->reminders);
+
+        $this->actingAs($this->parent)->post(route('activities.store'), [...$fields, 'name' => 'Utan tid', 'reminders' => [60]])->assertRedirect();
+        $this->assertNull(Activity::query()->withoutGlobalScopes()->where('name', 'Utan tid')->firstOrFail()->reminders);
+
+        $this->actingAs($this->parent)->post(route('activities.store'), [...$fields, 'time' => '17:00', 'reminders' => [45]])->assertSessionHasErrors('reminders.0');
+    }
 }

@@ -2,6 +2,7 @@
 import { Check, Utensils } from '@lucide/vue';
 import { computed } from 'vue';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
+import { isDueNow, whenText } from '@/lib/now';
 import type {
     Member,
     PictureItem,
@@ -155,15 +156,24 @@ const dots = computed(() => {
                     <span
                         class="font-display text-[length:calc(1.25rem*var(--fit))] text-ink-muted"
                     >
-                        {{ data.routine?.completed ? 'Sen' : 'Nu' }}
+                        {{
+                            data.routine?.completed
+                                ? 'Sen'
+                                : isDueNow(data.task.time)
+                                  ? 'Nu'
+                                  : 'Nästa'
+                        }}
                     </span>
                     <span
                         class="font-display text-[length:calc(2.2rem*var(--fit))] leading-tight font-semibold break-words"
                     >
                         {{ data.task.title }}
-                        <template v-if="data.task.time">
-                            {{ data.task.time }}
-                        </template>
+                    </span>
+                    <span
+                        v-if="whenText(data.task.time, data.task.dayPart)"
+                        class="font-display text-[length:calc(1.4rem*var(--fit))] text-ink-muted"
+                    >
+                        {{ whenText(data.task.time, data.task.dayPart) }}
                     </span>
                 </div>
             </div>

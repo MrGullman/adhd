@@ -27,15 +27,21 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $end_date
  * @property int|null $weekday
  * @property string|null $time
+ * @property list<int>|null $reminders Minutes before, e.g. [120, 60].
  * @property bool $visible_to_children
  * @property bool $unusual
  * @property int|null $created_by
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['type', 'name', 'picture_id', 'date', 'end_date', 'weekday', 'time', 'visible_to_children', 'unusual'])]
+#[Fillable(['type', 'name', 'picture_id', 'date', 'end_date', 'weekday', 'time', 'reminders', 'visible_to_children', 'unusual'])]
 class Activity extends Model
 {
+    /**
+     * Reminders that can be chosen before an activity with a time, in minutes.
+     */
+    public const REMINDER_MINUTES = [15, 30, 60, 120];
+
     /** @use HasFactory<ActivityFactory> */
     use BelongsToFamily, HasFactory;
 
@@ -51,6 +57,7 @@ class Activity extends Model
             'date' => 'date:Y-m-d',
             'end_date' => 'date:Y-m-d',
             'weekday' => 'integer',
+            'reminders' => 'array',
             'visible_to_children' => 'boolean',
             'unusual' => 'boolean',
         ];

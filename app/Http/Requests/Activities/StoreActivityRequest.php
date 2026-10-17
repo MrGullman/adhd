@@ -39,6 +39,8 @@ class StoreActivityRequest extends FormRequest
             'end_date' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:date'],
             'weekday' => ['nullable', 'required_if:repeat,weekly', 'integer', 'between:1,7'],
             'time' => ['nullable', 'date_format:H:i'],
+            'reminders' => ['array'],
+            'reminders.*' => ['integer', 'distinct', Rule::in(Activity::REMINDER_MINUTES)],
             'visible_to_children' => ['boolean'],
             'unusual' => ['boolean'],
             'items' => ['array', 'max:30'],
@@ -62,6 +64,7 @@ class StoreActivityRequest extends FormRequest
             'end_date' => 'sista dagen',
             'weekday' => 'veckodag',
             'time' => 'klockslag',
+            'reminders.*' => 'påminnelse',
             'items.*.label' => 'saken',
         ];
     }
@@ -93,9 +96,23 @@ class StoreActivityRequest extends FormRequest
             'end_date' => $this->filled('end_date') ? $this->string('end_date')->toString() : null,
             'weekday' => $weekly ? $this->integer('weekday') : null,
             'time' => $this->filled('time') ? $this->string('time')->toString() : null,
+            'reminders' => $this->reminders(),
             'visible_to_children' => $this->boolean('visible_to_children'),
             'unusual' => $this->boolean('unusual'),
         ];
+    }
+
+    /**
+     * Reminders before the activity, largest first. Only with a time.
+     *
+     * @return list<int>|null
+     */
+    private function reminders(): ?array
+    {
+        $minutes = array_map(intval(...), (array) $this->input('reminders', []));
+        rsort($minutes);
+
+        return $this->filled('time') && $minutes !== [] ? $minutes : null;
     }
 
     /**

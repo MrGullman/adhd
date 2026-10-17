@@ -21,6 +21,8 @@ use Carbon\CarbonImmutable;
  * - a routine, when it starts, to each child that has it
  * - a calendar event, 15 minutes before, to whose calendar it is
  * - packing, at 18:00 the day before, to each child that packs
+ * - an activity with a time, as long before as chosen on it (e.g. 2 h and
+ *   1 h), to everyone who takes part
  *
  * Reminders are due for a while after their time, in case a run is late.
  */
@@ -49,6 +51,7 @@ class ReminderPlanner
             ...$this->routines($today),
             ...$this->events($today),
             ...$this->packing($family, $today),
+            ...$this->activities($today),
         ];
 
         return array_values(array_filter($reminders, fn (Reminder $reminder) => $reminder->at->gt($from) && $reminder->at->lte($now)));
@@ -176,6 +179,56 @@ class ReminderPlanner
         }
 
         return $reminders;
+    }
+
+    /**
+     * "Simskola börjar 17:15. 2 timmar kvar." Today's and tomorrow's
+     * activities, so that a reminder before an early one is sent the evening before.
+     *
+     * @return list<Reminder>
+     */
+    private function activities(CarbonImmutable $today): array
+    {
+        $tomorrow = $today->addDay();
+        $calendar = ActivityCalendar::between($today, $tomorrow);
+        $reminders = [];
+
+        foreach ([$today, $tomorrow] as $day) {
+            foreach ($calendar->on($day) as $activity) {
+                if ($activity->time === null || ! $activity->reminders) {
+                    continue;
+                }
+
+                $starts = $this->at($day, $activity->time);
+
+                foreach ($activity->reminders as $minutes) {
+                    foreach ($activity->participants as $participant) {
+                        $reminders[] = new Reminder(
+                            $participant,
+                            "activity:{$activity->id}:{$day->toDateString()}:{$minutes}",
+                            $starts->subMinutes($minutes),
+                            $activity->name,
+                            'Börjar '.$activity->shortTime().'. '.self::left($minutes).' kvar.',
+                            $this->home($participant),
+                        );
+                    }
+                }
+            }
+        }
+
+        return $reminders;
+    }
+
+    /**
+     * 120 as "2 timmar", 60 as "1 timme", 30 as "30 minuter".
+     */
+    private static function left(int $minutes): string
+    {
+        return match (true) {
+            $minutes === 60 => '1 timme',
+            $minutes % 60 === 0 => intdiv($minutes, 60).' timmar',
+            default => "{$minutes} minuter",
+        };
     }
 
     private function at(CarbonImmutable $day, string $time): CarbonImmutable
