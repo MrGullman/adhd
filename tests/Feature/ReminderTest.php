@@ -276,4 +276,39 @@ class ReminderTest extends TestCase
 
         $this->actingAs($this->parent)->post(route('activities.store'), [...$fields, 'time' => '17:00', 'reminders' => [45]])->assertSessionHasErrors('reminders.0');
     }
+
+    public function test_an_adult_who_follows_the_children_gets_their_activity_reminders_too()
+    {
+        $bo = User::factory()->child()->inFamily($this->family, FamilyRole::Child)->create(['name' => 'Bo']);
+        $other = User::factory()->inFamily($this->family)->create(['name' => 'Sam']);
+        $this->withDevice($other);
+        Activity::factory()->for($this->family)->concerning($this->child)->create([
+            'name' => 'Simskola', 'date' => '2026-10-13', 'time' => '09:45', 'reminders' => [120],
+        ]);
+
+        // Kim follows Alva; Sam follows only Bo.
+        $this->actingAs($this->parent)->put(route('reminders.children'), ['child_reminders' => true, 'all_children' => false, 'child_ids' => [$this->child->id]])->assertRedirect(route('reminders.edit'));
+        $this->actingAs($other)->put(route('reminders.children'), ['child_reminders' => true, 'all_children' => false, 'child_ids' => [$bo->id]])->assertRedirect();
+
+        $this->send();
+
+        $this->assertSame(['Simskola'], $this->sentTo($this->child));
+        $this->assertSame(['Simskola (Alva)'], $this->sentTo($this->parent));
+        $this->assertSame([], $this->sentTo($other));
+
+        $this->actingAs($this->parent)->get(route('reminders.edit'))->assertInertia(fn (Assert $page) => $page
+            ->where('childReminders', ['enabled' => true, 'childIds' => [$this->child->id]])
+            ->has('children', 2));
+    }
+
+    public function test_only_the_familys_children_can_be_followed()
+    {
+        $otherChild = User::factory()->child()->inFamily(Family::factory()->create(), FamilyRole::Child)->create();
+
+        $this->actingAs($this->parent)->put(route('reminders.children'), ['child_reminders' => true, 'all_children' => false, 'child_ids' => [$otherChild->id]])->assertSessionHasErrors('child_ids.0');
+        $this->actingAs($this->parent)->put(route('reminders.children'), ['child_reminders' => true, 'all_children' => false, 'child_ids' => []])->assertSessionHasErrors('child_ids');
+        $this->actingAs($this->parent)->put(route('reminders.children'), ['child_reminders' => true, 'all_children' => true])->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('family_user', ['user_id' => $this->parent->id, 'child_reminders' => true, 'child_reminder_ids' => null]);
+    }
 }

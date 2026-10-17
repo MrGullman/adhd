@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\FamilyRole;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
@@ -15,6 +16,8 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property int|null $school_menu_id
  * @property bool $rewards_enabled
  * @property bool $all_recipes
+ * @property bool $child_reminders
+ * @property list<int>|null $child_reminder_ids Null: every child.
  */
 class Membership extends Pivot
 {
@@ -33,6 +36,16 @@ class Membership extends Pivot
             'role' => FamilyRole::class,
             'rewards_enabled' => 'boolean',
             'all_recipes' => 'boolean',
+            'child_reminders' => 'boolean',
+            'child_reminder_ids' => 'array',
         ];
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Reminders;
 use App\Calendar\FamilyCalendar;
 use App\Enums\FamilyRole;
 use App\Models\Family;
+use App\Models\Membership;
 use App\Models\Routine;
 use App\Models\Task;
 use App\Models\User;
@@ -22,7 +23,8 @@ use Carbon\CarbonImmutable;
  * - a calendar event, 15 minutes before, to whose calendar it is
  * - packing, at 18:00 the day before, to each child that packs
  * - an activity with a time, as long before as chosen on it (e.g. 2 h and
- *   1 h), to everyone who takes part
+ *   1 h), to everyone who takes part, and to adults who follow the
+ *   children's activities (family_user.child_reminders)
  *
  * Reminders are due for a while after their time, in case a run is late.
  */
@@ -191,6 +193,8 @@ class ReminderPlanner
     {
         $tomorrow = $today->addDay();
         $calendar = ActivityCalendar::between($today, $tomorrow);
+        $followers = $this->followers();
+        $familyChildIds = $this->family?->children()->pluck('users.id')->map(fn ($id) => (int) $id)->all() ?? [];
         $reminders = [];
 
         foreach ([$today, $tomorrow] as $day) {
@@ -200,23 +204,55 @@ class ReminderPlanner
                 }
 
                 $starts = $this->at($day, $activity->time);
+                $children = $activity->participants->filter(fn (User $user) => in_array($user->id, $familyChildIds, true));
 
                 foreach ($activity->reminders as $minutes) {
+                    $key = "activity:{$activity->id}:{$day->toDateString()}:{$minutes}";
+                    $body = 'Börjar '.$activity->shortTime().'. '.self::left($minutes).' kvar.';
+
                     foreach ($activity->participants as $participant) {
-                        $reminders[] = new Reminder(
-                            $participant,
-                            "activity:{$activity->id}:{$day->toDateString()}:{$minutes}",
-                            $starts->subMinutes($minutes),
-                            $activity->name,
-                            'Börjar '.$activity->shortTime().'. '.self::left($minutes).' kvar.',
-                            $this->home($participant),
-                        );
+                        $reminders[] = new Reminder($participant, $key, $starts->subMinutes($minutes), $activity->name, $body, $this->home($participant));
+                    }
+
+                    // Adults who follow the children's activities: "Simskola (Alva)".
+                    foreach ($followers as [$adult, $childIds]) {
+                        $followed = $children->filter(fn (User $child) => $childIds === null || in_array($child->id, $childIds, true));
+
+                        if ($followed->isEmpty() || $activity->participants->contains(fn (User $user) => $user->is($adult))) {
+                            continue;
+                        }
+
+                        $names = $followed->pluck('name')->join(', ', ' och ');
+                        $reminders[] = new Reminder($adult, $key, $starts->subMinutes($minutes), "{$activity->name} ({$names})", $body, route('dashboard'));
                     }
                 }
             }
         }
 
         return $reminders;
+    }
+
+    /**
+     * Adults in the family who get the children's activity reminders, with
+     * which children (null: every child).
+     *
+     * @return list<array{0: User, 1: list<int>|null}>
+     */
+    private function followers(): array
+    {
+        if ($this->family === null) {
+            return [];
+        }
+
+        return array_values(Membership::query()
+            ->with('user')
+            ->where('family_id', $this->family->id)
+            ->where('child_reminders', true)
+            ->where('role', '!=', FamilyRole::Child->value)
+            ->get()
+            ->filter(fn (Membership $membership) => $membership->user instanceof User)
+            ->map(fn (Membership $membership) => [$membership->user, $membership->child_reminder_ids])
+            ->all());
     }
 
     /**

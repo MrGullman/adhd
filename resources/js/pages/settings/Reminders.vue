@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
+import ChildRemindersForm from '@/components/ChildRemindersForm.vue';
 import Heading from '@/components/Heading.vue';
 import PushToggle from '@/components/PushToggle.vue';
 import ReminderSettingsForm from '@/components/ReminderSettingsForm.vue';
 import { Button } from '@/components/ui/button';
 import { edit, test, update } from '@/routes/reminders';
+import type { Member } from '@/types';
 
 defineOptions({
     layout: {
@@ -20,6 +22,8 @@ defineProps<{
         quietFrom: string | null;
         quietUntil: string | null;
     };
+    childReminders: { enabled: boolean; childIds: number[] | null };
+    children: Member[];
 }>();
 </script>
 
@@ -61,6 +65,18 @@ defineProps<{
                 description="Dina uppgifter med klockslag, och händelser i din kalender 15 minuter innan."
             />
             <ReminderSettingsForm :action="update.url()" :settings="settings" />
+        </section>
+
+        <section v-if="children.length" class="space-y-4">
+            <Heading
+                variant="small"
+                title="Barnens aktiviteter"
+                description="Få samma påminnelser som barnen före deras aktiviteter."
+            />
+            <ChildRemindersForm
+                :settings="childReminders"
+                :children="children"
+            />
         </section>
     </div>
 </template>
