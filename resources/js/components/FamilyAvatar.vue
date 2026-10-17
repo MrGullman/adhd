@@ -6,7 +6,8 @@ const props = withDefaults(
     defineProps<{
         name: string;
         color: AvatarColor | string;
-        size?: 'sm' | 'md' | 'lg';
+        /** fit-sm and fit-md grow with a home display widget (WidgetCard --fit). */
+        size?: 'sm' | 'md' | 'lg' | 'fit-sm' | 'fit-md';
         /** The member's own picture. Without one the initial is shown. */
         pictureUrl?: string | null;
         selected?: boolean;
@@ -27,6 +28,10 @@ const sizes = {
     sm: 'size-8 text-sm',
     md: 'size-14 text-2xl',
     lg: 'size-28 text-5xl',
+    'fit-sm':
+        'size-[calc(2rem*var(--fit,1))] text-[length:calc(0.875rem*var(--fit,1))]',
+    'fit-md':
+        'size-[calc(3.5rem*var(--fit,1))] text-[length:calc(1.5rem*var(--fit,1))]',
 };
 
 const initial = computed(() => props.name.trim().charAt(0).toUpperCase());

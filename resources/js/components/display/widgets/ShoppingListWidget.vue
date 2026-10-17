@@ -21,7 +21,7 @@ defineProps<{
     <WidgetCard title="Handlingslista" :icon="ShoppingCart">
         <p
             v-if="!data.items.length"
-            class="font-display text-[1.5rem] text-ink-muted"
+            class="font-display text-[length:calc(1.5rem*var(--fit))] text-ink-muted"
         >
             Inget att handla.
         </p>
@@ -31,19 +31,27 @@ defineProps<{
                 :key="item.id"
                 class="flex items-center gap-4"
             >
-                <Thumb :picture="item.picture" size="size-12" />
-                <span class="flex-1 font-display text-[1.6rem] break-words">
+                <Thumb
+                    :picture="item.picture"
+                    size="size-[calc(3rem*var(--fit))]"
+                />
+                <span
+                    class="flex-1 font-display text-[length:calc(1.6rem*var(--fit))] break-words"
+                >
                     {{ item.name }}
                 </span>
                 <span
                     v-if="item.addedBy"
-                    class="font-display text-[1.15rem] text-ink-muted"
+                    class="font-display text-[length:calc(1.15rem*var(--fit))] text-ink-muted"
                 >
                     {{ item.addedBy }}
                 </span>
             </li>
         </ul>
-        <p v-if="data.more" class="font-display text-[1.3rem] text-ink-muted">
+        <p
+            v-if="data.more"
+            class="font-display text-[length:calc(1.3rem*var(--fit))] text-ink-muted"
+        >
             och {{ data.more }} till
         </p>
     </WidgetCard>

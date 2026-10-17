@@ -1,5 +1,15 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import {
+    computed,
+    nextTick,
+    onBeforeUnmount,
+    onMounted,
+    onUpdated,
+    provide,
+    ref,
+    toRef,
+} from 'vue';
+import { DISPLAY_DENSITY } from '@/components/display/density';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import { possessive } from '@/lib/format';
 import type {
@@ -19,6 +29,20 @@ const props = defineProps<{
     view?: DisplayViewData | null;
 }>();
 
+const emit = defineEmits<{
+    /** Width ÷ height of the area the widgets share, for the editor's grid. */
+    gridRatio: [ratio: number];
+}>();
+
+provide(DISPLAY_DENSITY, toRef(props, 'density'));
+
+// Less space between widgets the closer people stand.
+const spacing: Record<Density, { page: string; grid: string }> = {
+    large: { page: 'gap-8 p-12', grid: 'gap-8' },
+    medium: { page: 'gap-6 p-10', grid: 'gap-6' },
+    compact: { page: 'gap-4 p-6', grid: 'gap-4' },
+};
+
 /*
  * The display is drawn for a 1920 px wide screen and zoomed to fit, so 1080p
  * and 4K look the same. Density only changes how big things are:
@@ -31,22 +55,100 @@ const factors: Record<Density, number> = {
 };
 
 const root = ref<HTMLElement | null>(null);
+const gridArea = ref<HTMLElement | null>(null);
 const size = ref({ width: 1920, height: 1080 });
 let observer: ResizeObserver | undefined;
 
 onMounted(() => {
-    observer = new ResizeObserver(([entry]) => {
-        size.value = {
-            width: entry.contentRect.width,
-            height: entry.contentRect.height,
-        };
+    observer = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+            if (entry.target === root.value) {
+                size.value = {
+                    width: entry.contentRect.width,
+                    height: entry.contentRect.height,
+                };
+            } else if (entry.contentRect.height > 0) {
+                scheduleFit();
+                emit(
+                    'gridRatio',
+                    entry.contentRect.width / entry.contentRect.height,
+                );
+            }
+        }
     });
 
     if (root.value) {
         observer.observe(root.value);
     }
+
+    if (gridArea.value) {
+        observer.observe(gridArea.value);
+    }
 });
 onBeforeUnmount(() => observer?.disconnect());
+
+/*
+ * Bigger text when there is room, the same size in every widget: --fit is
+ * the largest scale (1 to MAX) where nothing in any widget is cut off.
+ */
+const MAX = 1.4;
+const fit = ref(1);
+let scheduled = false;
+
+function overflows(): boolean {
+    const cards =
+        gridArea.value?.querySelectorAll<HTMLElement>('[data-widget-card]') ??
+        [];
+
+    return [...cards].some(
+        (card) =>
+            card.scrollHeight > card.clientHeight + 1 ||
+            card.scrollWidth > card.clientWidth + 1,
+    );
+}
+
+function measure(): void {
+    const area = gridArea.value;
+
+    if (!area || area.clientHeight === 0) {
+        return;
+    }
+
+    let low = 1;
+    let high = MAX;
+
+    for (let step = 0; step < 6; step++) {
+        const middle = (low + high) / 2;
+        area.style.setProperty('--fit', String(middle));
+
+        if (overflows()) {
+            high = middle;
+        } else {
+            low = middle;
+        }
+    }
+
+    area.style.setProperty('--fit', String(low));
+    fit.value = low;
+}
+
+function scheduleFit(): void {
+    if (scheduled) {
+        return;
+    }
+
+    scheduled = true;
+    requestAnimationFrame(() => {
+        scheduled = false;
+        measure();
+    });
+}
+
+onMounted(() => {
+    void document.fonts?.ready.then(scheduleFit);
+    scheduleFit();
+});
+onUpdated(() => void nextTick(scheduleFit));
 
 const zoom = computed(() => (size.value.width / 1920) * factors[props.density]);
 const inner = computed(() => ({
@@ -63,7 +165,8 @@ const inner = computed(() => ({
         :class="header.evening && 'dark'"
     >
         <div
-            class="flex flex-col gap-8 bg-surface p-12 text-ink"
+            class="flex flex-col bg-surface text-ink"
+            :class="spacing[density].page"
             :style="inner"
         >
             <DisplayHeader :header="header" />
@@ -87,7 +190,12 @@ const inner = computed(() => ({
                     }}
                 </span>
             </div>
-            <div class="grid min-h-0 flex-1 grid-cols-12 grid-rows-6 gap-8">
+            <div
+                ref="gridArea"
+                class="grid min-h-0 flex-1 grid-cols-12 grid-rows-6"
+                :style="{ '--fit': fit }"
+                :class="spacing[density].grid"
+            >
                 <div
                     v-for="widget in widgets"
                     :key="widget.id"

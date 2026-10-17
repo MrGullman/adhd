@@ -42,13 +42,13 @@ function label(date: string, isToday: boolean, index: number): string {
                 class="flex flex-col gap-2"
             >
                 <h3
-                    class="font-display text-[1.3rem] font-semibold text-ink-muted first-letter:uppercase"
+                    class="font-display text-[length:calc(1.3rem*var(--fit))] font-semibold text-ink-muted first-letter:uppercase"
                 >
                     {{ label(day.date, day.isToday, index) }}
                 </h3>
                 <p
                     v-if="!day.events.length"
-                    class="font-display text-[1.3rem] text-ink-muted"
+                    class="font-display text-[length:calc(1.3rem*var(--fit))] text-ink-muted"
                 >
                     Inget i kalendern.
                 </p>
@@ -57,9 +57,12 @@ function label(date: string, isToday: boolean, index: number): string {
                     :key="event.id"
                     class="flex items-center gap-3"
                 >
-                    <Thumb :picture="event.picture" size="size-10" />
+                    <Thumb
+                        :picture="event.picture"
+                        size="size-[calc(2.5rem*var(--fit))]"
+                    />
                     <span
-                        class="w-20 shrink-0 font-display text-[1.3rem] text-ink-muted tabular-nums"
+                        class="w-20 shrink-0 font-display text-[length:calc(1.3rem*var(--fit))] text-ink-muted tabular-nums"
                     >
                         {{
                             event.allDay
@@ -69,7 +72,7 @@ function label(date: string, isToday: boolean, index: number): string {
                         }}
                     </span>
                     <span
-                        class="min-w-0 flex-1 truncate font-display text-[1.5rem] font-semibold"
+                        class="min-w-0 flex-1 truncate font-display text-[length:calc(1.5rem*var(--fit))] font-semibold"
                     >
                         {{ event.title }}
                     </span>
@@ -78,12 +81,12 @@ function label(date: string, isToday: boolean, index: number): string {
                         :name="event.owner.name"
                         :color="event.owner.avatarColor"
                         :picture-url="event.owner.avatarUrl"
-                        size="sm"
+                        size="fit-sm"
                     />
                 </div>
                 <p
                     v-if="day.more"
-                    class="font-display text-[1.1rem] text-ink-muted"
+                    class="font-display text-[length:calc(1.1rem*var(--fit))] text-ink-muted"
                 >
                     och {{ day.more }} till
                 </p>
