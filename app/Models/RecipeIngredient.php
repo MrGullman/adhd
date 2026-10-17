@@ -18,11 +18,12 @@ use Illuminate\Support\Carbon;
  * @property string|null $quantity
  * @property string|null $unit
  * @property string|null $note
+ * @property string|null $section A heading such as "Fyllning", or null.
  * @property int $sort_order
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['ingredient_id', 'quantity', 'unit', 'note', 'sort_order'])]
+#[Fillable(['ingredient_id', 'quantity', 'unit', 'note', 'section', 'sort_order'])]
 class RecipeIngredient extends Model
 {
     /**

@@ -12,13 +12,13 @@ use Illuminate\Support\Facades\DB;
  * Saves a recipe with its ingredients. A name that is not in the basic list
  * or the family's own becomes a new ingredient of the family's. "Smör el
  * margarin (till stekning)" is Smör with the alternative Margarin and the
- * note "till stekning".
+ * note "till stekning". Each ingredient can have a heading, e.g. "Fyllning".
  */
 class SaveRecipe
 {
     /**
      * @param  array<string, mixed>  $attributes
-     * @param  list<array{ingredient_id: int|null, name: string|null, quantity: string|null, unit: string|null, note: string|null}>  $lines
+     * @param  list<array{ingredient_id: int|null, name: string|null, quantity: string|null, unit: string|null, note: string|null, section?: string|null}>  $lines
      */
     public function handle(Recipe $recipe, Family $family, array $attributes, array $lines): Recipe
     {
@@ -46,6 +46,7 @@ class SaveRecipe
                     'quantity' => $line['quantity'],
                     'unit' => $line['unit'],
                     'note' => implode(', ', array_filter([$line['note'], $parsed['note']])) ?: null,
+                    'section' => $line['section'] ?? null,
                     'sort_order' => $index,
                 ]);
 

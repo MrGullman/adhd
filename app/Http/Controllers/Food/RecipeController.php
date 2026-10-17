@@ -71,6 +71,7 @@ class RecipeController extends Controller
                     'quantity' => $line->quantity === null ? null : (float) $line->quantity,
                     'unit' => $line->unit,
                     'note' => $line->note,
+                    'section' => $line->section,
                     'atHome' => $line->isAtHome($atHome),
                 ])->values(),
             ],
@@ -123,6 +124,7 @@ class RecipeController extends Controller
                     'quantity' => $line->quantity === null ? null : (float) $line->quantity,
                     'unit' => $line->unit,
                     'note' => $line->note,
+                    'section' => $line->section,
                 ])->values(),
             ],
         ]);

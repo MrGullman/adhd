@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
-import { ArrowDown, ArrowUp, Plus, Trash2 } from '@lucide/vue';
+import { ArrowDown, ArrowUp, Heading, Plus, Trash2 } from '@lucide/vue';
 import IngredientInput from '@/components/food/IngredientInput.vue';
 import RecipeStepsHelp from '@/components/food/RecipeStepsHelp.vue';
 import InputError from '@/components/InputError.vue';
@@ -17,6 +17,10 @@ type Line = {
     quantity: number | null;
     unit: string | null;
     note: string | null;
+    /** The heading the ingredient is under, e.g. "Fyllning". */
+    section?: string | null;
+    /** A heading row in the form: name is the heading. */
+    heading?: boolean;
 };
 
 export type RecipeDraft = {
@@ -53,25 +57,67 @@ const form = useForm({
     // Kept for an imported recipe, shown as "Källa" on the recipe.
     source_url: props.recipe?.sourceUrl ?? null,
     ingredients: props.recipe?.ingredients.length
-        ? props.recipe.ingredients
+        ? withHeadings(props.recipe.ingredients)
         : [newLine()],
 });
+
+/**
+ * The saved ingredients as rows, with a heading row where a new part of the
+ * recipe starts ("Kaka", then "Fyllning").
+ */
+function withHeadings(lines: Line[]): Line[] {
+    const rows: Line[] = [];
+    let section: string | null = null;
+
+    for (const line of lines) {
+        if ((line.section ?? null) !== section && line.section) {
+            rows.push({ ...newLine(), heading: true, name: line.section });
+        }
+
+        section = line.section ?? null;
+        rows.push(line);
+    }
+
+    return rows;
+}
+
+function newHeading(): Line {
+    return { ...newLine(), heading: true };
+}
 
 function submit(): void {
     form.transform((data) => ({
         ...data,
         picture: undefined,
         picture_id: data.picture?.id ?? null,
-        ingredients: data.ingredients
-            .filter((line) => line.name.trim() !== '')
-            .map((line) => ({
-                ingredient_id: line.ingredientId,
-                name: line.name,
-                quantity: line.quantity,
-                unit: line.unit,
-                note: line.note,
-            })),
+        ingredients: underHeadings(data.ingredients),
     })).submit(props.action);
+}
+
+/** Each ingredient with the heading above it, headings themselves left out. */
+function underHeadings(rows: Line[]) {
+    let section: string | null = null;
+
+    return rows.flatMap((row) => {
+        if (row.heading) {
+            section = row.name.trim() || null;
+
+            return [];
+        }
+
+        return row.name.trim() === ''
+            ? []
+            : [
+                  {
+                      ingredient_id: row.ingredientId,
+                      name: row.name,
+                      quantity: row.quantity,
+                      unit: row.unit,
+                      note: row.note,
+                      section,
+                  },
+              ];
+    });
 }
 
 function move(index: number, by: number): void {
@@ -147,7 +193,9 @@ const fieldClass =
                 Välj varan ur listan när den finns, så kan appen jämföra med
                 skafferiet. Ett nytt namn blir familjens egen vara. Skriv "smör
                 el margarin" om båda går bra, och det som står inom parentes
-                blir en anteckning, t.ex. "smör (till stekning)".
+                blir en anteckning, t.ex. "smör (till stekning)". Har receptet
+                flera delar, som kaka och fyllning, delar du upp dem med Lägg
+                till rubrik.
             </p>
             <datalist id="units">
                 <option v-for="unit in units" :key="unit" :value="unit" />
@@ -156,41 +204,58 @@ const fieldClass =
                 <li
                     v-for="(line, index) in form.ingredients"
                     :key="index"
-                    class="flex flex-wrap items-center gap-2 rounded-lg border border-line bg-surface-raised p-2"
+                    class="flex flex-wrap items-center gap-2 rounded-lg p-2"
+                    :class="
+                        line.heading
+                            ? 'mt-2 bg-surface-sunken'
+                            : 'border border-line bg-surface-raised'
+                    "
                 >
+                    <!-- Rubrik, t.ex. Kaka eller Fyllning -->
                     <input
-                        v-model.number="line.quantity"
-                        type="number"
-                        min="0"
-                        step="any"
-                        placeholder="Mängd"
-                        :aria-label="`Mängd, rad ${index + 1}`"
+                        v-if="line.heading"
+                        v-model="line.name"
+                        placeholder="Rubrik, t.ex. Fyllning"
+                        maxlength="50"
+                        :aria-label="`Rubrik, rad ${index + 1}`"
                         :class="fieldClass"
-                        class="w-24"
+                        class="min-w-40 flex-1 font-bold"
                     />
-                    <input
-                        v-model="line.unit"
-                        list="units"
-                        placeholder="Enhet"
-                        maxlength="10"
-                        :aria-label="`Enhet, rad ${index + 1}`"
-                        :class="fieldClass"
-                        class="w-24"
-                    />
-                    <IngredientInput
-                        v-model:name="line.name"
-                        v-model:ingredient-id="line.ingredientId"
-                        :aria-label="`Vara, rad ${index + 1}`"
-                        @select="onChoose(line, $event)"
-                    />
-                    <input
-                        v-model="line.note"
-                        placeholder="T.ex. hackad"
-                        maxlength="100"
-                        :aria-label="`Anteckning, rad ${index + 1}`"
-                        :class="fieldClass"
-                        class="w-32"
-                    />
+                    <template v-else>
+                        <input
+                            v-model.number="line.quantity"
+                            type="number"
+                            min="0"
+                            step="any"
+                            placeholder="Mängd"
+                            :aria-label="`Mängd, rad ${index + 1}`"
+                            :class="fieldClass"
+                            class="w-24"
+                        />
+                        <input
+                            v-model="line.unit"
+                            list="units"
+                            placeholder="Enhet"
+                            maxlength="10"
+                            :aria-label="`Enhet, rad ${index + 1}`"
+                            :class="fieldClass"
+                            class="w-24"
+                        />
+                        <IngredientInput
+                            v-model:name="line.name"
+                            v-model:ingredient-id="line.ingredientId"
+                            :aria-label="`Vara, rad ${index + 1}`"
+                            @select="onChoose(line, $event)"
+                        />
+                        <input
+                            v-model="line.note"
+                            placeholder="T.ex. hackad"
+                            maxlength="100"
+                            :aria-label="`Anteckning, rad ${index + 1}`"
+                            :class="fieldClass"
+                            class="w-32"
+                        />
+                    </template>
                     <div class="flex">
                         <Button
                             type="button"
@@ -240,6 +305,15 @@ const fieldClass =
             >
                 <Plus class="size-5" />
                 Lägg till ingrediens
+            </Button>
+            <Button
+                type="button"
+                variant="ghost"
+                class="w-fit"
+                @click="form.ingredients.push(newHeading())"
+            >
+                <Heading class="size-5" />
+                Lägg till rubrik
             </Button>
         </section>
 

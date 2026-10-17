@@ -36,6 +36,8 @@ const props = defineProps<{
             quantity: number | null;
             unit: string | null;
             note: string | null;
+            /** A heading such as "Fyllning", or null. */
+            section: string | null;
             atHome: boolean;
         }>;
     };
@@ -123,31 +125,48 @@ function site(url: string): string {
                 }}
             </p>
             <ul class="flex flex-col gap-2">
-                <li
-                    v-for="line in recipe.ingredients"
+                <template
+                    v-for="(line, index) in recipe.ingredients"
                     :key="line.id"
-                    class="flex items-center gap-3 rounded-lg border border-line bg-surface-raised p-2"
                 >
-                    <PictureThumb v-if="line.picture" :picture="line.picture" />
-                    <span
-                        class="w-20 shrink-0 text-right font-bold tabular-nums"
+                    <!-- Rubrik där en ny del av receptet börjar, t.ex. Fyllning -->
+                    <li
+                        v-if="
+                            line.section &&
+                            line.section !==
+                                recipe.ingredients[index - 1]?.section
+                        "
+                        class="pt-2 text-caption font-bold text-ink-muted"
                     >
-                        {{ amount(line.quantity) }} {{ line.unit }}
-                    </span>
-                    <span class="flex-1">
-                        {{ line.name }}
-                        <span v-if="line.note" class="ml-1 text-ink-muted"
-                            >({{ line.note }})</span
+                        {{ line.section }}
+                    </li>
+                    <li
+                        class="flex items-center gap-3 rounded-lg border border-line bg-surface-raised p-2"
+                    >
+                        <PictureThumb
+                            v-if="line.picture"
+                            :picture="line.picture"
+                        />
+                        <span
+                            class="w-20 shrink-0 text-right font-bold tabular-nums"
                         >
-                    </span>
-                    <span
-                        v-if="line.atHome"
-                        class="flex items-center gap-1 rounded-full bg-success-soft px-2 py-0.5 text-caption font-bold"
-                    >
-                        <Check class="size-4" aria-hidden="true" />
-                        Hemma
-                    </span>
-                </li>
+                            {{ amount(line.quantity) }} {{ line.unit }}
+                        </span>
+                        <span class="flex-1">
+                            {{ line.name }}
+                            <span v-if="line.note" class="ml-1 text-ink-muted"
+                                >({{ line.note }})</span
+                            >
+                        </span>
+                        <span
+                            v-if="line.atHome"
+                            class="flex items-center gap-1 rounded-full bg-success-soft px-2 py-0.5 text-caption font-bold"
+                        >
+                            <Check class="size-4" aria-hidden="true" />
+                            Hemma
+                        </span>
+                    </li>
+                </template>
             </ul>
         </section>
 
