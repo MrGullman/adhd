@@ -7,8 +7,12 @@ use App\Actions\Meals\RefreshShoppingList;
 use App\Food\Dinner;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Food\StoreMealPlanEntryRequest;
+use App\Models\Family;
 use App\Models\MealPlanEntry;
+use App\Models\Membership;
 use App\Models\Recipe;
+use App\Models\SchoolMeal;
+use App\Models\SchoolMenu;
 use App\Models\User;
 use App\Support\CurrentFamily;
 use App\Support\LocalTime;
@@ -65,7 +69,52 @@ class MealPlanController extends Controller
             'canEdit' => $user->can('create', MealPlanEntry::class),
             'dinnerSwitch' => $current->getOrFail()->settings['dinner_switch'] ?? Dinner::DEFAULT_SWITCH,
             'canManage' => $user->can('update', $current->getOrFail()),
+            'schoolMeals' => $this->schoolMeals($current->getOrFail(), $monday),
         ]);
+    }
+
+    /**
+     * The week's school lunch for each school the children eat at, to show
+     * next to the dinners. Holidays instead of lunch are shown as such.
+     *
+     * @return list<array{id: int, name: string, children: list<string>, days: array<string, array{holiday: string|null, courses: list<string>}>}>
+     */
+    private function schoolMeals(Family $family, CarbonImmutable $monday): array
+    {
+        /** @var array<int, list<string>> $children Children's names per school. */
+        $children = [];
+
+        foreach ($family->children()->orderBy('name')->get() as $child) {
+            $membership = $child->getRelation('pivot');
+
+            if ($membership instanceof Membership && $membership->school_menu_id !== null) {
+                $children[$membership->school_menu_id][] = $child->name;
+            }
+        }
+
+        $menus = SchoolMenu::query()
+            ->whereIn('id', array_keys($children))
+            ->with(['meals' => fn ($query) => $query->whereBetween('date', [$monday->toDateString(), $monday->addDays(6)->toDateString()])])
+            ->orderBy('name')
+            ->get();
+
+        return array_values($menus->map(fn (SchoolMenu $menu) => [
+            'id' => $menu->id,
+            'name' => $menu->name,
+            'children' => $children[$menu->id] ?? [],
+            'days' => $menu->meals
+                ->groupBy(fn (SchoolMeal $meal) => $meal->date->toDateString())
+                ->map(function ($meals) {
+                    // "Lunch" when the school has more than one meal a day.
+                    $meal = $meals->first(fn (SchoolMeal $meal) => $meal->meal_name === 'Lunch') ?? $meals->first();
+
+                    return [
+                        'holiday' => $meal->holiday_name,
+                        'courses' => array_map(fn (array $course) => $course['name'], $meal->courses),
+                    ];
+                })
+                ->all(),
+        ])->all());
     }
 
     public function store(StoreMealPlanEntryRequest $request): RedirectResponse
