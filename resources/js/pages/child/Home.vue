@@ -23,6 +23,7 @@ import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import PictureThumb from '@/components/PictureThumb.vue';
 import PushToggle from '@/components/PushToggle.vue';
 import SchoolLunch from '@/components/SchoolLunch.vue';
+import VisualTimer from '@/components/VisualTimer.vue';
 import { useDoneLast } from '@/composables/useDoneLast';
 import { formatDay } from '@/lib/format';
 import { isDueNow, whenText } from '@/lib/now';
@@ -259,6 +260,12 @@ const allDone = computed(
                         >
                             {{ whenText(now.time, now.dayPart) }}
                         </p>
+                        <VisualTimer
+                            v-if="now.timerMinutes"
+                            :key="now.id"
+                            :minutes="now.timerMinutes"
+                            :storage-key="`task:${now.id}`"
+                        />
                         <Link
                             :href="TaskCompletionController.store(now.id)"
                             as="button"

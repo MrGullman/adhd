@@ -17,6 +17,8 @@ type StepDraft = {
     label: string;
     picture: PictureItem | null;
     minutes: number | null;
+    /** Show a visual timer for the step's minutes. */
+    timer?: boolean;
     type: 'step' | 'packlist';
     optional: boolean;
     weekdays: number[];
@@ -76,6 +78,7 @@ function submit(): void {
             label: step.label,
             picture_id: step.picture?.id ?? null,
             minutes: step.minutes,
+            timer: step.timer ?? false,
             type: step.type,
             optional: step.optional,
             weekdays: step.weekdays,
@@ -327,6 +330,14 @@ const selectClass =
                                 class="size-5"
                             />
                             Valfritt
+                        </label>
+                        <label class="flex items-center gap-2">
+                            <input
+                                v-model="step.timer"
+                                type="checkbox"
+                                class="size-5"
+                            />
+                            Visa timer
                         </label>
                     </div>
 

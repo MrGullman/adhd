@@ -132,6 +132,15 @@ Vårdnadshavare väljer läge per barn. Mognad och behov följer inte alltid ål
 - Mörkt tema kvällstid.
 - Widgets per barn delas upp med barnets avatar och namn.
 
+## Visuell timer
+
+Ett beslutat undantag från "inga stressande nedräkningar". En visuell timer, som en Time Timer, hjälper många barn med NPF att se hur tiden går.
+
+- Vuxna lägger till den på ett rutinsteg (stegets minuter) eller en uppgift, t.ex. Äta i 20 minuter.
+- Barnet trycker Starta. Skivan i `primary` krymper medurs. Aldrig röd och aldrig blinkande.
+- Minuter kvar skrivs i hela minuter ("2 min kvar"). Sekunder tickar aldrig.
+- När tiden är slut: ett mjukt pling, en kort vibration och Klart med bock. Börja om finns.
+
 ## Rörelse
 
 - Övergångar högst 200 ms, ease-out. Firandet när en rutin är klar: lugnt, högst en sekund, en gång.

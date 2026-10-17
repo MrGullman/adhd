@@ -20,6 +20,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $picture_id
  * @property string $label
  * @property int|null $minutes
+ * @property bool $timer Show a visual timer for the step's minutes.
  * @property StepType $type
  * @property list<int>|null $weekdays
  * @property bool $optional
@@ -27,7 +28,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['picture_id', 'label', 'minutes', 'type', 'weekdays', 'optional', 'sort_order'])]
+#[Fillable(['picture_id', 'label', 'minutes', 'timer', 'type', 'weekdays', 'optional', 'sort_order'])]
 class RoutineStep extends Model
 {
     /** @use HasFactory<RoutineStepFactory> */
@@ -44,6 +45,7 @@ class RoutineStep extends Model
             'type' => StepType::class,
             'weekdays' => 'array',
             'optional' => 'boolean',
+            'timer' => 'boolean',
         ];
     }
 

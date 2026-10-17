@@ -42,6 +42,7 @@ class StoreRecurringTaskRequest extends FormRequest
             'ends_on' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:starts_on'],
             'day_part' => ['nullable', Rule::enum(DayPart::class)],
             'time' => ['nullable', 'date_format:H:i'],
+            'timer_minutes' => ['nullable', 'integer', 'between:1,120'],
         ];
     }
 
@@ -61,6 +62,7 @@ class StoreRecurringTaskRequest extends FormRequest
             'ends_on' => 'sista dagen',
             'day_part' => 'del av dagen',
             'time' => 'klockslag',
+            'timer_minutes' => 'timer',
         ];
     }
 
@@ -104,6 +106,7 @@ class StoreRecurringTaskRequest extends FormRequest
                 ? $family->dayPartFor($time)
                 : $this->enum('day_part', DayPart::class),
             'time' => $time,
+            'timer_minutes' => $this->filled('timer_minutes') ? $this->integer('timer_minutes') : null,
         ];
     }
 }

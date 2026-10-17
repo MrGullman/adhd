@@ -105,6 +105,7 @@ class RoutineController extends Controller
                     'label' => $step->label,
                     'picture' => $step->picture?->toPicker(),
                     'minutes' => $step->minutes,
+                    'timer' => $step->timer,
                     'type' => $step->type->value,
                     'optional' => $step->optional,
                     'weekdays' => $step->weekdays ?? [],

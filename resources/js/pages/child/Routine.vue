@@ -6,6 +6,7 @@ import ChildRoutineController from '@/actions/App/Http/Controllers/Routines/Chil
 import CompletionToggle from '@/components/CompletionToggle.vue';
 import PictureThumb from '@/components/PictureThumb.vue';
 import QuarterDots from '@/components/QuarterDots.vue';
+import VisualTimer from '@/components/VisualTimer.vue';
 import { useChildStyle } from '@/composables/useChildStyle';
 import { home as childHome } from '@/routes/child';
 import { childPacking } from '@/lib/activities';
@@ -167,6 +168,12 @@ function stepHref(step: RoutineStepItem) {
                     >
                         {{ current.label }}
                     </h2>
+                    <VisualTimer
+                        v-if="current.timerMinutes"
+                        :key="current.id"
+                        :minutes="current.timerMinutes"
+                        :storage-key="`step:${current.id}:${routine.id}`"
+                    />
                     <template v-if="current.type === 'packlist'">
                         <p class="font-display text-child-label">
                             {{

@@ -103,6 +103,7 @@ class GenerateRecurringTasks
             'date' => $date->toDateString(),
             'day_part' => $recurring->time !== null ? $family->dayPartFor($recurring->time) : $recurring->day_part,
             'time' => $recurring->time,
+            'timer_minutes' => $recurring->timer_minutes,
             'created_by' => $recurring->created_by,
         ]);
         $task->recurring_task_id = $recurring->id;

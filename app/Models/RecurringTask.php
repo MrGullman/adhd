@@ -26,6 +26,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $assigned_to
  * @property DayPart|null $day_part
  * @property string|null $time
+ * @property int|null $timer_minutes A visual timer the child starts, e.g. 20 for Äta.
  * @property Frequency $frequency
  * @property list<int>|null $weekdays
  * @property int $week_interval
@@ -35,7 +36,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['title', 'picture_id', 'assigned_to', 'day_part', 'time', 'frequency', 'weekdays', 'week_interval', 'starts_on', 'ends_on', 'created_by'])]
+#[Fillable(['title', 'picture_id', 'assigned_to', 'day_part', 'time', 'timer_minutes', 'frequency', 'weekdays', 'week_interval', 'starts_on', 'ends_on', 'created_by'])]
 class RecurringTask extends Model
 {
     /** @use HasFactory<RecurringTaskFactory> */

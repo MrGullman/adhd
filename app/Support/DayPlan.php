@@ -113,6 +113,7 @@ class DayPlan
             'title' => $task->title,
             'picture' => $task->picture?->toPicker(),
             'time' => $task->shortTime(),
+            'timerMinutes' => $task->timer_minutes,
             'dayPart' => $task->day_part?->value,
             'completed' => $task->isCompleted(),
             'recurring' => $task->isRecurring(),

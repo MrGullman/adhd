@@ -81,6 +81,7 @@ class TaskController extends Controller
                 'date' => $task->date->toDateString(),
                 'dayPart' => $task->time === null ? $task->day_part?->value : null,
                 'time' => $task->shortTime(),
+                'timerMinutes' => $task->timer_minutes,
                 'recurring' => $task->isRecurring(),
             ],
         ]);

@@ -29,6 +29,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon $date
  * @property DayPart|null $day_part
  * @property string|null $time
+ * @property int|null $timer_minutes A visual timer the child starts, e.g. 20 for Äta.
  * @property bool $customized
  * @property Carbon|null $completed_at
  * @property int|null $completed_by
@@ -37,7 +38,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  */
-#[Fillable(['title', 'picture_id', 'assigned_to', 'date', 'day_part', 'time', 'created_by'])]
+#[Fillable(['title', 'picture_id', 'assigned_to', 'date', 'day_part', 'time', 'timer_minutes', 'created_by'])]
 class Task extends Model
 {
     /** @use HasFactory<TaskFactory> */

@@ -218,6 +218,8 @@ class RoutineDay
                     'label' => $step->label,
                     'picture' => $step->picture?->toPicker(),
                     'minutes' => $step->minutes,
+                    // A visual timer the child starts, for the step's minutes.
+                    'timerMinutes' => $step->timer ? $step->minutes : null,
                     'type' => $step->type->value,
                     'optional' => $step->optional,
                     'done' => $check !== null && ! $check->skipped,
