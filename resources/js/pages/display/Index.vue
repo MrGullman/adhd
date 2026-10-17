@@ -12,6 +12,7 @@ import type {
 
 const props = defineProps<{
     viewKey: string;
+    reloadKey: string;
     view: DisplayViewData;
     date: string;
     week: number;
@@ -26,10 +27,16 @@ usePoll(60000, {}, { keepAlive: true });
 
 // A view chosen from the phone shows within seconds: only the key is asked
 // for, and the whole display loads when it has changed.
-usePoll(10000, { only: ['viewKey'] }, { keepAlive: true });
+usePoll(10000, { only: ['viewKey', 'reloadKey'] }, { keepAlive: true });
 watch(
     () => props.viewKey,
     () => router.reload(),
+);
+
+// "Ladda om skärmen" from the phone: everything is loaded again, also the app itself.
+watch(
+    () => props.reloadKey,
+    () => window.location.reload(),
 );
 
 const header = computed<DisplayHeaderData>(() => ({

@@ -14,6 +14,8 @@ import {
 import DeviceController from '@/actions/App/Http/Controllers/Family/DeviceController';
 import DisplayController from '@/actions/App/Http/Controllers/Family/DisplayController';
 import DisplayCanvas from '@/components/display/DisplayCanvas.vue';
+import ScreenScheduleForm from '@/components/display/ScreenScheduleForm.vue';
+import type { ScreenSettings } from '@/components/display/ScreenScheduleForm.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -46,6 +48,7 @@ const props = defineProps<{
         name: string;
         density: Density;
         lastSeenAt: string | null;
+        screen: ScreenSettings;
     };
     date: string;
     week: number;
@@ -552,6 +555,17 @@ const chip =
                     Spara
                 </Button>
             </Form>
+
+            <section
+                class="flex flex-col gap-3 border-t border-line pt-6"
+                aria-labelledby="pa-och-av"
+            >
+                <h3 id="pa-och-av" class="text-title">Skärmen på och av</h3>
+                <ScreenScheduleForm
+                    :device-id="device.id"
+                    :screen="device.screen"
+                />
+            </section>
 
             <div class="flex flex-wrap gap-3 border-t border-line pt-6">
                 <Form

@@ -144,17 +144,17 @@ class DisplayControlTest extends TestCase
             ->where('widgets.1.data.tasks.0.title', 'Handla'));
     }
 
-    public function test_the_display_is_turned_off_until_the_morning()
+    public function test_the_display_is_turned_off_until_the_schedule_turns_it_on()
     {
         $this->choose($this->parent, ['mode' => 'off'])->assertRedirect();
 
         $this->display()->assertInertia(fn (Assert $page) => $page
             ->where('view.mode', 'off')
-            ->where('view.until', '06:00')
+            ->where('view.until', '06:30')
             ->where('widgets', []));
 
-        // Wednesday 06:01 in Sweden: on again by itself.
-        $this->travelTo('2026-10-14 04:01:00');
+        // Wednesday 06:31 in Sweden: on again by itself, when the schedule turns the screen on.
+        $this->travelTo('2026-10-14 04:31:00');
         $this->display()->assertInertia(fn (Assert $page) => $page->where('view.mode', 'family'));
 
         // Or turned on from the phone before that.
@@ -196,5 +196,99 @@ class DisplayControlTest extends TestCase
 
         $this->assertNull($theirs->fresh()?->settings['view'] ?? null);
         $this->assertNull($this->device->fresh()?->settings['view'] ?? null);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function piAsks(string $query = ''): array
+    {
+        return $this->getJson(route('display.status', $this->token).$query)->assertOk()->json();
+    }
+
+    public function test_the_pi_asks_whether_the_screen_is_on_and_says_what_it_did()
+    {
+        $this->device->forceFill(['last_seen_at' => null])->save();
+
+        // Tuesday 07:15: on by the default weekday schedule (06:30–21:30), restart 06:30.
+        $this->assertSame(['power' => 'on', 'cec' => false, 'reboot' => '06:30'], $this->piAsks('?power=on&uptime=3600'));
+
+        $device = $this->device->fresh();
+        $this->assertSame('on', $device?->settings['pi']['power']);
+        $this->assertSame(3600, $device?->settings['pi']['uptime']);
+        $this->assertNull($device?->last_seen_at, 'the screen\'s browser, not the Pi, is the display being seen');
+
+        // Turned off from the phone.
+        $this->choose($this->parent, ['mode' => 'off']);
+        $this->post(route('logout'));
+        $this->assertSame('off', $this->piAsks()['power']);
+
+        // A child's day is always shown.
+        $this->choose($this->parent, ['mode' => 'member', 'user_id' => $this->child->id, 'duration' => '15']);
+        $this->post(route('logout'));
+        $this->assertSame('on', $this->piAsks()['power']);
+
+        $this->getJson(route('display.status', $this->token).'?power=maybe')->assertUnprocessable();
+        $this->getJson(route('display.status', str_repeat('x', 64)))->assertNotFound();
+    }
+
+    public function test_a_parent_sets_weekday_and_weekend_times_and_the_screen_follows_them()
+    {
+        $times = [
+            'weekday_on' => '06:00', 'weekday_off' => '20:00',
+            'weekend_on' => '08:00', 'weekend_off' => '22:30',
+            'reboot_enabled' => false, 'reboot_time' => '05:45', 'cec' => true,
+        ];
+
+        $this->actingAs($this->parent)->put(route('displays.schedule', $this->device), $times)->assertRedirect(route('displays.edit', $this->device));
+        $this->post(route('logout'));
+        $this->assertSame(['power' => 'on', 'cec' => true, 'reboot' => null], $this->piAsks());
+
+        // Tuesday 20:30: off, and the page on the screen is dark too.
+        $this->travelTo('2026-10-13 18:30:00');
+        $this->assertSame('off', $this->piAsks()['power']);
+        $this->get(route('display.show', $this->token))->assertInertia(fn (Assert $page) => $page
+            ->where('view.mode', 'off')
+            ->where('view.until', '06:00'));
+
+        // Saturday 07:30: still off at the weekend, on at 08:00.
+        $this->travelTo('2026-10-17 05:30:00');
+        $this->assertSame('off', $this->piAsks()['power']);
+        $this->travelTo('2026-10-17 06:00:00');
+        $this->assertSame('on', $this->piAsks()['power']);
+    }
+
+    public function test_turning_the_screen_on_at_night_keeps_it_on_for_an_hour()
+    {
+        $this->travelTo('2026-10-13 21:00:00'); // 23:00
+
+        $this->choose($this->parent, ['mode' => 'family'])->assertRedirect();
+        $this->post(route('logout'));
+        $this->assertSame('on', $this->piAsks()['power']);
+
+        $this->travel(61)->minutes();
+        $this->assertSame('off', $this->piAsks()['power']);
+    }
+
+    public function test_only_parents_set_the_times_and_the_times_must_make_sense()
+    {
+        $editor = User::factory()->inFamily($this->family, FamilyRole::Editor)->create();
+        $times = ['weekday_on' => '06:00', 'weekday_off' => '20:00', 'weekend_on' => '08:00', 'weekend_off' => '22:00', 'reboot_enabled' => true, 'reboot_time' => '05:45', 'cec' => false];
+
+        $this->actingAs($editor)->put(route('displays.schedule', $this->device), $times)->assertForbidden();
+        $this->actingAs($this->parent)->put(route('displays.schedule', $this->device), [...$times, 'weekday_off' => '05:00'])->assertSessionHasErrors('weekday_off');
+
+        $this->assertArrayNotHasKey('screen', $this->device->fresh()?->settings ?? []);
+    }
+
+    public function test_an_adult_reloads_the_screen_from_the_phone()
+    {
+        $editor = User::factory()->inFamily($this->family, FamilyRole::Editor)->create();
+        $viewer = User::factory()->inFamily($this->family, FamilyRole::Viewer)->create();
+
+        $this->actingAs($viewer)->post(route('displays.reload', $this->device))->assertForbidden();
+        $this->actingAs($editor)->post(route('displays.reload', $this->device))->assertRedirect(route('displays.control'));
+
+        $this->display()->assertInertia(fn (Assert $page) => $page->where('reloadKey', fn (string $key) => $key !== ''));
     }
 }

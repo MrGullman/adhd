@@ -301,22 +301,57 @@ sudo reboot
 
 Efter 1–2 minuter visas hemskärmen.
 
-### 6. Skärmen av på kvällen, omstart på morgonen
+### 6. Skärmen på och av, styrd från appen
+
+Tiderna ställs in i appen: Familjen → hemskärmen → Skärmen på och av (vardagar och helger, omstart på morgonen och tv:n via HDMI). Pi:n frågar servern varje minut och släcker eller tänder skärmen. Även "Släck skärmen" under Hemskärmen i menyn stänger då av skärmen på riktigt.
+
+Skriptet körs som root av cron, en gång i minuten:
 
 ```bash
-cat > ~/skarm.sh <<'EOF'
+sudo tee /usr/local/bin/npf-skarm >/dev/null <<'EOF'
 #!/bin/sh
-# Släcker eller tänder skärmen: skarm.sh off | on
-export XDG_RUNTIME_DIR="/run/user/$(id -u)"
-export WAYLAND_DISPLAY="$(ls "$XDG_RUNTIME_DIR" | grep -m1 '^wayland-[0-9]*$')"
-wlopm --"$1" '*'
+# NPF-familjen: frågar servern om skärmen ska vara på eller av, och om det är dags att starta om.
+USER_NAME=npf
+URL="$(cat /home/$USER_NAME/hemskarm-url)"
+STATE=/run/npf-skarm.state
+RUNTIME="/run/user/$(id -u $USER_NAME)"
+WAYLAND="$(ls "$RUNTIME" 2>/dev/null | grep -m1 '^wayland-[0-9]*$')"
+CURRENT="$(cat $STATE 2>/dev/null || echo on)"
+UPTIME="$(cut -d. -f1 /proc/uptime)"
+
+ANSWER="$(curl -fsS --max-time 20 "$URL/status?power=$CURRENT&uptime=$UPTIME")" || exit 0
+POWER="$(echo "$ANSWER" | grep -o '"power":"[a-z]*"' | cut -d'"' -f4)"
+CEC="$(echo "$ANSWER" | grep -o '"cec":true')"
+REBOOT="$(echo "$ANSWER" | grep -o '"reboot":"[0-9:]*"' | cut -d'"' -f4)"
+
+if [ -n "$POWER" ] && [ "$POWER" != "$CURRENT" ] && [ -n "$WAYLAND" ]; then
+  runuser -u $USER_NAME -- env XDG_RUNTIME_DIR="$RUNTIME" WAYLAND_DISPLAY="$WAYLAND" wlopm --"$POWER" '*'
+  # Tv:n i viloläge eller på via HDMI-CEC, om det är valt i appen.
+  if [ -n "$CEC" ] && command -v cec-ctl >/dev/null; then
+    cec-ctl -d /dev/cec0 --playback >/dev/null 2>&1
+    if [ "$POWER" = off ]; then
+      cec-ctl -d /dev/cec0 --to 0 --standby >/dev/null 2>&1
+    else
+      cec-ctl -d /dev/cec0 --to 0 --image-view-on >/dev/null 2>&1
+    fi
+  fi
+  echo "$POWER" > $STATE
+fi
+
+# Omstart på morgonen, en gång: när klockan stämmer och Pi:n har varit igång en stund.
+if [ -n "$REBOOT" ] && [ "$(date +%H:%M)" = "$REBOOT" ] && [ "$UPTIME" -gt 600 ]; then
+  /sbin/reboot
+fi
 EOF
-chmod +x ~/skarm.sh
-( crontab -l 2>/dev/null; echo '30 21 * * * $HOME/skarm.sh off' ) | crontab -
-( sudo crontab -l 2>/dev/null; echo '30 6 * * * /sbin/reboot' ) | sudo crontab -
+sudo chmod +x /usr/local/bin/npf-skarm
+sudo apt install -y v4l-utils    # cec-ctl, för att styra tv:n
+crontab -r 2>/dev/null           # de gamla tiderna i cron behövs inte längre
+echo '* * * * * /usr/local/bin/npf-skarm' | sudo crontab -
 ```
 
-Skärmen släcks 21:30: en datorskärm går i viloläge, en tv visar "ingen signal" och går oftast i standby av sig själv. Pi:n startar om 06:30, så webbläsaren börjar fräsch varje dag och skärmen tänds. Prova direkt med `~/skarm.sh off` och `~/skarm.sh on`. Tiderna ändras med `crontab -e` och `sudo crontab -e`.
+Prova direkt med `sudo /usr/local/bin/npf-skarm`. Under Hemskärmen i appen syns sedan "Raspberry Pi: I kontakt nyss". Användarnamnet `npf` i skriptets andra rad ska vara samma som på Pi:n.
+
+Utan skriptet (t.ex. en läsplatta som hemskärm) blir sidan mörk enligt tiderna, men själva skärmen släcks inte.
 
 ### Kontrollera hur Pi:n mår
 

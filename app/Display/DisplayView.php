@@ -80,20 +80,16 @@ class DisplayView
     }
 
     /**
-     * Nothing on the display until an adult turns it on, at the latest when the morning starts.
-     *
-     * @param  array<string, string>  $dayParts
+     * Nothing on the display until an adult turns it on, at the latest when
+     * the schedule turns the screen on again (ScreenSchedule).
      */
-    public static function turnOff(Device $device, array $dayParts): void
+    public static function turnOff(Device $device): void
     {
-        $now = LocalTime::now();
-        $morning = $now->setTimeFromTimeString($dayParts['morning']);
+        $settings = $device->settings ?? [];
+        unset($settings['awake_until']);
+        $device->forceFill(['settings' => $settings]);
 
-        if ($morning->lte($now)) {
-            $morning = $morning->addDay();
-        }
-
-        self::save($device, ['mode' => 'off', 'until' => $morning->utc()->toIso8601String()]);
+        self::save($device, ['mode' => 'off', 'until' => ScreenSchedule::nextOn($device, now()->toImmutable())->utc()->toIso8601String()]);
     }
 
     public static function family(Device $device): self

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Family;
 
 use App\Display\DisplayContext;
 use App\Display\DisplayView;
+use App\Display\ScreenSchedule;
 use App\Enums\DeviceType;
 use App\Enums\FamilyRole;
 use App\Http\Controllers\Controller;
@@ -14,6 +15,7 @@ use App\Models\User;
 use App\Support\CurrentFamily;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -43,6 +45,7 @@ class DisplayControlController extends Controller
                 'name' => $device->name,
                 'lastSeenAt' => $device->last_seen_at?->toIso8601String(),
                 'view' => DisplayView::current($device, $context)->present(),
+                'status' => $this->status($device, $context),
             ])->values(),
             'members' => $family->members()
                 ->with('picture')
@@ -59,15 +62,55 @@ class DisplayControlController extends Controller
         ]);
     }
 
+    /**
+     * "Ladda om skärmen": the display's browser loads everything again within seconds.
+     */
+    public function reload(Request $request, Device $device): RedirectResponse
+    {
+        Gate::authorize('control', $device);
+
+        $device->forceFill(['settings' => [...($device->settings ?? []), 'reload_at' => now()->toIso8601String()]])->save();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => "{$device->name} laddas om."]);
+
+        return to_route('displays.control');
+    }
+
+    /**
+     * What the screen does now, and when the browser and the Raspberry Pi last were in touch.
+     *
+     * @return array{on: bool, nextOn: string, browserSeenAt: string|null, piSeenAt: string|null, piPower: string|null, piUptime: int|null, schedule: string}
+     */
+    private function status(Device $device, DisplayContext $context): array
+    {
+        $pi = (array) ($device->settings['pi'] ?? []);
+        $screen = ScreenSchedule::settings($device);
+
+        return [
+            'on' => ScreenSchedule::isOn($device, DisplayView::current($device, $context), $context->now),
+            'nextOn' => ScreenSchedule::nextOn($device, $context->now)->format('H:i'),
+            'browserSeenAt' => $device->last_seen_at?->toIso8601String(),
+            'piSeenAt' => is_string($pi['seen_at'] ?? null) ? $pi['seen_at'] : null,
+            'piPower' => is_string($pi['power'] ?? null) ? $pi['power'] : null,
+            'piUptime' => is_int($pi['uptime'] ?? null) ? $pi['uptime'] : null,
+            'schedule' => "Vardagar {$screen['weekday']['on']}–{$screen['weekday']['off']}, helger {$screen['weekend']['on']}–{$screen['weekend']['off']}",
+        ];
+    }
+
     public function update(UpdateDisplayViewRequest $request, CurrentFamily $current, Device $device): RedirectResponse
     {
         $family = $current->getOrFail();
 
         match ($request->string('mode')->toString()) {
             'member' => DisplayView::showMember($device, $family->members()->findOrFail($request->integer('user_id')), $request->minutes()),
-            'off' => DisplayView::turnOff($device, $family->dayParts()),
+            'off' => DisplayView::turnOff($device),
             default => DisplayView::family($device),
         };
+
+        // "Tänd skärmen" at night, when the schedule has it off: on for an hour.
+        if ($request->string('mode')->toString() === 'family' && ! ScreenSchedule::scheduledOn($device, now()->toImmutable())) {
+            ScreenSchedule::wakeUp($device);
+        }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => match ($request->string('mode')->toString()) {
             'member' => "Visas på {$device->name}.",

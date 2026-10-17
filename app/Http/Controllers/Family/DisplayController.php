@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Family;
 
 use App\Display\DisplayContext;
 use App\Display\Layout;
+use App\Display\ScreenSchedule;
 use App\Display\WidgetRegistry;
 use App\Display\Widgets\DisplayWidgetType;
 use App\Enums\DeviceType;
@@ -12,6 +13,7 @@ use App\Http\Controllers\DisplayController as ShowDisplay;
 use App\Http\Requests\Display\StoreDisplayRequest;
 use App\Http\Requests\Display\StoreDisplayWidgetRequest;
 use App\Http\Requests\Display\UpdateDisplayLayoutRequest;
+use App\Http\Requests\Display\UpdateScreenScheduleRequest;
 use App\Models\Device;
 use App\Models\DisplayWidget;
 use App\Models\User;
@@ -53,6 +55,7 @@ class DisplayController extends Controller
                 'name' => $device->name,
                 'density' => $device->settings['density'] ?? 'medium',
                 'lastSeenAt' => $device->last_seen_at?->toIso8601String(),
+                'screen' => ScreenSchedule::settings($device),
             ],
             ...ShowDisplay::header($context),
             'widgets' => WidgetRegistry::render($context, DisplayWidget::query()->where('device_id', $device->id)->orderBy('y')->orderBy('x')->get()),
@@ -64,6 +67,20 @@ class DisplayController extends Controller
             'children' => $context->children()->map(fn (User $child) => DisplayContext::member($child))->values(),
             'members' => $family->members()->with('picture')->orderBy('name')->get()->map(fn (User $member) => DisplayContext::member($member))->values(),
         ]);
+    }
+
+    /**
+     * When the screen is on, the Pi's restart and the TV over HDMI-CEC.
+     */
+    public function schedule(UpdateScreenScheduleRequest $request, CurrentFamily $current, Device $device): RedirectResponse
+    {
+        $this->authorizeDisplay($current, $device);
+
+        ScreenSchedule::save($device, $request->screen());
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Sparat. Skärmen följer de nya tiderna inom en minut.']);
+
+        return to_route('displays.edit', $device);
     }
 
     public function update(StoreDisplayRequest $request, CurrentFamily $current, Device $device): RedirectResponse
