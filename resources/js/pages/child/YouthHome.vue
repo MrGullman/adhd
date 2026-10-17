@@ -19,12 +19,14 @@ import CalendarEventRow from '@/components/CalendarEventRow.vue';
 import ChildActivity from '@/components/ChildActivity.vue';
 import CompletionToggle from '@/components/CompletionToggle.vue';
 import DayPartLabel from '@/components/DayPartLabel.vue';
+import DoneToday from '@/components/DoneToday.vue';
 import DinnerCard from '@/components/DinnerCard.vue';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import PictureThumb from '@/components/PictureThumb.vue';
 import PushToggle from '@/components/PushToggle.vue';
 import SchoolLunch from '@/components/SchoolLunch.vue';
 import { useChildStyle } from '@/composables/useChildStyle';
+import { useDoneLast } from '@/composables/useDoneLast';
 import { formatDay } from '@/lib/format';
 import { isDueNow, whenText } from '@/lib/now';
 import { logout } from '@/routes';
@@ -66,8 +68,15 @@ const props = defineProps<{
 
 const style = useChildStyle();
 
-const groups = computed(() =>
-    props.groups.filter((group) => group.tasks.length > 0),
+// What is left first: done things move to "Klart idag" at the bottom.
+const {
+    openGroups: groups,
+    openRoutines,
+    doneTasks,
+    doneRoutines,
+} = useDoneLast(
+    () => props.groups,
+    () => props.routines,
 );
 const tomorrowOther = computed(() =>
     props.tomorrow.filter(
@@ -203,12 +212,12 @@ function removeOwnTask(task: TaskRowData): void {
 
             <!-- Rutiner -->
             <section
-                v-if="routines.length"
+                v-if="openRoutines.length"
                 class="flex flex-col gap-2"
                 aria-label="Rutiner"
             >
                 <Link
-                    v-for="routine in routines"
+                    v-for="routine in openRoutines"
                     :key="routine.id"
                     :href="ChildRoutineController.show(routine.id)"
                     class="flex min-h-tap-adult items-center gap-3 rounded-lg border p-3"
@@ -330,6 +339,8 @@ function removeOwnTask(task: TaskRowData): void {
                     </ul>
                 </div>
             </section>
+
+            <DoneToday :tasks="doneTasks" :routines="doneRoutines" />
 
             <section
                 v-if="lunch"

@@ -17,11 +17,13 @@ import CalendarEventRow from '@/components/CalendarEventRow.vue';
 import ChildActivity from '@/components/ChildActivity.vue';
 import CompletionToggle from '@/components/CompletionToggle.vue';
 import DayPartLabel from '@/components/DayPartLabel.vue';
+import DoneToday from '@/components/DoneToday.vue';
 import DinnerCard from '@/components/DinnerCard.vue';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import PictureThumb from '@/components/PictureThumb.vue';
 import PushToggle from '@/components/PushToggle.vue';
 import SchoolLunch from '@/components/SchoolLunch.vue';
+import { useDoneLast } from '@/composables/useDoneLast';
 import { formatDay } from '@/lib/format';
 import { isDueNow, whenText } from '@/lib/now';
 import { logout } from '@/routes';
@@ -61,8 +63,15 @@ const props = defineProps<{
     vapidPublicKey: string | null;
 }>();
 
-const groups = computed(() =>
-    props.groups.filter((group) => group.tasks.length > 0),
+// What is left first: done things move to "Klart idag" at the bottom.
+const {
+    openGroups: groups,
+    openRoutines,
+    doneTasks,
+    doneRoutines,
+} = useDoneLast(
+    () => props.groups,
+    () => props.routines,
 );
 // Tomorrow's activities that are not already shown as packing.
 const tomorrowOther = computed(() =>
@@ -150,12 +159,12 @@ const allDone = computed(
 
             <!-- Rutiner: den det är dags för står först -->
             <section
-                v-if="routines.length"
+                v-if="openRoutines.length"
                 class="grid gap-3 sm:grid-cols-2"
                 aria-label="Rutiner"
             >
                 <Link
-                    v-for="routine in routines"
+                    v-for="routine in openRoutines"
                     :key="routine.id"
                     :href="ChildRoutineController.show(routine.id)"
                     class="flex items-center gap-4 rounded-xl border-2 p-4"
@@ -367,6 +376,8 @@ const allDone = computed(
                     </div>
                 </section>
             </div>
+
+            <DoneToday :tasks="doneTasks" :routines="doneRoutines" />
 
             <section
                 v-if="lunch"
