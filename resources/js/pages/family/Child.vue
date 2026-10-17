@@ -29,6 +29,7 @@ const props = defineProps<{
         pin: string | null;
         loginEnabled: boolean;
         failedPinAttempts: number;
+        pushDevices: number;
         view: {
             childView: 'child' | 'youth';
             childPictures: boolean;
@@ -277,12 +278,49 @@ const avatarPicture = ref<PictureItem | null>(props.child.picture);
             <p class="text-ink-muted">
                 {{ child.name }} slår på påminnelser i Min dag på sin egen
                 enhet. Påminnelserna gäller rutiner, uppgifter med klockslag och
-                packning kvällen innan.
+                packning kvällen innan, och aktiviteter som har påminnelse.
             </p>
             <ReminderSettingsForm
                 :action="ChildReminderController.update.url(child.id)"
                 :settings="child.reminders"
             />
+
+            <!-- Testnotis: se att påminnelserna kommer fram på barnets enhet -->
+            <div
+                class="flex flex-col gap-2 rounded-lg border border-line bg-surface-raised p-4"
+            >
+                <p class="font-bold">
+                    {{
+                        child.pushDevices === 0
+                            ? `Ingen av ${possessive(child.name)} enheter tar emot påminnelser än.`
+                            : child.pushDevices === 1
+                              ? 'Påminnelser är på för 1 enhet.'
+                              : `Påminnelser är på för ${child.pushDevices} enheter.`
+                    }}
+                </p>
+                <p
+                    v-if="child.pushDevices === 0"
+                    class="text-caption text-ink-muted"
+                >
+                    {{ child.name }} trycker Slå på påminnelser längst ner i Min
+                    dag på sin egen enhet. På iPhone måste appen ligga på
+                    hemskärmen först.
+                </p>
+                <Form
+                    v-else
+                    v-bind="ChildReminderController.test.form(child.id)"
+                    :options="{ preserveScroll: true }"
+                    v-slot="{ processing }"
+                >
+                    <Button
+                        type="submit"
+                        variant="outline"
+                        :disabled="processing"
+                    >
+                        Skicka en testnotis till {{ child.name }}
+                    </Button>
+                </Form>
+            </div>
         </section>
 
         <section class="flex flex-col gap-3" aria-labelledby="historik">

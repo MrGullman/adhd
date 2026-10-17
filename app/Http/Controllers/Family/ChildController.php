@@ -73,6 +73,8 @@ class ChildController extends Controller
                     'allRecipes' => (bool) $membership?->all_recipes,
                     'pointsEnabled' => Points::settings($family)['enabled'],
                 ],
+                // Devices where the child has turned reminders on, for "Skicka en testnotis".
+                'pushDevices' => $child->pushSubscriptions()->count(),
                 'reminders' => [
                     'remindersEnabled' => $child->reminders_enabled,
                     'quietFrom' => $child->quiet_from === null ? null : substr($child->quiet_from, 0, 5),

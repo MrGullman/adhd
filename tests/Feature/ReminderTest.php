@@ -15,6 +15,7 @@ use App\Support\CurrentFamily;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Inertia\Testing\AssertableInertia as Assert;
 use Minishlink\WebPush\MessageSentReport;
 use NotificationChannels\WebPush\WebPushChannel;
 use Tests\TestCase;
@@ -210,6 +211,33 @@ class ReminderTest extends TestCase
         $withoutDevice = User::factory()->inFamily($this->family)->create();
         $this->actingAs($withoutDevice)->post(route('reminders.test'))->assertRedirect();
         $this->assertSame([$this->parent->id], $sentTo, 'nothing is sent without a device');
+    }
+
+    public function test_a_parent_sends_a_test_notification_to_a_childs_devices()
+    {
+        $sentTo = [];
+        $this->mock(WebPushChannel::class, function ($mock) use (&$sentTo): void {
+            $mock->shouldReceive('send')->andReturnUsing(function (User $user) use (&$sentTo): array {
+                $sentTo[] = $user->id;
+
+                return [new MessageSentReport(new Request('POST', 'https://8.8.8.8/push'), null, true, 'OK')];
+            });
+        });
+
+        $this->actingAs($this->parent)->get(route('children.show', $this->child->id))
+            ->assertInertia(fn (Assert $page) => $page->where('child.pushDevices', 1));
+
+        $this->actingAs($this->parent)->post(route('children.reminders.test', $this->child->id))
+            ->assertRedirect(route('children.show', $this->child->id));
+        $this->assertSame([$this->child->id], $sentTo);
+
+        // Only parents, and only their own family's children.
+        $editor = User::factory()->inFamily($this->family, FamilyRole::Editor)->create();
+        $this->actingAs($editor)->post(route('children.reminders.test', $this->child->id))->assertForbidden();
+        $otherChild = User::factory()->child()->inFamily(Family::factory()->create(), FamilyRole::Child)->create();
+        $this->actingAs($this->parent)->post(route('children.reminders.test', $otherChild->id))->assertNotFound();
+
+        $this->assertSame([$this->child->id], $sentTo);
     }
 
     public function test_an_activity_reminds_everyone_taking_part_as_long_before_as_chosen()
