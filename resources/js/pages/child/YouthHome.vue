@@ -26,6 +26,7 @@ import PushToggle from '@/components/PushToggle.vue';
 import SchoolLunch from '@/components/SchoolLunch.vue';
 import { useChildStyle } from '@/composables/useChildStyle';
 import { formatDay } from '@/lib/format';
+import { isDueNow, whenText } from '@/lib/now';
 import { logout } from '@/routes';
 import {
     avatar as childAvatar,
@@ -130,9 +131,14 @@ function removeOwnTask(task: TaskRowData): void {
                 <template v-if="now">
                     <h2
                         id="nu"
-                        class="shrink-0 rounded-full bg-primary px-3 text-overline font-bold text-on-primary uppercase"
+                        class="shrink-0 rounded-full px-3 text-overline font-bold uppercase"
+                        :class="
+                            isDueNow(now.time)
+                                ? 'bg-primary text-on-primary'
+                                : 'bg-surface-raised'
+                        "
                     >
-                        Nu
+                        {{ isDueNow(now.time) ? 'Nu' : 'Nästa' }}
                     </h2>
                     <PictureThumb
                         v-if="now.picture && style.pictures"
@@ -144,10 +150,10 @@ function removeOwnTask(task: TaskRowData): void {
                             {{ now.title }}
                         </span>
                         <span
-                            v-if="now.time"
+                            v-if="whenText(now.time, now.dayPart)"
                             class="text-caption text-ink-muted tabular-nums"
                         >
-                            {{ now.time }}
+                            {{ whenText(now.time, now.dayPart) }}
                         </span>
                     </div>
                     <Link

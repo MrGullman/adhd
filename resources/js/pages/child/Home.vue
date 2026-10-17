@@ -23,6 +23,7 @@ import PictureThumb from '@/components/PictureThumb.vue';
 import PushToggle from '@/components/PushToggle.vue';
 import SchoolLunch from '@/components/SchoolLunch.vue';
 import { formatDay } from '@/lib/format';
+import { isDueNow, whenText } from '@/lib/now';
 import { logout } from '@/routes';
 import {
     avatar as childAvatar,
@@ -79,7 +80,8 @@ const allDone = computed(
 </script>
 
 <!--
-    Barnets Min dag: "Nu" först, sedan dagens lista. På läsplatta i liggande
+    Barnets Min dag: "Nu" (eller "Nästa" när tiden inte har kommit) först,
+    sedan dagens lista. På läsplatta i liggande
     läge visas de bredvid varandra (docs/STYLEGUIDE.md). Stora tryckytor,
     bild + kort text, inga larm.
 -->
@@ -223,9 +225,14 @@ const allDone = computed(
                     <template v-if="now">
                         <h2
                             id="nu"
-                            class="rounded-full bg-primary px-4 py-1 font-display text-child-label font-semibold text-on-primary"
+                            class="rounded-full px-4 py-1 font-display text-child-label font-semibold"
+                            :class="
+                                isDueNow(now.time)
+                                    ? 'bg-primary text-on-primary'
+                                    : 'bg-surface-raised'
+                            "
                         >
-                            Nu
+                            {{ isDueNow(now.time) ? 'Nu' : 'Nästa' }}
                         </h2>
                         <PictureThumb
                             v-if="now.picture"
@@ -238,10 +245,10 @@ const allDone = computed(
                             {{ now.title }}
                         </p>
                         <p
-                            v-if="now.time"
+                            v-if="whenText(now.time, now.dayPart)"
                             class="font-display text-child-label tabular-nums"
                         >
-                            {{ now.time }}
+                            {{ whenText(now.time, now.dayPart) }}
                         </p>
                         <Link
                             :href="TaskCompletionController.store(now.id)"

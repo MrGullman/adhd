@@ -559,6 +559,7 @@ Appen kan installeras på telefonen och skickar påminnelser.
 - [x] Påminnelser för uppgifter med tid, kalenderhändelser och när en rutin ska starta
 - [x] Påminnelse om packning dagen innan en aktivitet
 - [x] Barn får påminnelser på sin egen enhet
+- [x] Påminnelser före en aktivitet, valda på aktiviteten (t.ex. 2 tim och 1 tim före), till alla som är med
 - [x] Tysta timmar per användare
 
 ## Definition of Done
