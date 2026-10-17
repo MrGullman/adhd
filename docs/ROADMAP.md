@@ -658,7 +658,7 @@ Det är lätt att hålla koll på vad som finns hemma, skafferiet följer med n�
 
 - [x] Plats för varje sak hemma (pantry_items.location), förvald efter varans avdelning
 - [x] Skafferiet visas per plats med när den senast inventerades
-- [x] Inventera en plats i taget: + och −, Slut, flytta till annan plats, lägg till det som saknas, Klar
+- [x] Inventera en plats i taget: skriv mängden eller stega med + och −, byt enhet, Slut, flytta till annan plats, lägg till det som saknas, Klar
 - [x] Lagad i veckomatsedeln: drar av receptets mängder från skafferiet, räknat på portionerna och med omräkning av enheter. Basvaror och saker utan mängd lämnas. Ångra lägger tillbaka.
 - [x] Recept från länk: schema.org/Recipe (JSON-LD), ingrediensrader tolkas till mängd, enhet, namn och anteckning och matchas mot grundlistan
 - [x] Samma skydd som kalenderlänkar: bara https till publika adresser, även efter omdirigering

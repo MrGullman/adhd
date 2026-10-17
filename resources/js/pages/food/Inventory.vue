@@ -74,6 +74,29 @@ function change(item: Item, direction: 1 | -1): void {
     save(item, { quantity: next, unit: item.unit });
 }
 
+/**
+ * A typed amount: "1,5" or "1.5". Empty means no amount (only that it is at
+ * home), and 0 means it is finished. Something that is not a number is ignored.
+ */
+function typed(item: Item, value: string): void {
+    const text = value.trim().replace(',', '.');
+
+    if (text === '') {
+        save(item, { quantity: null, unit: item.unit });
+
+        return;
+    }
+
+    const quantity = Number(text);
+
+    if (Number.isFinite(quantity) && quantity >= 0 && quantity <= 99999) {
+        save(item, {
+            quantity: Math.round(quantity * 100) / 100,
+            unit: item.unit,
+        });
+    }
+}
+
 function finished(item: Item): void {
     save(item, { quantity: 0 });
 }
@@ -231,12 +254,54 @@ const fieldClass =
                         >
                             <Minus class="size-5" aria-hidden="true" />
                         </button>
-                        <span
-                            class="min-w-20 text-center font-bold tabular-nums"
-                            aria-live="polite"
+                        <!-- Skriv mängden, eller stega med − och + -->
+                        <input
+                            :key="`${item.id}-${item.quantity}`"
+                            type="text"
+                            inputmode="decimal"
+                            :value="
+                                item.quantity === null
+                                    ? ''
+                                    : String(item.quantity).replace('.', ',')
+                            "
+                            placeholder="Mängd"
+                            :aria-label="`Hur mycket ${item.name}`"
+                            class="h-12 w-20 rounded-md border-2 border-input bg-surface-raised px-2 text-center font-bold tabular-nums"
+                            @focus="
+                                ($event.target as HTMLInputElement).select()
+                            "
+                            @keydown.enter="
+                                ($event.target as HTMLInputElement).blur()
+                            "
+                            @change="
+                                typed(
+                                    item,
+                                    ($event.target as HTMLInputElement).value,
+                                )
+                            "
+                        />
+                        <select
+                            :value="item.unit ?? ''"
+                            :aria-label="`Enhet för ${item.name}`"
+                            class="h-12 rounded-md border-2 border-input bg-surface-raised px-2 text-caption"
+                            @change="
+                                save(item, {
+                                    quantity: item.quantity,
+                                    unit:
+                                        ($event.target as HTMLSelectElement)
+                                            .value || null,
+                                })
+                            "
                         >
-                            {{ amount(item) }}
-                        </span>
+                            <option value="">–</option>
+                            <option
+                                v-for="unit in units"
+                                :key="unit"
+                                :value="unit"
+                            >
+                                {{ unit }}
+                            </option>
+                        </select>
                         <button
                             v-if="item.quantity !== null"
                             type="button"
