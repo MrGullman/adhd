@@ -37,6 +37,7 @@ class StoreRecipeRequest extends FormRequest
             'ingredients.*.quantity' => ['nullable', 'numeric', 'min:0', 'max:99999'],
             'ingredients.*.unit' => ['nullable', Rule::in(Units::all())],
             'ingredients.*.note' => ['nullable', 'string', 'max:100'],
+            'ingredients.*.section' => ['nullable', 'string', 'max:50'],
         ];
     }
 
@@ -72,7 +73,7 @@ class StoreRecipeRequest extends FormRequest
     }
 
     /**
-     * @return list<array{ingredient_id: int|null, name: string|null, quantity: string|null, unit: string|null, note: string|null}>
+     * @return list<array{ingredient_id: int|null, name: string|null, quantity: string|null, unit: string|null, note: string|null, section: string|null}>
      */
     public function lines(): array
     {
@@ -85,6 +86,7 @@ class StoreRecipeRequest extends FormRequest
                 'quantity' => isset($line['quantity']) && $line['quantity'] !== '' ? (string) $line['quantity'] : null,
                 'unit' => isset($line['unit']) && $line['unit'] !== '' ? (string) $line['unit'] : null,
                 'note' => isset($line['note']) && trim((string) $line['note']) !== '' ? trim((string) $line['note']) : null,
+                'section' => isset($line['section']) && trim((string) $line['section']) !== '' ? trim((string) $line['section']) : null,
             ];
         }
 

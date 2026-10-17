@@ -50,6 +50,7 @@ class CookController extends Controller
                     'quantity' => $line->quantity === null ? null : round((float) $line->quantity * $factor, 2),
                     'unit' => $line->unit,
                     'note' => $line->note,
+                    'section' => $line->section,
                 ])->values(),
                 // Each step with the ingredients it mentions, so their amounts can be shown there.
                 'steps' => array_map(fn (array $step) => [

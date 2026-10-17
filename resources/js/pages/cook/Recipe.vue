@@ -31,6 +31,8 @@ const props = defineProps<{
             quantity: number | null;
             unit: string | null;
             note: string | null;
+            /** A heading such as "Fyllning", or null. */
+            section: string | null;
         }>;
         steps: Array<{
             number: number;
@@ -188,64 +190,80 @@ const primary =
             >
                 <h2 id="ta-fram" :class="[ui.text, 'font-bold']">Ta fram</h2>
                 <ul class="flex flex-col gap-2">
-                    <li
-                        v-for="line in recipe.ingredients"
+                    <template
+                        v-for="(line, index) in recipe.ingredients"
                         :key="line.id"
-                        class="flex items-center gap-3 rounded-lg border border-line bg-surface-raised p-2"
                     >
-                        <button
-                            type="button"
-                            class="contents"
-                            :aria-pressed="takenOut.includes(line.id)"
-                            @click="toggleTakenOut(line.id)"
+                        <!-- Rubrik där en ny del av receptet börjar, t.ex. Fyllning -->
+                        <li
+                            v-if="
+                                line.section &&
+                                line.section !==
+                                    recipe.ingredients[index - 1]?.section
+                            "
+                            class="pt-2 font-bold text-ink-muted"
                         >
-                            <span
-                                class="grid shrink-0 place-items-center rounded-md border-2"
-                                :class="[
-                                    ui.toggle === 'child'
-                                        ? 'size-tap-child'
-                                        : 'size-tap-adult',
-                                    takenOut.includes(line.id)
-                                        ? 'border-success bg-success text-on-success'
-                                        : 'border-line-strong',
-                                ]"
+                            {{ line.section }}
+                        </li>
+                        <li
+                            class="flex items-center gap-3 rounded-lg border border-line bg-surface-raised p-2"
+                        >
+                            <button
+                                type="button"
+                                class="contents"
+                                :aria-pressed="takenOut.includes(line.id)"
+                                @click="toggleTakenOut(line.id)"
                             >
-                                <Check
-                                    v-if="takenOut.includes(line.id)"
-                                    :class="ui.icon"
-                                    stroke-width="3"
-                                    aria-hidden="true"
-                                />
-                            </span>
-                            <PictureThumb
-                                v-if="line.picture && ui.pictures"
-                                :picture="line.picture"
-                                :size="ui.picture"
-                            />
-                            <span
-                                class="min-w-0 flex-1 text-left break-words"
-                                :class="[
-                                    ui.text,
-                                    takenOut.includes(line.id) &&
-                                        'text-ink-muted',
-                                ]"
-                            >
-                                <span class="font-bold tabular-nums">{{
-                                    amount(line)
-                                }}</span>
-                                {{ line.name }}
-                                <span v-if="line.note" class="text-ink-muted"
-                                    >({{ line.note }})</span
+                                <span
+                                    class="grid shrink-0 place-items-center rounded-md border-2"
+                                    :class="[
+                                        ui.toggle === 'child'
+                                            ? 'size-tap-child'
+                                            : 'size-tap-adult',
+                                        takenOut.includes(line.id)
+                                            ? 'border-success bg-success text-on-success'
+                                            : 'border-line-strong',
+                                    ]"
                                 >
-                            </span>
-                            <span
-                                v-if="takenOut.includes(line.id)"
-                                class="shrink-0 text-caption font-bold text-success"
-                            >
-                                Klar
-                            </span>
-                        </button>
-                    </li>
+                                    <Check
+                                        v-if="takenOut.includes(line.id)"
+                                        :class="ui.icon"
+                                        stroke-width="3"
+                                        aria-hidden="true"
+                                    />
+                                </span>
+                                <PictureThumb
+                                    v-if="line.picture && ui.pictures"
+                                    :picture="line.picture"
+                                    :size="ui.picture"
+                                />
+                                <span
+                                    class="min-w-0 flex-1 text-left break-words"
+                                    :class="[
+                                        ui.text,
+                                        takenOut.includes(line.id) &&
+                                            'text-ink-muted',
+                                    ]"
+                                >
+                                    <span class="font-bold tabular-nums">{{
+                                        amount(line)
+                                    }}</span>
+                                    {{ line.name }}
+                                    <span
+                                        v-if="line.note"
+                                        class="text-ink-muted"
+                                        >({{ line.note }})</span
+                                    >
+                                </span>
+                                <span
+                                    v-if="takenOut.includes(line.id)"
+                                    class="shrink-0 text-caption font-bold text-success"
+                                >
+                                    Klar
+                                </span>
+                            </button>
+                        </li>
+                    </template>
                 </ul>
                 <button
                     v-if="total"

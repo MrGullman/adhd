@@ -81,6 +81,28 @@ class FoodTest extends TestCase
         $this->assertSame('Lingonsylt från mormor', $own->name);
     }
 
+    public function test_ingredients_can_be_divided_under_headings()
+    {
+        $this->actingAs($this->parent)->post(route('recipes.store'), [
+            'name' => 'Prinsesstårta',
+            'portions' => 8,
+            'ingredients' => [
+                ['ingredient_id' => $this->basic('Mjöl')->id, 'quantity' => 1, 'unit' => 'dl', 'section' => 'Kaka'],
+                ['name' => 'mjölk', 'quantity' => 5, 'unit' => 'dl', 'section' => 'Fyllning'],
+                ['name' => 'Grädde', 'quantity' => 3, 'unit' => 'dl', 'section' => ' '],
+            ],
+        ])->assertRedirect();
+
+        $recipe = Recipe::query()->withoutGlobalScopes()->where('name', 'Prinsesstårta')->firstOrFail();
+        $this->assertSame(['Kaka', 'Fyllning', null], $recipe->ingredients()->orderBy('sort_order')->pluck('section')->all());
+
+        $this->actingAs($this->parent)->get(route('recipes.show', $recipe))->assertInertia(fn (Assert $page) => $page
+            ->where('recipe.ingredients.0.section', 'Kaka')
+            ->where('recipe.ingredients.1.section', 'Fyllning'));
+        $this->actingAs($this->parent)->get(route('recipes.cook', $recipe))->assertInertia(fn (Assert $page) => $page
+            ->where('recipe.ingredients.1.section', 'Fyllning'));
+    }
+
     public function test_alternatives_and_brackets_never_become_part_of_a_groceries_name()
     {
         $this->actingAs($this->parent)->post(route('recipes.store'), [
