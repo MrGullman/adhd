@@ -1059,7 +1059,7 @@ Påminnelser byggs tillsammans med PWA.
 I version 2 (Milestone 16):
 
 - reminders:send körs varje minut. En påminnelse skickas vid sin tid, eller upp till 10 minuter senare om körningen var sen, och aldrig två gånger (sent_reminders med unik nyckel).
-- Uppgift med klockslag: till den uppgiften är till. Rutin: när den startar, till varje barn som inte är klart. Kalenderhändelse: 15 minuter innan, till den vars kalender det är. Packning: 18:00 dagen innan, till barn som inte packat allt. Aktivitet med klockslag: så långt innan som valts på aktiviteten (activities.reminders: 15, 30, 60 eller 120 minuter), till alla som är med, t.ex. "Simskola · Börjar 17:15. 2 timmar kvar."
+- Uppgift med klockslag: till den uppgiften är till. Rutin: när den startar, till varje barn som inte är klart. Kalenderhändelse: 15 minuter innan, till den vars kalender det är. Packning: 18:00 dagen innan, till barn som inte packat allt. Aktivitet med klockslag: så långt innan som valts på aktiviteten (activities.reminders: 15, 30, 60 eller 120 minuter), till alla som är med, t.ex. "Simskola · Börjar 17:15. 2 timmar kvar." Vuxna som valt "Påminn mig om barnens aktiviteter" (family_user.child_reminders, och child_reminder_ids för bara vissa barn, null för alla) får samma påminnelse med barnets namn: "Simskola (Alva)".
 - Tysta timmar och på/av ligger på users (gäller personen i alla familjer). Förval 20:00–07:00. Vårdnadshavare ställer in barnens.
 - Push skickas bara till publika https-adresser, aldrig till serverns eget nät.
 

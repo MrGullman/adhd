@@ -28,7 +28,8 @@ Route::middleware(['auth', 'verified', 'role:adult'])->group(function () {
 
     Route::inertia('settings/appearance', 'settings/Appearance')->name('appearance.edit');
 
-    Route::get('settings/paminnelser', [ReminderController::class, 'edit'])->name('reminders.edit');
+    Route::get('settings/paminnelser', [ReminderController::class, 'edit'])->middleware('family')->name('reminders.edit');
+    Route::put('settings/paminnelser/barn', [ReminderController::class, 'children'])->middleware('family')->name('reminders.children');
     Route::put('settings/paminnelser', [ReminderController::class, 'update'])->name('reminders.update');
     Route::post('settings/paminnelser/test', [ReminderController::class, 'test'])->middleware('throttle:5,1')->name('reminders.test');
 });

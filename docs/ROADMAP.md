@@ -561,6 +561,7 @@ Appen kan installeras på telefonen och skickar påminnelser.
 - [x] Påminnelse om packning dagen innan en aktivitet
 - [x] Barn får påminnelser på sin egen enhet
 - [x] Vårdnadshavare skickar en testnotis till barnets enheter från barnets sida
+- [x] Vuxna kan få barnens aktivitetspåminnelser, för alla barn eller några (Inställningar → Påminnelser)
 - [x] Påminnelser före en aktivitet, valda på aktiviteten (t.ex. 2 tim och 1 tim före), till alla som är med
 - [x] Tysta timmar per användare
 
