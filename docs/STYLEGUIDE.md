@@ -68,6 +68,7 @@ Identiteten är lekfull som logotypen, men gränssnittet är lugnt: logotypens f
 - Barnens vyer byggs för både telefon och läsplatta, stående och liggande.
 - Tailwinds brytpunkter: telefon under `md` (768px), läsplatta från `md`, dator från `lg` (1024px).
 - På läsplatta i liggande läge visar barnets Idag "Nu" och dagens lista bredvid varandra.
+- Det som återstår står överst i Min dag. Klara uppgifter och rutiner flyttas till en ihopfälld rad "Klart idag (3)" längst ner. En uppgift som just bockats av ligger kvar med sin bock i ett par sekunder, så att inget hoppar bort under fingret.
 
 ## Avatarer
 
