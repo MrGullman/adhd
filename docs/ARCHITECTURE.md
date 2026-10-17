@@ -893,7 +893,7 @@ I version 1 (Milestone 10):
 ### Laga steg för steg
 
 - /laga/{recept} (CookController, RecipePolicy::cook): för vuxna och barn i familjen. ?portioner räknar om mängderna, ?maltid kopplar till veckomatsedeln så att vuxna som får ändra kan trycka Lagad i slutet (CookMeal).
-- Stegen kommer från receptets instruktioner (App\Food\CookingSteps): en rad per steg, numrering tas bort och en rad som slutar med ":" blir rubrik för stegen efter. Tider i texten blir timrar (högst två per steg, intervall räknas från det första värdet). Inget extra sparas på receptet.
+- Stegen kommer från receptets instruktioner (App\Food\CookingSteps): en rad per steg, numrering tas bort och en rad som slutar med ":" blir rubrik för stegen efter. Tider i texten blir timrar (högst två per steg, intervall räknas från det första värdet). Ingredienser som nämns i ett steg visas där med mängd (CookingSteps::ingredientsIn: namnet eller sista ordet i det ska börja ett ord i steget, och ett kortare namn inuti en längre träff räknas inte). Inget extra sparas på receptet.
 - Barn lagar veckans måltider med recept (App\Food\ChildRecipes) eller alla recept om family_user.all_recipes är på. Det är familjens beslut och väljs på barnets sida.
 - Timrarna och skärmlåset (Wake Lock) finns bara i webbläsaren medan sidan är öppen.
 

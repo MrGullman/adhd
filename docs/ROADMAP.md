@@ -666,6 +666,7 @@ Det är lätt att hålla koll på vad som finns hemma, skafferiet följer med n�
 - [x] Laga steg för steg, för vuxna och barn: först ingredienserna att ta fram (i rätt mängd för portionerna), sedan ett steg i taget med Läs upp. Skärmen hålls tänd.
 - [x] Timer i steget: en tid i texten ("Koka i 10 minuter") blir en knapp. Klar timer: mjukt pling och vibration, inget rött.
 - [x] Hjälp i receptformuläret: hur stegen skrivs, och en förhandsvisning av stegen och timrarna medan man skriver
+- [x] Varje steg visar ingredienserna det nämner, med mängden för portionerna ("400 g pasta" vid "Koka pastan")
 - [x] Barn lagar veckans middagar (Laga mat i Min dag, Laga på middagen). Vårdnadshavare kan låta ett barn laga alla recept (family_user.all_recipes).
 - [x] Lagad i slutet för vuxna som får ändra, när receptet öppnas från veckomatsedeln
 - [x] Skolmaten i veckomatsedeln, per skola och dag, med Visa/Dölj skolmat. Valet sparas på enheten.

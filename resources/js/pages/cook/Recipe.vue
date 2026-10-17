@@ -37,6 +37,8 @@ const props = defineProps<{
             text: string;
             section: string | null;
             timers: Array<{ seconds: number; label: string }>;
+            /** The ingredients this step mentions, to show with their amounts. */
+            ingredientIds: number[];
         }>;
     };
     entry: { id: number; cooked: boolean; canMarkCooked: boolean } | null;
@@ -80,6 +82,11 @@ const total = props.recipe.steps.length;
 const step = computed(() => props.recipe.steps[at.value - 1] ?? null);
 const finished = computed(() => at.value > total);
 const takenOut = ref<number[]>([]);
+const stepIngredients = computed(() =>
+    (step.value?.ingredientIds ?? [])
+        .map((id) => props.recipe.ingredients.find((line) => line.id === id))
+        .filter((line) => line !== undefined),
+);
 
 function toggleTakenOut(id: number): void {
     takenOut.value = takenOut.value.includes(id)
@@ -267,6 +274,34 @@ const primary =
                     >
                 </p>
                 <p :class="[ui.step, 'break-words']">{{ step.text }}</p>
+
+                <!-- Det som ska i just nu, med mängden för portionerna -->
+                <ul
+                    v-if="stepIngredients.length"
+                    class="flex flex-col gap-2"
+                    aria-label="I det här steget"
+                >
+                    <li
+                        v-for="line in stepIngredients"
+                        :key="line.id"
+                        class="flex items-center gap-3 rounded-lg bg-surface-sunken p-2"
+                    >
+                        <PictureThumb
+                            v-if="line.picture && ui.pictures"
+                            :picture="line.picture"
+                            :size="ui.picture"
+                        />
+                        <span
+                            class="min-w-0 flex-1 break-words"
+                            :class="ui.text"
+                        >
+                            <span class="font-bold tabular-nums">{{
+                                amount(line)
+                            }}</span>
+                            {{ line.name }}
+                        </span>
+                    </li>
+                </ul>
 
                 <div class="flex flex-wrap gap-2">
                     <button

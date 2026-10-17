@@ -50,6 +50,78 @@ class CookingSteps
     }
 
     /**
+     * Which ingredients a step uses: those whose name starts a word in the
+     * step, also with an ending ("pasta" in "Koka pastan"). A name inside a
+     * longer one that matched is not counted, so "lök" is not found in "vitlök"
+     * and "mjöl" not in "vetemjöl" (the word must start with the name).
+     *
+     * @param  array<int, list<string>>  $ingredients  Names per ingredient line id, e.g. [3 => ['Smör', 'margarin']].
+     * @return list<int> Ingredient line ids, in the order they come in the step.
+     */
+    public static function ingredientsIn(string $text, array $ingredients): array
+    {
+        $lower = mb_strtolower($text);
+        $matches = [];
+
+        foreach ($ingredients as $id => $names) {
+            foreach (self::candidates($names) as $name) {
+
+                if (preg_match('/(?<![\p{L}])'.preg_quote($name, '/').'/u', $lower, $match, PREG_OFFSET_CAPTURE) === 1) {
+                    $at = $match[0][1];
+                    $length = strlen($name);
+
+                    if (! isset($matches[$id]) || $at < $matches[$id]['at']) {
+                        $matches[$id] = ['at' => $at, 'end' => $at + $length];
+                    }
+                }
+            }
+        }
+
+        // A shorter name inside a longer match ("ost" in "ostkaka" when both are ingredients) is dropped.
+        $kept = array_filter($matches, function (array $match, int $id) use ($matches): bool {
+            foreach ($matches as $other => $longer) {
+                if ($other !== $id && $longer['at'] <= $match['at'] && $longer['end'] >= $match['end'] && ($longer['end'] - $longer['at']) > ($match['end'] - $match['at'])) {
+                    return false;
+                }
+            }
+
+            return true;
+        }, ARRAY_FILTER_USE_BOTH);
+
+        uasort($kept, fn (array $a, array $b) => $a['at'] <=> $b['at']);
+
+        return array_keys($kept);
+    }
+
+    /**
+     * The names to look for, lower case: each name, and for "Gul lök" or
+     * "Krossade tomater" also the last word, since a step says "Hacka löken".
+     *
+     * @param  list<string>  $names
+     * @return list<string>
+     */
+    private static function candidates(array $names): array
+    {
+        $candidates = [];
+
+        foreach ($names as $name) {
+            $name = mb_strtolower(trim($name));
+            $words = preg_split('/\s+/u', $name) ?: [];
+            $last = end($words);
+
+            if (mb_strlen($name) >= 2) {
+                $candidates[] = $name;
+            }
+
+            if (count($words) > 1 && is_string($last) && mb_strlen($last) >= 3) {
+                $candidates[] = $last;
+            }
+        }
+
+        return array_values(array_unique($candidates));
+    }
+
+    /**
      * Times in a step, at most two, e.g. "ca 10–12 min" as 10 minutes: check early rather than late.
      *
      * @return list<array{seconds: int, label: string}>
