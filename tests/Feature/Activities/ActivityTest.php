@@ -113,6 +113,32 @@ class ActivityTest extends TestCase
             );
     }
 
+    public function test_the_child_packs_one_thing_at_a_time_on_its_own_page()
+    {
+        $swimming = $this->swimming();
+        [$trunks] = $swimming->items()->get()->all();
+
+        $this->actingAs($this->child)->post(route('child.activities.pack', [$swimming, '2026-10-13', $trunks]));
+
+        $this->actingAs($this->child)
+            ->get(route('child.activities.show', [$swimming, '2026-10-13']))
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('child/Pack')
+                ->where('isToday', false)
+                ->where('activity.name', 'Simskola')
+                ->where('activity.packing.items.0.label', 'Badbyxor')
+                ->where('activity.packing.items.0.packed', true)
+                ->where('activity.packing.items.1.packed', false)
+                ->where('activity.packing.packed', 1));
+
+        $sibling = User::factory()->child('7351')->inFamily($this->family, FamilyRole::Child)->create();
+        $this->actingAs($sibling)->get(route('child.activities.show', [$swimming, '2026-10-13']))->assertForbidden();
+        $this->actingAs($this->child)->get(route('child.activities.show', [$swimming, '2026-10-20']))->assertNotFound();
+
+        $theirs = Activity::factory()->for(Family::factory())->weekly(2)->withItems(['Handduk'])->create();
+        $this->actingAs($this->child)->get(route('child.activities.show', [$theirs, '2026-10-13']))->assertNotFound();
+    }
+
     public function test_on_the_day_the_child_answers_that_they_have_packed_and_the_adults_see_it()
     {
         $swimming = $this->swimming();

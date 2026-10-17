@@ -277,6 +277,7 @@ Barnen ser vad som händer idag, imorgon och i veckan, inklusive när en föräl
 - [x] Dagen innan: "Packa till simskolan imorgon" i barnets Idag-vy, bocka av varje sak
 - [x] Samma dag: "Har du packat till simskolan?" med samma bilder
 - [x] Vuxna ser om barnet har packat
+- [x] Packa en sak i taget, som en rutin: stor bild, Läs upp, Klar, "Sen:" och alla saker under. Min dag visar hur långt barnet kommit och knappen Packa.
 - [x] Imorgon-vy och Veckan-vy (bara det stora och det som är annorlunda)
 
 ## Definition of Done

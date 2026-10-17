@@ -163,6 +163,8 @@ Route::middleware(['auth', 'family', 'role:child'])->group(function () {
         Route::delete('min-dag/aktivitet/{activity}/{date}/sak/{item}', [ChildActivityController::class, 'unpack'])
             ->where('date', '\\d{4}-\\d{2}-\\d{2}')->name('child.activities.unpack');
     });
+    Route::get('min-dag/aktivitet/{activity}/{date}/packa', [ChildActivityController::class, 'show'])
+        ->where('date', '\\d{4}-\\d{2}-\\d{2}')->name('child.activities.show');
     Route::post('min-dag/aktivitet/{activity}/{date}/packat', [ChildActivityController::class, 'confirm'])
         ->where('date', '\\d{4}-\\d{2}-\\d{2}')->name('child.activities.confirm');
 
