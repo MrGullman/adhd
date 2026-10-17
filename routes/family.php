@@ -49,6 +49,7 @@ Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function 
     Route::delete('familj/barn/{child}/inloggning', [ChildAccessController::class, 'destroy'])->whereNumber('child')->name('children.access.destroy');
     Route::delete('familj/barn/{child}', [ChildController::class, 'destroy'])->whereNumber('child')->name('children.destroy');
     Route::put('familj/barn/{child}/paminnelser', [ChildReminderController::class, 'update'])->whereNumber('child')->name('children.reminders.update');
+    Route::post('familj/barn/{child}/paminnelser/test', [ChildReminderController::class, 'test'])->whereNumber('child')->middleware('throttle:5,1')->name('children.reminders.test');
     Route::put('familj/barn/{child}/visning', [ChildViewController::class, 'update'])->whereNumber('child')->name('children.view.update');
     Route::post('familj/barn/{child}/koppling', [ChildPairingController::class, 'store'])->whereNumber('child')->name('children.pairing.store');
 
