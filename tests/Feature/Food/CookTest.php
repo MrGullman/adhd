@@ -40,7 +40,7 @@ class CookTest extends TestCase
         $this->recipe = Recipe::factory()->for($this->family)->withIngredients(['Köttfärs' => [500, 'g']])->create([
             'name' => 'Köttbullar',
             'portions' => 4,
-            'instructions' => "1. Blanda färsen.\n2. Stek i 10 minuter.",
+            'instructions' => "1. Blanda köttfärsen.\n2. Stek i 10 minuter.",
         ]);
     }
 
@@ -59,7 +59,9 @@ class CookTest extends TestCase
                 ->component('cook/Recipe')
                 ->where('recipe.portions', 6)
                 ->where('recipe.ingredients.0.quantity', 750)
-                ->where('recipe.steps.0.text', 'Blanda färsen.')
+                ->where('recipe.steps.0.text', 'Blanda köttfärsen.')
+                ->where('recipe.steps.0.ingredientIds', [$this->recipe->ingredients()->value('id')])
+                ->where('recipe.steps.1.ingredientIds', [])
                 ->where('recipe.steps.1.timers.0.seconds', 600)
                 ->where('entry.canMarkCooked', true)
                 ->where('backHref', route('recipes.show', $this->recipe)));

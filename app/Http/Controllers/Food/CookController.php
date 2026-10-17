@@ -33,6 +33,9 @@ class CookController extends Controller
             : ($entry->portions ?? $recipe->portions);
         $factor = $portions / max(1, $recipe->portions);
         $isChild = $current->role() === FamilyRole::Child;
+        $names = $recipe->ingredients->mapWithKeys(fn (RecipeIngredient $line) => [
+            $line->id => array_values(array_filter([$line->ingredient?->name, ...$line->alternatives->pluck('name')->all()])),
+        ])->all();
 
         return Inertia::render('cook/Recipe', [
             'recipe' => [
@@ -48,7 +51,11 @@ class CookController extends Controller
                     'unit' => $line->unit,
                     'note' => $line->note,
                 ])->values(),
-                'steps' => CookingSteps::from($recipe->instructions),
+                // Each step with the ingredients it mentions, so their amounts can be shown there.
+                'steps' => array_map(fn (array $step) => [
+                    ...$step,
+                    'ingredientIds' => CookingSteps::ingredientsIn($step['text'], $names),
+                ], CookingSteps::from($recipe->instructions)),
             ],
             'entry' => $entry === null ? null : [
                 'id' => $entry->id,

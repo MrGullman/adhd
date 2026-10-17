@@ -58,4 +58,17 @@ class CookingStepsTest extends TestCase
         $this->assertSame('1 h 30 min', CookingSteps::label(5400));
         $this->assertSame('2 h', CookingSteps::label(7200));
     }
+
+    public function test_a_step_knows_which_ingredients_it_uses(): void
+    {
+        $ingredients = [1 => ['Pasta'], 2 => ['Gul lök'], 3 => ['Vitlök'], 4 => ['Vetemjöl'], 5 => ['Mjöl'], 6 => ['Smör', 'margarin'], 7 => ['Ost'], 8 => ['Ägg']];
+
+        $this->assertSame([1], CookingSteps::ingredientsIn('Koka pastan i 10 minuter.', $ingredients));
+        $this->assertSame([2, 3], CookingSteps::ingredientsIn('Hacka löken och vitlöken fint.', $ingredients));
+        $this->assertSame([3], CookingSteps::ingredientsIn('Pressa vitlöken.', $ingredients), 'lök is not found in vitlök');
+        $this->assertSame([4], CookingSteps::ingredientsIn('Vispa ner vetemjölet.', $ingredients), 'mjöl is not found in vetemjöl');
+        $this->assertSame([6], CookingSteps::ingredientsIn('Smält margarinet i en kastrull.', $ingredients));
+        $this->assertSame([8, 7], CookingSteps::ingredientsIn('Vispa äggen och riv osten.', $ingredients));
+        $this->assertSame([], CookingSteps::ingredientsIn('Sätt ugnen på 225 grader.', $ingredients));
+    }
 }
