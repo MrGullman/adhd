@@ -74,6 +74,40 @@ class SchoolLunch
         ];
     }
 
+    /**
+     * The next school days' lunches for a school, at most $days of them,
+     * from today (or tomorrow after the switch). Weekends have no lunch and
+     * are skipped; a holiday counts as a day.
+     *
+     * @return list<array{date: string, holiday: string|null, courses: list<array{name: string, option: string|null}>}>
+     */
+    public function upcoming(?int $schoolMenuId, int $days): array
+    {
+        if ($schoolMenuId === null) {
+            return [];
+        }
+
+        $byDate = collect($this->meals[$schoolMenuId] ?? [])->groupBy(fn (SchoolMeal $meal) => $meal->date->toDateString());
+
+        return array_values($byDate
+            ->map(function ($meals, string $date) {
+                // "Lunch" when the school has more than one meal a day.
+                $meal = $meals->first(fn (SchoolMeal $meal) => $meal->meal_name === 'Lunch') ?? $meals->first();
+
+                return ['date' => $date, 'holiday' => $meal->holiday_name, 'courses' => $meal->courses];
+            })
+            ->take($days)
+            ->all());
+    }
+
+    /**
+     * "Idag", "Imorgon" or the weekday, e.g. "Måndag".
+     */
+    public function dayLabel(string $date): string
+    {
+        return mb_convert_case(mb_substr($this->when($date), 0, 1), MB_CASE_UPPER).mb_substr($this->when($date), 1);
+    }
+
     private function when(string $date): string
     {
         $today = $this->now->startOfDay();

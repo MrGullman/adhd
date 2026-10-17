@@ -975,6 +975,8 @@ I version 1 (Milestone 8):
 - Hämtningen gäller måndag denna vecka till söndag nästa vecka (14 dagar).
 - Skollunchen visas i vuxnas Idag, barnets Min dag, barnkortet på hemskärmen och widgeten Skollunch.
 - Efter families.settings.school_lunch_switch (förval 15:00) visas nästa skoldags lunch: "Skollunch imorgon", eller till exempel "Skollunch måndag" på fredag eftermiddag.
+- Widgeten Skollunch visar fler skoldagar ju bredare den är: 1–4 kolumner en dag, sedan en dag till för varannan kolumn, upp till fem (en skolvecka) på hela bredden. Helger hoppas över och lov visas med sitt namn.
+- Veckomatsedeln kan visa veckans skollunch per skola under middagarna (Visa/Dölj skolmat, valet sparas på enheten).
 - Skolnamn och distributorId för familjens riktiga skolor finns bara i databasen, aldrig i kod, tester eller dokument.
 
 ---
