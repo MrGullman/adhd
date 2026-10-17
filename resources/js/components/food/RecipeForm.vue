@@ -2,6 +2,7 @@
 import { useForm } from '@inertiajs/vue3';
 import { ArrowDown, ArrowUp, Plus, Trash2 } from '@lucide/vue';
 import IngredientInput from '@/components/food/IngredientInput.vue';
+import RecipeStepsHelp from '@/components/food/RecipeStepsHelp.vue';
 import InputError from '@/components/InputError.vue';
 import PicturePicker from '@/components/PicturePicker.vue';
 import { Button } from '@/components/ui/button';
@@ -250,9 +251,10 @@ const fieldClass =
                 rows="8"
                 maxlength="5000"
                 class="rounded-md border-2 border-input bg-surface-raised p-3 text-body"
-                placeholder="Ett steg per rad"
+                placeholder="Ett steg per rad, t.ex. Koka pastan i 10 minuter"
             />
             <InputError :message="form.errors.instructions" />
+            <RecipeStepsHelp :instructions="form.instructions ?? ''" />
         </div>
 
         <Button type="submit" class="w-fit" :disabled="form.processing">
