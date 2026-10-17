@@ -729,6 +729,7 @@ routine_steps
 - picture_id
 - label
 - minutes (uppskattad tid)
+- timer (visa en visuell timer för stegets minuter)
 - type (step, packlist)
 - weekdays (nullable: bara vissa dagar)
 - optional (kan hoppas över om tiden inte räcker)

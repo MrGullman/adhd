@@ -28,6 +28,7 @@ const props = defineProps<{
         endsOn: string | null;
         dayPart: string | null;
         time: string | null;
+        timerMinutes?: number | null;
     };
 }>();
 
@@ -217,6 +218,25 @@ const selectClass =
             <p v-else class="self-end pb-3 text-caption text-ink-muted">
                 Med klockslag väljs del av dagen automatiskt.
             </p>
+        </div>
+
+        <div class="grid gap-2">
+            <Label for="recurring-timer">Timer i minuter (valfritt)</Label>
+            <Input
+                id="recurring-timer"
+                name="timer_minutes"
+                type="number"
+                min="1"
+                max="120"
+                inputmode="numeric"
+                class="w-32"
+                :default-value="recurringTask?.timerMinutes ?? undefined"
+            />
+            <p class="text-caption text-ink-muted">
+                Barnet trycker Starta och ser en skiva som krymper, t.ex. 20
+                minuter för Äta.
+            </p>
+            <InputError :message="errors.timer_minutes" />
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2">

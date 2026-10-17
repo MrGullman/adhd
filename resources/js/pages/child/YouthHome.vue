@@ -25,6 +25,7 @@ import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import PictureThumb from '@/components/PictureThumb.vue';
 import PushToggle from '@/components/PushToggle.vue';
 import SchoolLunch from '@/components/SchoolLunch.vue';
+import VisualTimer from '@/components/VisualTimer.vue';
 import { useChildStyle } from '@/composables/useChildStyle';
 import { useDoneLast } from '@/composables/useDoneLast';
 import { formatDay } from '@/lib/format';
@@ -188,6 +189,19 @@ function removeOwnTask(task: TaskRowData): void {
                               : 'Inget att göra idag.'
                     }}
                 </h2>
+            </section>
+
+            <!-- Timer för det som är Nu/Nästa, t.ex. Äta i 20 minuter -->
+            <section
+                v-if="now?.timerMinutes"
+                class="flex justify-center rounded-lg border border-line bg-surface-raised p-3"
+                aria-label="Timer"
+            >
+                <VisualTimer
+                    :key="now.id"
+                    :minutes="now.timerMinutes"
+                    :storage-key="`task:${now.id}`"
+                />
             </section>
 
             <!-- Händer idag -->

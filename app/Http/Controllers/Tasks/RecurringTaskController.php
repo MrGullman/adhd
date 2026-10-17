@@ -111,6 +111,7 @@ class RecurringTaskController extends Controller
                 'endsOn' => $recurringTask->ends_on?->toDateString(),
                 'dayPart' => $recurringTask->time === null ? $recurringTask->day_part?->value : null,
                 'time' => $recurringTask->shortTime(),
+                'timerMinutes' => $recurringTask->timer_minutes,
             ],
         ]);
     }

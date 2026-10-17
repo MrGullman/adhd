@@ -22,6 +22,7 @@ const props = defineProps<{
         date: string;
         dayPart: string | null;
         time: string | null;
+        timerMinutes?: number | null;
     };
     date?: string;
 }>();
@@ -115,6 +116,25 @@ const selectClass =
                 <Input id="task-time" v-model="time" name="time" type="time" />
                 <InputError :message="errors.time" />
             </div>
+        </div>
+
+        <div class="grid gap-2">
+            <Label for="task-timer">Timer i minuter (valfritt)</Label>
+            <Input
+                id="task-timer"
+                name="timer_minutes"
+                type="number"
+                min="1"
+                max="120"
+                inputmode="numeric"
+                class="w-32"
+                :default-value="task?.timerMinutes ?? undefined"
+            />
+            <p class="text-caption text-ink-muted">
+                Barnet trycker Starta och ser en skiva som krymper, t.ex. 20
+                minuter för Äta.
+            </p>
+            <InputError :message="errors.timer_minutes" />
         </div>
 
         <div v-if="!time" class="grid gap-2">

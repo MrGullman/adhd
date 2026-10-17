@@ -29,6 +29,8 @@ export type TaskRowData = {
     recurring: boolean;
     /** Added by the child for themselves. */
     ownTask: boolean;
+    /** A visual timer the child starts, in minutes. */
+    timerMinutes?: number | null;
     assignee: Member | null;
 };
 
@@ -57,6 +59,8 @@ export type RoutineStepItem = {
     label: string;
     picture: PictureItem | null;
     minutes: number | null;
+    /** A visual timer for the step, in minutes. */
+    timerMinutes?: number | null;
     type: 'step' | 'packlist';
     optional: boolean;
     done: boolean;

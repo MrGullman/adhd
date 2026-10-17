@@ -47,7 +47,8 @@ class StoreRoutineRequest extends FormRequest
             'steps.*.id' => ['nullable', 'integer'],
             'steps.*.label' => ['required', 'string', 'max:50'],
             'steps.*.picture_id' => ['nullable', 'integer', new VisiblePicture],
-            'steps.*.minutes' => ['nullable', 'integer', 'between:1,180'],
+            'steps.*.minutes' => ['nullable', 'required_if_accepted:steps.*.timer', 'integer', 'between:1,180'],
+            'steps.*.timer' => ['boolean'],
             'steps.*.type' => ['required', Rule::enum(StepType::class)],
             'steps.*.optional' => ['boolean'],
             'steps.*.weekdays' => ['array'],
@@ -82,6 +83,7 @@ class StoreRoutineRequest extends FormRequest
         return [
             'steps.required' => 'Lägg till minst ett steg.',
             'done_by.after' => '"Klar senast" måste vara efter starten.',
+            'steps.*.minutes.required_if_accepted' => 'Skriv hur många minuter timern ska gå.',
         ];
     }
 
@@ -129,6 +131,7 @@ class StoreRoutineRequest extends FormRequest
                 'minutes' => isset($step['minutes']) && $step['minutes'] !== '' ? (int) $step['minutes'] : null,
                 'type' => StepType::from((string) $step['type']),
                 'optional' => filter_var($step['optional'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                'timer' => filter_var($step['timer'] ?? false, FILTER_VALIDATE_BOOLEAN),
                 'weekdays' => count($weekdays) === 7 ? null : ($weekdays ?: null),
             ];
         }

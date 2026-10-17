@@ -36,6 +36,7 @@ class StoreTaskRequest extends FormRequest
             'date' => ['required', 'date_format:Y-m-d'],
             'day_part' => ['nullable', Rule::enum(DayPart::class)],
             'time' => ['nullable', 'date_format:H:i'],
+            'timer_minutes' => ['nullable', 'integer', 'between:1,120'],
         ];
     }
 
@@ -51,6 +52,7 @@ class StoreTaskRequest extends FormRequest
             'date' => 'dag',
             'day_part' => 'del av dagen',
             'time' => 'klockslag',
+            'timer_minutes' => 'timer',
         ];
     }
 
@@ -58,7 +60,7 @@ class StoreTaskRequest extends FormRequest
      * The validated task. With a time, the part of the day follows from the
      * family's day parts.
      *
-     * @return array{title: string, picture_id: int|null, assigned_to: int|null, date: string, day_part: DayPart|null, time: string|null}
+     * @return array{title: string, picture_id: int|null, assigned_to: int|null, date: string, day_part: DayPart|null, time: string|null, timer_minutes: int|null}
      */
     public function task(Family $family): array
     {
@@ -73,6 +75,7 @@ class StoreTaskRequest extends FormRequest
                 ? $family->dayPartFor($time)
                 : $this->enum('day_part', DayPart::class),
             'time' => $time,
+            'timer_minutes' => $this->filled('timer_minutes') ? $this->integer('timer_minutes') : null,
         ];
     }
 }

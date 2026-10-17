@@ -5,6 +5,7 @@ import { computed } from 'vue';
 import ChildRoutineController from '@/actions/App/Http/Controllers/Routines/ChildRoutineController';
 import CompletionToggle from '@/components/CompletionToggle.vue';
 import PictureThumb from '@/components/PictureThumb.vue';
+import VisualTimer from '@/components/VisualTimer.vue';
 import { useChildStyle } from '@/composables/useChildStyle';
 import { childPacking } from '@/lib/activities';
 import { home as childHome } from '@/routes/child';
@@ -204,6 +205,18 @@ function stepHref(step: RoutineStepItem) {
                             Valfri
                         </span>
                     </div>
+
+                    <VisualTimer
+                        v-if="
+                            step.timerMinutes &&
+                            !step.done &&
+                            (!routine.ordered ||
+                                step.id === routine.currentStepId)
+                        "
+                        :minutes="step.timerMinutes"
+                        :storage-key="`step:${step.id}:${routine.id}`"
+                        class="pb-3"
+                    />
 
                     <!-- "Kolla packningen": what to have with you today -->
                     <div
