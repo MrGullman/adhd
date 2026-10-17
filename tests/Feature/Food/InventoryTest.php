@@ -83,6 +83,21 @@ class InventoryTest extends TestCase
                 ->where('locations.1.items.0.name', 'Köttfärs'));
     }
 
+    public function test_an_amount_can_be_typed_in_another_unit_or_cleared()
+    {
+        $milk = $this->item('Mjölk', ['quantity' => 2, 'unit' => 'l', 'location' => StorageLocation::Fridge]);
+
+        $this->actingAs($this->parent)->patch(route('inventory.update', $milk), ['quantity' => 13.5, 'unit' => 'dl'])->assertRedirect();
+        $this->assertSame(13.5, (float) $milk->fresh()?->quantity);
+        $this->assertSame('dl', $milk->fresh()?->unit);
+
+        // Empty: only that it is at home, without an amount.
+        $this->actingAs($this->parent)->patch(route('inventory.update', $milk), ['quantity' => null, 'unit' => 'dl'])->assertRedirect();
+        $this->assertNull($milk->fresh()?->quantity);
+
+        $this->actingAs($this->parent)->patch(route('inventory.update', $milk), ['quantity' => 'mycket'])->assertSessionHasErrors('quantity');
+    }
+
     public function test_viewers_and_children_cannot_take_stock()
     {
         $milk = $this->item('Mjölk', ['quantity' => 2, 'unit' => 'l', 'location' => StorageLocation::Fridge]);
