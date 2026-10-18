@@ -5,12 +5,14 @@ namespace App\Providers;
 use App\Meals\MatildaMealProvider;
 use App\Meals\MealProvider;
 use App\Support\CurrentFamily;
+use App\Support\RetryingDatabaseSessionHandler;
 use Carbon\CarbonImmutable;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -34,6 +36,20 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         $this->configureRateLimiting();
+        $this->configureSessions();
+    }
+
+    /**
+     * Database sessions that are saved again when two requests collide (deadlock).
+     */
+    protected function configureSessions(): void
+    {
+        Session::extend('database', fn ($app) => new RetryingDatabaseSessionHandler(
+            DB::connection(config('session.connection')),
+            (string) config('session.table'),
+            (int) config('session.lifetime'),
+            $app,
+        ));
     }
 
     /**

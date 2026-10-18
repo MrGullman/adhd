@@ -67,11 +67,24 @@ const props = defineProps<{
 const page = usePage();
 const link = computed(() => page.flash.displayLink);
 const copied = ref(false);
+const copyFailed = ref(false);
+const linkElement = ref<HTMLElement | null>(null);
 
+// Some browsers cannot copy (e.g. Safari without https): then the link is selected instead.
 async function copy(): Promise<void> {
-    if (link.value) {
+    if (!link.value) {
+        return;
+    }
+
+    try {
         await navigator.clipboard.writeText(link.value);
         copied.value = true;
+    } catch {
+        copyFailed.value = true;
+
+        if (linkElement.value) {
+            window.getSelection()?.selectAllChildren(linkElement.value);
+        }
     }
 }
 
@@ -261,7 +274,8 @@ const chip =
                 Pi. Länken visas bara nu. Är den borta skapar du en ny.
             </p>
             <code
-                class="rounded-md bg-surface-raised p-3 text-caption break-all"
+                ref="linkElement"
+                class="rounded-md bg-surface-raised p-3 text-caption break-all select-all"
             >
                 {{ link }}
             </code>
@@ -270,6 +284,10 @@ const chip =
                     <Copy class="size-5" />
                     {{ copied ? 'Kopierad' : 'Kopiera länken' }}
                 </Button>
+                <p v-if="copyFailed" class="w-full text-caption">
+                    Kunde inte kopiera här. Länken är markerad, kopiera den med
+                    Cmd+C eller håll fingret på den.
+                </p>
                 <a
                     :href="link"
                     target="_blank"
