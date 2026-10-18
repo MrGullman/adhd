@@ -8,8 +8,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Lists\StoreListRequest;
 use App\Http\Requests\Lists\UpdateListRequest;
 use App\Models\FamilyList;
+use App\Models\IcaConnection;
 use App\Models\ListItem;
 use App\Models\User;
+use App\Support\CurrentFamily;
+use App\Support\FamilyFeatures;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -51,7 +54,7 @@ class ListController extends Controller
         return to_route('lists.show', $list);
     }
 
-    public function show(Request $request, FamilyList $list): Response
+    public function show(Request $request, CurrentFamily $current, FamilyList $list): Response
     {
         Gate::authorize('view', $list);
 
@@ -91,6 +94,14 @@ class ListController extends Controller
                 'amount' => $item->quantity === null ? null : trim(str_replace('.', ',', (string) (float) $item->quantity).' '.$item->unit),
                 'forMeals' => $item->for_meals,
             ]),
+            // Handla → ICA, when an admin has turned the trial on for the family.
+            'ica' => $list->isShopping() && FamilyFeatures::enabled($current->getOrFail(), FamilyFeatures::ICA)
+                ? (fn (?IcaConnection $connection) => [
+                    'listTitle' => $connection?->list_title,
+                    'lastError' => $connection?->last_error,
+                    'canManage' => $user->can('manage', IcaConnection::class),
+                ])(IcaConnection::query()->first())
+                : null,
             'can' => [
                 'addItems' => $user->can('addItem', $list),
                 'update' => $user->can('update', $list),

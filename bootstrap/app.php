@@ -43,4 +43,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        // ICA login details are never kept, not even as old input after an error.
+        $exceptions->dontFlash(['personal_id', 'ica_password']);
     })->create();

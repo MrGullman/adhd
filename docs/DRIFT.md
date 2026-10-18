@@ -157,6 +157,25 @@ sudo -u npf-familjen php8.4 /var/www/npf-familjen/current/artisan optimize
 
 Tomma fält visar "Uppgift om personuppgiftsansvarig saknas ännu". Fyll i dem innan andra familjer bjuds in.
 
+## ICA-koppling (test)
+
+Familjer kan skicka handlingslistan till en ICA-lista. Det är ett test: ICA har inget öppet API, så kopplingen använder samma väg som ICA:s app och kan sluta fungera. Den är av tills två saker är gjorda:
+
+1. **På servern:** ICA-appens registreringsnyckel i `.env`. Värdena finns i det öppna projektet ica-cli, filen `ica_cli/const.py` (`CLIENT_ID` och `CLIENT_SECRET` under `AppRegistration`):
+
+   ```bash
+   sudo -iu npf-familjen
+   nano /var/www/npf-familjen/shared/.env
+   # ICA_APP_CLIENT_ID=...
+   # ICA_APP_CLIENT_SECRET=...
+   cd /var/www/npf-familjen/current && php8.4 artisan config:cache
+   ```
+
+   Ta bort raderna för att stänga av kopplingen för alla direkt.
+2. **I adminportalen:** Familjer → familjen → Slå på ICA (test). Stäng av tar bort familjens koppling och ICA:s nycklar.
+
+Sedan kopplar en vårdnadshavare under Listor → Handla → Koppla till ICA. Personnummer och lösenord skickas till ICA och sparas aldrig, bara ICA:s token (krypterad med APP_KEY). Ändringar skickas via kön (`npf-familjen-queue`). Fel syns på sidan och i `storage/logs`.
+
 ## Push-notiser (påminnelser)
 
 Påminnelser skickas som push-notiser och kräver ett nyckelpar (VAPID). Gör detta en gång, efter första driftsättningen med Milestone 16:

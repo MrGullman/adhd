@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Models\Concerns\BelongsToFamily;
+use App\Observers\ListItemObserver;
 use Database\Factories\ListItemFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,9 +26,11 @@ use Illuminate\Support\Carbon;
  * @property int|null $added_by
  * @property Carbon|null $completed_at
  * @property int|null $completed_by
+ * @property string|null $ica_row_id The row in the family's ICA list, when connected.
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
+#[ObservedBy(ListItemObserver::class)]
 #[Fillable(['name', 'picture_id', 'added_by', 'ingredient_id', 'quantity', 'unit', 'meal_plan_week', 'for_meals'])]
 class ListItem extends Model
 {

@@ -16,6 +16,7 @@ use App\Http\Controllers\Food\RecipeImportController;
 use App\Http\Controllers\Food\SuggestionController;
 use App\Http\Controllers\JournalController;
 use App\Http\Controllers\Lists\CompletedListItemsController;
+use App\Http\Controllers\Lists\IcaConnectionController;
 use App\Http\Controllers\Lists\ListController;
 use App\Http\Controllers\Lists\ListItemCompletionController;
 use App\Http\Controllers\Lists\ListItemController;
@@ -36,6 +37,12 @@ use Illuminate\Support\Facades\Route;
 // Lists and tasks. Policies decide what each role may do.
 
 Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function () {
+    // Handla → ICA (a trial per family, FamilyFeatures::ICA).
+    Route::get('listor/ica', [IcaConnectionController::class, 'show'])->name('ica.show');
+    Route::post('listor/ica', [IcaConnectionController::class, 'store'])->middleware('throttle:5,10')->name('ica.store');
+    Route::post('listor/ica/listor', [IcaConnectionController::class, 'lists'])->middleware('throttle:10,1')->name('ica.lists');
+    Route::put('listor/ica', [IcaConnectionController::class, 'update'])->name('ica.update');
+    Route::delete('listor/ica', [IcaConnectionController::class, 'destroy'])->name('ica.destroy');
     Route::get('listor', [ListController::class, 'index'])->name('lists.index');
     Route::post('listor', [ListController::class, 'store'])->name('lists.store');
     Route::get('listor/{list}', [ListController::class, 'show'])->name('lists.show');
