@@ -23,6 +23,7 @@ const props = defineProps<{
         dayPart: string | null;
         time: string | null;
         timerMinutes?: number | null;
+        homework?: boolean;
     };
     date?: string;
 }>();
@@ -30,6 +31,8 @@ const props = defineProps<{
 const picture = ref<PictureItem | null>(props.task?.picture ?? null);
 // With a time the part of the day is chosen automatically, so the choice is hidden.
 const time = ref(props.task?.time ?? '');
+// Läxa: the date is when it is due, and it is shown every day until then.
+const homework = ref(props.task?.homework ?? false);
 
 const selectClass =
     'h-12 w-full rounded-md border-2 border-input bg-surface-raised px-3 text-body';
@@ -99,9 +102,28 @@ const selectClass =
             <InputError :message="errors.assigned_to" />
         </fieldset>
 
+        <label class="flex min-h-tap-adult items-start gap-3">
+            <input
+                v-model="homework"
+                type="checkbox"
+                name="homework"
+                value="1"
+                class="mt-1 size-5"
+            />
+            <span>
+                <span class="font-bold">Läxa</span>
+                <span class="block text-caption text-ink-muted">
+                    Visas varje dag fram till dagen den ska vara klar, t.ex.
+                    "Läxa · till fredag".
+                </span>
+            </span>
+        </label>
+
         <div class="grid gap-4 sm:grid-cols-2">
             <div class="grid gap-2">
-                <Label for="task-date">Dag</Label>
+                <Label for="task-date">{{
+                    homework ? 'Ska vara klar' : 'Dag'
+                }}</Label>
                 <Input
                     id="task-date"
                     name="date"

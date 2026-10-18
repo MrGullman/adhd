@@ -82,6 +82,7 @@ class TaskController extends Controller
                 'dayPart' => $task->time === null ? $task->day_part?->value : null,
                 'time' => $task->shortTime(),
                 'timerMinutes' => $task->timer_minutes,
+                'homework' => $task->homework,
                 'recurring' => $task->isRecurring(),
             ],
         ]);

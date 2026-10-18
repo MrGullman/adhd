@@ -39,3 +39,32 @@ export function whenText(
 
     return dayPart ? parts[dayPart] : null;
 }
+
+/**
+ * "Läxa · idag", "Läxa · till imorgon", "Läxa · till fredag" or, further on,
+ * "Läxa · till 24/10".
+ */
+export function homeworkText(dueDate: string): string {
+    const today = new Intl.DateTimeFormat('sv-SE', {
+        timeZone: 'Europe/Stockholm',
+    }).format(new Date());
+    const days = Math.round(
+        (Date.parse(`${dueDate}T12:00:00Z`) -
+            Date.parse(`${today}T12:00:00Z`)) /
+            86_400_000,
+    );
+
+    if (days <= 0) {
+        return 'Läxa · idag';
+    }
+
+    if (days === 1) {
+        return 'Läxa · till imorgon';
+    }
+
+    const date = new Date(`${dueDate}T12:00:00Z`);
+
+    return days < 7
+        ? `Läxa · till ${new Intl.DateTimeFormat('sv-SE', { weekday: 'long', timeZone: 'UTC' }).format(date)}`
+        : `Läxa · till ${date.getUTCDate()}/${date.getUTCMonth() + 1}`;
+}

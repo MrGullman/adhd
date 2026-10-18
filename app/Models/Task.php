@@ -30,6 +30,7 @@ use Illuminate\Support\Carbon;
  * @property DayPart|null $day_part
  * @property string|null $time
  * @property int|null $timer_minutes A visual timer the child starts, e.g. 20 for Äta.
+ * @property bool $homework Läxa: date is when it is due, shown every day until then.
  * @property bool $customized
  * @property Carbon|null $completed_at
  * @property int|null $completed_by
@@ -38,7 +39,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  */
-#[Fillable(['title', 'picture_id', 'assigned_to', 'date', 'day_part', 'time', 'timer_minutes', 'created_by'])]
+#[Fillable(['title', 'picture_id', 'assigned_to', 'date', 'day_part', 'time', 'timer_minutes', 'homework', 'created_by'])]
 class Task extends Model
 {
     /** @use HasFactory<TaskFactory> */
@@ -55,6 +56,7 @@ class Task extends Model
             'date' => 'date:Y-m-d',
             'day_part' => DayPart::class,
             'customized' => 'boolean',
+            'homework' => 'boolean',
             'completed_at' => 'datetime',
         ];
     }

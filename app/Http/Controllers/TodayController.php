@@ -5,12 +5,16 @@ namespace App\Http\Controllers;
 use App\Calendar\FamilyCalendar;
 use App\Enums\ChildView;
 use App\Enums\FamilyRole;
+use App\Enums\ListType;
 use App\Food\Dinner;
 use App\Models\Activity;
 use App\Models\CalendarEvent;
 use App\Models\Family;
+use App\Models\FamilyList;
 use App\Models\Membership;
+use App\Models\PantryItem;
 use App\Models\Recipe;
+use App\Models\RecipeIngredient;
 use App\Models\Routine;
 use App\Models\Task;
 use App\Models\User;
@@ -31,10 +35,13 @@ use Inertia\Response;
  */
 class TodayController extends Controller
 {
-    public function family(CurrentFamily $current): Response
+    public function family(Request $request, CurrentFamily $current): Response
     {
         $family = $current->getOrFail();
         $today = LocalTime::today();
+
+        /** @var User $user */
+        $user = $request->user();
 
         // Done and total per member, for "3 av 5 klara".
         $progress = Task::query()
@@ -62,6 +69,13 @@ class TodayController extends Controller
             'routines' => $this->routines($family, LocalTime::now()),
             'currentPart' => $family->dayPartFor(LocalTime::now()->format('H:i'))->value,
             'groups' => DayPlan::for($family, $today)->groups(),
+            // Min dag: what is next for me, and what the home needs.
+            'myDay' => fn () => [
+                'userId' => $user->id,
+                'now' => DayPlan::for($family, $today, $user->id)->now($family->dayPartFor(LocalTime::now()->format('H:i'))),
+                'shopping' => $this->shopping(),
+                'dinnerMissing' => $this->dinnerMissing($family),
+            ],
             'members' => $family->members()
                 ->with('picture')
                 ->orderBy('name')
@@ -127,6 +141,49 @@ class TodayController extends Controller
         $recipe = $dinner === null || $dinner['recipeId'] === null ? null : Recipe::query()->find($dinner['recipeId']);
 
         return $dinner === null ? null : [...$dinner, 'canCook' => $recipe !== null && $child->can('cook', $recipe)];
+    }
+
+    /**
+     * What is on the shopping list and not bought yet.
+     *
+     * @return array{count: int, items: list<string>}
+     */
+    private function shopping(): array
+    {
+        $list = FamilyList::query()->where('type', ListType::Shopping)->first();
+
+        if ($list === null) {
+            return ['count' => 0, 'items' => []];
+        }
+
+        $open = $list->items()->whereNull('completed_at')->orderBy('id')->pluck('name');
+
+        return ['count' => $open->count(), 'items' => array_values($open->take(8)->all())];
+    }
+
+    /**
+     * What tonight's dinner needs that is not at home, e.g. ["Grädde"].
+     *
+     * @return list<string>
+     */
+    private function dinnerMissing(Family $family): array
+    {
+        $dinner = Dinner::next($family, LocalTime::now());
+        $recipeId = $dinner['recipeId'] ?? null;
+        $recipe = is_int($recipeId)
+            ? Recipe::query()->with(['ingredients.ingredient', 'ingredients.alternatives'])->find($recipeId)
+            : null;
+
+        if ($recipe === null) {
+            return [];
+        }
+
+        $atHome = PantryItem::query()->pluck('ingredient_id')->map(fn ($id) => (int) $id)->all();
+
+        return array_values($recipe->ingredients
+            ->reject(fn (RecipeIngredient $line) => $line->isAtHome($atHome))
+            ->map(fn (RecipeIngredient $line) => $line->displayName())
+            ->all());
     }
 
     /**

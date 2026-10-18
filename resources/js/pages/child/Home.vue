@@ -26,7 +26,7 @@ import SchoolLunch from '@/components/SchoolLunch.vue';
 import VisualTimer from '@/components/VisualTimer.vue';
 import { useDoneLast } from '@/composables/useDoneLast';
 import { formatDay } from '@/lib/format';
-import { isDueNow, whenText } from '@/lib/now';
+import { homeworkText, isDueNow, whenText } from '@/lib/now';
 import { logout } from '@/routes';
 import {
     avatar as childAvatar,
@@ -366,7 +366,13 @@ const allDone = computed(
                                         {{ task.title }}
                                     </span>
                                     <span
-                                        v-if="task.time"
+                                        v-if="task.homework && task.dueDate"
+                                        class="font-display text-child-label text-ink-muted"
+                                    >
+                                        {{ homeworkText(task.dueDate) }}
+                                    </span>
+                                    <span
+                                        v-else-if="task.time"
                                         class="font-display text-child-label text-ink-muted tabular-nums"
                                     >
                                         {{ task.time }}

@@ -7,6 +7,7 @@ import CompletionToggle from '@/components/CompletionToggle.vue';
 import DoneChip from '@/components/DoneChip.vue';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import PictureThumb from '@/components/PictureThumb.vue';
+import { homeworkText } from '@/lib/now';
 import type { TaskRowData } from '@/types';
 
 defineProps<{
@@ -60,6 +61,12 @@ defineProps<{
                 class="size-4 shrink-0 text-ink-muted"
                 aria-label="Återkommande"
             />
+            <span
+                v-if="task.homework && task.dueDate"
+                class="shrink-0 rounded-full bg-primary-soft px-2 text-caption font-bold"
+            >
+                {{ homeworkText(task.dueDate) }}
+            </span>
             <!-- Added by the child for themselves (läget Ungdom). -->
             <span
                 v-if="task.ownTask"
