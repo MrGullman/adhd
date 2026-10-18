@@ -9,7 +9,9 @@ use App\Filament\Concerns\SuspendActions;
 use App\Filament\Resources\Families\Pages\ListFamilies;
 use App\Models\Family;
 use App\Models\User;
+use App\Support\FamilyFeatures;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -76,17 +78,39 @@ class FamilyResource extends Resource
                     ->color(fn ($state) => $state === null ? 'success' : 'gray')
                     ->default(null)
                     ->placeholder('Aktiv'),
+                TextColumn::make('ica')
+                    ->label('ICA (test)')
+                    ->badge()
+                    ->state(fn (Family $record) => FamilyFeatures::enabled($record, FamilyFeatures::ICA) ? 'På' : 'Av')
+                    ->color(fn (string $state) => $state === 'På' ? 'success' : 'gray')
+                    ->toggleable(),
                 TextColumn::make('suspended_reason')->label('Anledning')->limit(40)->placeholder('–')->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
                 TernaryFilter::make('suspended_at')->label('Avstängd')->nullable(),
             ])
-            ->recordActions(self::suspendActions(
-                'Ingen i familjen kan logga in, inte heller barnen eller hemskärmarna. Ingenting tas bort, och avstängningen kan hävas.',
-                fn (Model $family, string $reason, User $admin) => $family instanceof Family ? app(Suspensions::class)->suspendFamily($family, $reason, $admin) : null,
-                fn (Model $family, User $admin) => $family instanceof Family ? app(Suspensions::class)->unsuspendFamily($family, $admin) : null,
-            ));
+            ->recordActions([
+                // The ICA connection is tried out with one family at a time: ICA's API is unofficial.
+                Action::make('ica')
+                    ->label(fn (Family $record) => FamilyFeatures::enabled($record, FamilyFeatures::ICA) ? 'Stäng av ICA' : 'Slå på ICA (test)')
+                    ->icon('heroicon-o-shopping-cart')
+                    ->requiresConfirmation()
+                    ->modalDescription('ICA-kopplingen använder ICA:s inofficiella API och kan sluta fungera. Familjens egen handlingslista fungerar alltid som vanligt.')
+                    ->action(function (Family $record): void {
+                        $on = ! FamilyFeatures::enabled($record, FamilyFeatures::ICA);
+                        FamilyFeatures::set($record, FamilyFeatures::ICA, $on);
+
+                        if (! $on) {
+                            DB::table('ica_connections')->where('family_id', $record->id)->delete();
+                        }
+                    }),
+                ...self::suspendActions(
+                    'Ingen i familjen kan logga in, inte heller barnen eller hemskärmarna. Ingenting tas bort, och avstängningen kan hävas.',
+                    fn (Model $family, string $reason, User $admin) => $family instanceof Family ? app(Suspensions::class)->suspendFamily($family, $reason, $admin) : null,
+                    fn (Model $family, User $admin) => $family instanceof Family ? app(Suspensions::class)->unsuspendFamily($family, $admin) : null,
+                ),
+            ]);
     }
 
     public static function getPages(): array

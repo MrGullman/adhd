@@ -899,6 +899,14 @@ I version 1 (Milestone 10):
 - Barn lagar veckans måltider med recept (App\Food\ChildRecipes) eller alla recept om family_user.all_recipes är på. Det är familjens beslut och väljs på barnets sida.
 - Timrarna och skärmlåset (Wake Lock) finns bara i webbläsaren medan sidan är öppen.
 
+# ICA-koppling (test)
+
+- Handlingslistan kan skickas till en av familjens ICA-listor, åt ett håll: tillagt, avbockat, tillbaka och borttaget. En testfunktion som admin slår på per familj (App\Support\FamilyFeatures, families.settings.features.ica) och som kräver ICA_APP_CLIENT_ID/SECRET på servern (services.ica).
+- ICA har inget öppet API. App\Ica\IcaClient använder samma inloggning och listtjänst som ICA:s app (OAuth med PKCE mot ims.icagruppen.se, listor på apimgw-pub.ica.se), portat från ica-cli. Det kan sluta fungera, så familjens egen lista är aldrig beroende av det. ICA:s villkor begränsar sådan användning: erbjud det inte brett utan ICA:s tillstånd.
+- En vårdnadshavare loggar in en gång med personnummer och lösenord. De skickas till ICA och glöms: aldrig sparade, loggade eller tillbakaskickade som old input (dontFlash). ica_connections sparar ICA:s klient och token krypterade (encrypted:array), och token förnyas med refresh token.
+- ListItemObserver lägger ändringar på handlingslistan i kön (SyncIcaListItem) när familjen är kopplad. ICA anropas bara från kön och när en vårdnadshavare själv kopplar eller hämtar listor, aldrig när en sida visas. Fel sparas som last_error och visas lugnt, och jobbet försöker igen två gånger. list_items.ica_row_id kopplar en vara till raden i ICA.
+- Tester använder Http::fake och anropar aldrig ICA.
+
 # Skolmat (Matilda)
 
 Skolmåltider hämtas från Matilda Menu (menu.matildaplatform.com).

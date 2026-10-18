@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    // ICA's shopping lists (unofficial API, a trial per family). The values
+    // are those of ICA's app registration; without them the connection is off.
+    'ica' => [
+        'client_id' => env('ICA_APP_CLIENT_ID'),
+        'client_secret' => env('ICA_APP_CLIENT_SECRET'),
+    ],
+
 ];

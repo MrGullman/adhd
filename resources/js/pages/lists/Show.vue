@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Form, Head, Link } from '@inertiajs/vue3';
+import { ShoppingBasket } from '@lucide/vue';
 import { computed, ref } from 'vue';
 import CompletedListItemsController from '@/actions/App/Http/Controllers/Lists/CompletedListItemsController';
 import ListController from '@/actions/App/Http/Controllers/Lists/ListController';
@@ -13,6 +14,7 @@ import PictureThumb from '@/components/PictureThumb.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { show as icaShow } from '@/routes/ica';
 import { index as listsIndex } from '@/routes/lists';
 import type { PictureItem } from '@/types';
 
@@ -29,6 +31,12 @@ const props = defineProps<{
         forMeals: string | null;
     }>;
     can: { addItems: boolean; update: boolean; delete: boolean };
+    /** Handla → ICA, when the trial is on for the family. */
+    ica: {
+        listTitle: string | null;
+        lastError: string | null;
+        canManage: boolean;
+    } | null;
 }>();
 
 defineOptions({
@@ -75,6 +83,26 @@ function onPicture(picture: PictureItem): void {
             <h1 class="text-heading font-semibold">{{ list.name }}</h1>
             <p v-if="list.isShopping" class="text-ink-muted">
                 Barnen kan också lägga till och bocka av här.
+            </p>
+            <p
+                v-if="ica"
+                class="flex flex-wrap items-center gap-2 text-caption text-ink-muted"
+            >
+                <ShoppingBasket class="size-4" aria-hidden="true" />
+                <template v-if="ica.listTitle">
+                    Skickas till ICA-listan {{ ica.listTitle }}.
+                    <template v-if="ica.lastError">
+                        {{ ica.lastError }} Listan här fungerar som vanligt.
+                    </template>
+                </template>
+                <template v-else>Inte kopplad till ICA.</template>
+                <Link
+                    v-if="ica.canManage"
+                    :href="icaShow()"
+                    class="font-bold underline"
+                >
+                    {{ ica.listTitle ? 'Inställningar' : 'Koppla till ICA' }}
+                </Link>
             </p>
         </header>
 

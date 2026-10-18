@@ -5,6 +5,7 @@ namespace App\Actions\Meals;
 use App\Enums\ListType;
 use App\Food\ShoppingListBuilder;
 use App\Models\FamilyList;
+use App\Models\ListItem;
 use App\Support\LocalTime;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
@@ -27,10 +28,12 @@ class RefreshShoppingList
         $needs = $this->builder->needs($monday, LocalTime::now()->startOfDay());
 
         DB::transaction(function () use ($list, $monday, $needs): void {
+            // One at a time, so that a connected ICA list loses them too (ListItemObserver).
             $list->items()
                 ->whereDate('meal_plan_week', $monday->toDateString())
                 ->whereNull('completed_at')
-                ->delete();
+                ->get()
+                ->each(fn (ListItem $item) => $item->delete());
 
             foreach ($needs as $need) {
                 $list->items()->create([
