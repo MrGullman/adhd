@@ -280,6 +280,8 @@ Barnen ser vad som händer idag, imorgon och i veckan, inklusive när en föräl
 - [x] Packa en sak i taget, som en rutin: stor bild, Läs upp, Klar, "Sen:" och alla saker under. Min dag visar hur långt barnet kommit och knappen Packa.
 - [x] Visuell timer (som en Time Timer) på rutinsteg och uppgifter, t.ex. Borsta tänderna 2 min och Äta 20 min. Barnet trycker Starta.
 - [x] Min dag: klart flyttas ner till "Klart idag" längst ner, så att nästa sak står överst
+- [x] Min dag för vuxna: växeln Familjen | Min dag på Idag (kommer ihåg valet). Visar Nu/Nästa för mig, barnens dag i korthet (uppgifter, rutiner, aktiviteter med packning och läxor), det gemensamma hemma och vad som ska handlas, även det som saknas till middagen.
+- [x] Läxor: en uppgift märkt Läxa har datumet den ska vara klar och visas varje dag fram till dess ("Läxa · till fredag")
 - [x] Imorgon-vy och Veckan-vy (bara det stora och det som är annorlunda)
 
 ## Definition of Done

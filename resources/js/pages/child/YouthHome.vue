@@ -29,7 +29,7 @@ import VisualTimer from '@/components/VisualTimer.vue';
 import { useChildStyle } from '@/composables/useChildStyle';
 import { useDoneLast } from '@/composables/useDoneLast';
 import { formatDay } from '@/lib/format';
-import { isDueNow, whenText } from '@/lib/now';
+import { homeworkText, isDueNow, whenText } from '@/lib/now';
 import { logout } from '@/routes';
 import {
     avatar as childAvatar,
@@ -334,6 +334,12 @@ function removeOwnTask(task: TaskRowData): void {
                                 class="shrink-0 text-caption font-bold text-success"
                             >
                                 Klar
+                            </span>
+                            <span
+                                v-else-if="task.homework && task.dueDate"
+                                class="shrink-0 text-caption text-ink-muted"
+                            >
+                                {{ homeworkText(task.dueDate) }}
                             </span>
                             <span
                                 v-else-if="task.time"

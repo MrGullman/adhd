@@ -5,11 +5,13 @@ namespace App\Support;
 use App\Enums\DayPart;
 use App\Models\Family;
 use App\Models\Task;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 
 /**
  * One day's tasks for a family, grouped by part of the day and sorted by
- * time. Used by Uppgifter, the adults' Idag and the child's Min dag.
+ * time. Used by Uppgifter, the adults' Idag and the child's Min dag. Läxor
+ * are shown every day until they are due.
  */
 class DayPlan
 {
@@ -23,9 +25,20 @@ class DayPlan
      */
     public static function for(Family $family, string $date, ?int $assignedTo = null): self
     {
+        $day = CarbonImmutable::parse($date, LocalTime::ZONE);
+
         $tasks = Task::query()
             ->with(['picture', 'assignee:id,name,avatar_color,picture_id', 'assignee.picture'])
-            ->whereDate('date', $date)
+            ->where(fn ($query) => $query
+                ->whereDate('date', $date)
+                // Läxor due later: every day from when they were added, until done.
+                ->orWhere(fn ($query) => $query
+                    ->where('homework', true)
+                    ->whereDate('date', '>', $date)
+                    ->where('created_at', '<=', $day->endOfDay()->utc())
+                    ->where(fn ($query) => $query
+                        ->whereNull('completed_at')
+                        ->orWhereBetween('completed_at', [$day->startOfDay()->utc(), $day->endOfDay()->utc()]))))
             ->when($assignedTo !== null, fn ($query) => $query->where('assigned_to', $assignedTo))
             ->orderByRaw('time is null')
             ->orderBy('time')
@@ -118,6 +131,9 @@ class DayPlan
             'completed' => $task->isCompleted(),
             'recurring' => $task->isRecurring(),
             'ownTask' => $task->isOwnTask(),
+            // Läxa: due on its date, e.g. "Läxa · till fredag".
+            'homework' => $task->homework,
+            'dueDate' => $task->homework ? $task->date->toDateString() : null,
             'assignee' => $task->assignee === null ? null : [
                 'id' => $task->assignee->id,
                 'name' => $task->assignee->name,

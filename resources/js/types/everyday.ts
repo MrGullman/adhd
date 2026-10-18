@@ -31,6 +31,9 @@ export type TaskRowData = {
     ownTask: boolean;
     /** A visual timer the child starts, in minutes. */
     timerMinutes?: number | null;
+    /** Läxa, due on dueDate. */
+    homework?: boolean;
+    dueDate?: string | null;
     assignee: Member | null;
 };
 
