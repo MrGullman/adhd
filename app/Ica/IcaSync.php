@@ -18,9 +18,9 @@ class IcaSync
     /**
      * A fresh access token, renewed with the refresh token a day before it runs out.
      */
-    public function accessToken(IcaConnection $connection): string
+    public function accessToken(IcaConnection $connection, bool $renew = false): string
     {
-        if ($connection->token_expires_at === null || $connection->token_expires_at->lt(now()->addDay())) {
+        if ($renew || $connection->token_expires_at === null || $connection->token_expires_at->lt(now()->addDay())) {
             $token = $this->client->refresh($connection->client, $connection->token);
             $connection->forceFill([
                 'token' => $token,
@@ -46,7 +46,17 @@ class IcaSync
         }
 
         try {
-            $result = $change($this->accessToken($connection), $connection->list_id);
+            try {
+                $result = $change($this->accessToken($connection), $connection->list_id);
+            } catch (IcaException $exception) {
+                // Logged out at ICA before the token ran out: renew once and try again.
+                if ($exception->getCode() !== 401) {
+                    throw $exception;
+                }
+
+                $result = $change($this->accessToken($connection, renew: true), $connection->list_id);
+            }
+
             $connection->forceFill(['last_synced_at' => now(), 'last_error' => null])->save();
 
             return $result;
