@@ -917,6 +917,7 @@ I version 1 (Milestone 10):
 - ICA har inget öppet API. App\Ica\IcaClient använder samma inloggning och listtjänst som ICA:s app (OAuth med PKCE mot ims.icagruppen.se, listor på apimgw-pub.ica.se), portat från ica-cli. Det kan sluta fungera, så familjens egen lista är aldrig beroende av det. ICA:s villkor begränsar sådan användning: erbjud det inte brett utan ICA:s tillstånd.
 - En vårdnadshavare loggar in en gång med personnummer och lösenord. De skickas till ICA och glöms: aldrig sparade, loggade eller tillbakaskickade som old input (dontFlash). ica_connections sparar ICA:s klient och token krypterade (encrypted:array), och token förnyas med refresh token.
 - ListItemObserver lägger ändringar på handlingslistan i kön (SyncIcaListItem) när familjen är kopplad. ICA anropas bara från kön och när en vårdnadshavare själv kopplar eller hämtar listor, aldrig när en sida visas. Fel sparas som last_error och visas lugnt, och jobbet försöker igen två gånger. list_items.ica_row_id kopplar en vara till raden i ICA.
+- Andra hållet: ica:pull (var 5:e minut) hämtar listans rader (App\Ica\IcaPull). Avbockat och tillbaka i ICA, borttaget i ICA och nya rader (inte redan avbockade) förs in i Handla. Krockar avgörs av ICA:s latestChange mot list_items.updated_at, senaste vinner. Allt sparas tyst (saveQuietly), så att ingenting skickas tillbaka till ICA, och family_id sätts därför uttryckligen.
 - Tester använder Http::fake och anropar aldrig ICA.
 
 # Skolmat (Matilda)

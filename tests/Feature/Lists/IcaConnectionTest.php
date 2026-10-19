@@ -251,4 +251,79 @@ class IcaConnectionTest extends TestCase
         $this->assertFalse(FamilyFeatures::enabled($this->family->fresh() ?? $this->family, FamilyFeatures::ICA));
         $this->assertDatabaseCount('ica_connections', 0);
     }
+
+    /**
+     * @param  list<array<string, mixed>>  $rows  What the ICA list has.
+     */
+    private function fakeIcaList(array $rows): void
+    {
+        Http::fake(fn (Request $request) => match (true) {
+            str_ends_with($request->url(), '/shoppinglists/list-1') && $request->method() === 'GET' => Http::response(['offlineId' => 'list-1', 'title' => 'Handla', 'rows' => $rows]),
+            default => Http::response('unexpected '.$request->url(), 500),
+        });
+    }
+
+    private function item(string $name, ?string $rowId, bool $completed = false): ListItem
+    {
+        app(CurrentFamily::class)->set($this->family);
+        $item = new ListItem(['name' => $name]);
+        $item->forceFill(['family_id' => $this->family->id, 'list_id' => $this->shopping->id, 'ica_row_id' => $rowId, 'completed_at' => $completed ? now() : null])->saveQuietly();
+        app(CurrentFamily::class)->forget();
+
+        return $item;
+    }
+
+    public function test_what_happens_in_the_ica_app_comes_into_handla()
+    {
+        $this->enable();
+        $this->connection();
+        $milk = $this->item('Mjölk', 'ROW-A');
+        $bread = $this->item('Bröd', 'ROW-B', completed: true);
+        $cheese = $this->item('Ost', 'ROW-D');
+        $notSentYet = $this->item('Smör', null);
+        $later = now()->addMinute()->utc()->format('Y-m-d\TH:i:s\Z');
+
+        $this->fakeIcaList([
+            ['offlineId' => 'row-a', 'productName' => 'Mjölk', 'isStrikedOver' => true, 'latestChange' => $later],
+            ['offlineId' => 'ROW-B', 'productName' => 'Bröd', 'isStrikedOver' => false, 'latestChange' => $later],
+            ['offlineId' => 'ROW-E', 'productName' => 'Bananer', 'quantity' => 6, 'unit' => 'st', 'isStrikedOver' => false],
+            ['offlineId' => 'ROW-F', 'productName' => 'Kaffe', 'isStrikedOver' => true],
+        ]);
+
+        $this->artisan('ica:pull')->expectsOutput('4 ändringar från ICA.')->assertSuccessful();
+
+        $this->assertNotNull($milk->fresh()?->completed_at, 'ticked off in ICA');
+        $this->assertNull($bread->fresh()?->completed_at, 'ticked back in ICA');
+        $this->assertModelMissing($cheese);
+        $this->assertNotNull($notSentYet->fresh(), 'not in ICA yet: left alone');
+        $this->assertDatabaseHas('list_items', ['name' => 'Bananer', 'ica_row_id' => 'ROW-E', 'unit' => 'st', 'family_id' => $this->family->id]);
+        $this->assertDatabaseMissing('list_items', ['name' => 'Kaffe']);
+
+        // Nothing is sent back to ICA.
+        Http::assertNotSent(fn (Request $request) => str_contains($request->url(), '/sync'));
+    }
+
+    public function test_the_latest_change_wins_when_both_sides_changed()
+    {
+        $this->enable();
+        $this->connection();
+        $milk = $this->item('Mjölk', 'ROW-A');
+        $earlier = now()->subHour()->utc()->format('Y-m-d\TH:i:s\Z');
+
+        // Struck in ICA an hour ago; changed here since.
+        $this->fakeIcaList([['offlineId' => 'ROW-A', 'productName' => 'Mjölk', 'isStrikedOver' => true, 'latestChange' => $earlier]]);
+        $this->artisan('ica:pull')->assertSuccessful();
+
+        $this->assertNull($milk->fresh()?->completed_at);
+    }
+
+    public function test_nothing_is_fetched_when_the_trial_is_off()
+    {
+        $this->connection();
+        $this->fakeIcaList([]);
+
+        $this->artisan('ica:pull')->expectsOutput('0 ändringar från ICA.')->assertSuccessful();
+
+        Http::assertNothingSent();
+    }
 }

@@ -676,7 +676,7 @@ Det är lätt att hålla koll på vad som finns hemma, skafferiet följer med n�
 - [x] Lagad i slutet för vuxna som får ändra, när receptet öppnas från veckomatsedeln
 - [x] Skolmaten i veckomatsedeln, per skola och dag, med Visa/Dölj skolmat. Valet sparas på enheten.
 - [x] ICA-koppling (test, admin slår på per familj): handlingslistan skickas till en ICA-lista åt ett håll. Inofficiellt API, lösenordet sparas aldrig.
-- [ ] ICA åt andra hållet: det som bockas av i ICA-appen bockas av här också
+- [x] ICA åt andra hållet var 5:e minut: avbockat, tillbaka och borttaget i ICA-appen händer här också, och nya varor i ICA kommer in i Handla. Senaste ändringen vinner.
 
 ## Definition of Done
 
