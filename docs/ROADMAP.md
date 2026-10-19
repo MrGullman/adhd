@@ -274,7 +274,7 @@ Barnen ser vad som händer idag, imorgon och i veckan, inklusive när en föräl
 - [x] Händelser för vuxna och barn: bortrest, hämtning, annorlunda dag
 - [x] "Visa för barnen" på händelser som rör vuxna
 - [x] Nedräkning i nätter när någon är bortrest ("2 sömnar kvar")
-- [x] Dagen innan: "Packa till simskolan imorgon" i barnets Idag-vy, bocka av varje sak
+- [x] Dagen innan: "Packa till simskolan" under Imorgon, bara som information. Packningen bockas av på dagen.
 - [x] Samma dag: "Har du packat till simskolan?" med samma bilder
 - [x] Vuxna ser om barnet har packat
 - [x] Inställd den här gången: ett tillfälle av en aktivitet varje vecka ställs in (och kan ångras). Syns som Inställd, utan packning och påminnelser.
@@ -562,7 +562,7 @@ Appen kan installeras på telefonen och skickar påminnelser.
 - [x] Web Push med laravel-notification-channels/webpush (VAPID-nycklar)
 - [x] Guide: lägg till på hemskärmen (krävs för push på iPhone)
 - [x] Påminnelser för uppgifter med tid, kalenderhändelser och när en rutin ska starta
-- [x] Påminnelse om packning dagen innan en aktivitet
+- [x] Påminnelse om packning 07:00 på aktivitetens dag
 - [x] Barn får påminnelser på sin egen enhet
 - [x] Vårdnadshavare skickar en testnotis till barnets enheter från barnets sida
 - [x] Vuxna kan få barnens aktivitetspåminnelser, för alla barn eller några (Inställningar → Påminnelser)

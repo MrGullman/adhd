@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Rewards;
 
 use App\Enums\RedemptionStatus;
 use App\Http\Controllers\Controller;
+use App\Models\PointTransaction;
 use App\Models\Reward;
 use App\Models\RewardRedemption;
 use App\Models\User;
@@ -39,6 +40,7 @@ class ChildRewardController extends Controller
         return Inertia::render('child/Rewards', [
             'points' => Points::balance($child),
             'available' => Points::available($child),
+            'pending' => (int) PointTransaction::query()->where('user_id', $child->id)->where('pending', true)->sum('points'),
             'rewards' => Reward::query()->with('picture')->where('active', true)->orderBy('cost')->get()->map(fn (Reward $reward) => [
                 'id' => $reward->id,
                 'name' => $reward->name,

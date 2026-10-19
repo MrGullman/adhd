@@ -13,7 +13,7 @@ const props = withDefaults(
         activity: ActivityEntry;
         /**
          * today: "Har du packat till simskolan?" with a yes-button.
-         * pack: "Packa till simskolan imorgon", tick off each thing.
+         * pack: "Packa till simskolan imorgon", only shown: the child packs on the day.
          * show: just what happens.
          */
         mode?: 'today' | 'pack' | 'show';
@@ -79,11 +79,18 @@ const allPacked = computed(
             </div>
         </div>
 
-        <!-- Packa: en sak i taget på en egen sida, som en rutin -->
-        <div
-            v-if="(mode === 'pack' || mode === 'today') && packing"
-            class="flex flex-col gap-3"
+        <!-- Imorgon: bara vad som ska packas. Barnet packar på dagen. -->
+        <p
+            v-if="mode === 'pack' && packing"
+            class="text-ink-muted"
+            :class="style.text"
         >
+            {{ packing.total }} {{ packing.total === 1 ? 'sak' : 'saker' }}
+            att packa
+        </p>
+
+        <!-- Packa: en sak i taget på en egen sida, som en rutin -->
+        <div v-if="mode === 'today' && packing" class="flex flex-col gap-3">
             <template v-if="mode === 'today' && packing.confirmed">
                 <span
                     class="w-fit rounded-full bg-success-soft px-4 py-1"
@@ -97,9 +104,7 @@ const allPacked = computed(
                     {{
                         allPacked
                             ? 'Bra jobbat! Allt är packat.'
-                            : mode === 'today'
-                              ? `Har du packat till ${activity.name.toLowerCase()}?`
-                              : `${packing.packed} av ${packing.total} packade`
+                            : `Har du packat till ${activity.name.toLowerCase()}?`
                     }}
                 </p>
                 <div class="flex flex-wrap gap-3">
@@ -122,9 +127,8 @@ const allPacked = computed(
                         <Backpack :class="style.icon" aria-hidden="true" />
                         {{ packing.packed ? 'Fortsätt packa' : 'Packa' }}
                     </Link>
-                    <!-- Samma dag: den som redan har packat svarar direkt. -->
+                    <!-- Den som redan har packat svarar direkt. -->
                     <Link
-                        v-if="mode === 'today'"
                         :href="
                             ChildActivityController.confirm([
                                 activity.id,

@@ -89,7 +89,7 @@ class ActivityTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_the_day_before_the_child_packs_each_thing()
+    public function test_the_day_before_the_child_only_sees_what_to_pack()
     {
         $swimming = $this->swimming();
         [$trunks] = $swimming->items()->get()->all();
@@ -98,25 +98,20 @@ class ActivityTest extends TestCase
             ->get(route('child.home'))
             ->assertInertia(fn (Assert $page) => $page
                 ->where('packTomorrow.0.name', 'Simskola')
-                ->where('packTomorrow.0.packing.date', '2026-10-13')
-                ->has('packTomorrow.0.packing.items', 3)
-                ->where('packTomorrow.0.packing.packed', 0),
+                ->has('packTomorrow.0.packing.items', 3),
             );
 
-        $this->actingAs($this->child)->post(route('child.activities.pack', [$swimming, '2026-10-13', $trunks]));
-
-        $this->actingAs($this->child)
-            ->get(route('child.home'))
-            ->assertInertia(fn (Assert $page) => $page
-                ->where('packTomorrow.0.packing.items.0.packed', true)
-                ->where('packTomorrow.0.packing.packed', 1),
-            );
+        // Children clicked through tomorrow's packing without packing: it waits for the day.
+        $this->actingAs($this->child)->post(route('child.activities.pack', [$swimming, '2026-10-13', $trunks]))->assertNotFound();
+        $this->actingAs($this->child)->get(route('child.activities.show', [$swimming, '2026-10-13']))->assertNotFound();
+        $this->assertDatabaseCount('activity_item_checks', 0);
     }
 
-    public function test_the_child_packs_one_thing_at_a_time_on_its_own_page()
+    public function test_on_the_day_the_child_packs_one_thing_at_a_time_on_its_own_page()
     {
         $swimming = $this->swimming();
         [$trunks] = $swimming->items()->get()->all();
+        $this->travelTo('2026-10-13 06:00:00');
 
         $this->actingAs($this->child)->post(route('child.activities.pack', [$swimming, '2026-10-13', $trunks]));
 
@@ -124,12 +119,15 @@ class ActivityTest extends TestCase
             ->get(route('child.activities.show', [$swimming, '2026-10-13']))
             ->assertInertia(fn (Assert $page) => $page
                 ->component('child/Pack')
-                ->where('isToday', false)
                 ->where('activity.name', 'Simskola')
                 ->where('activity.packing.items.0.label', 'Badbyxor')
                 ->where('activity.packing.items.0.packed', true)
                 ->where('activity.packing.items.1.packed', false)
                 ->where('activity.packing.packed', 1));
+
+        $this->actingAs($this->child)
+            ->get(route('child.home'))
+            ->assertInertia(fn (Assert $page) => $page->where('activities.0.packing.packed', 1));
 
         $sibling = User::factory()->child('7351')->inFamily($this->family, FamilyRole::Child)->create();
         $this->actingAs($sibling)->get(route('child.activities.show', [$swimming, '2026-10-13']))->assertForbidden();
@@ -166,26 +164,28 @@ class ActivityTest extends TestCase
     public function test_the_packing_list_is_used_again_next_time()
     {
         $swimming = $this->swimming();
+        $this->travelTo('2026-10-13 06:00:00');
         $this->actingAs($this->child)->post(route('child.activities.pack', [$swimming, '2026-10-13', $swimming->items()->firstOrFail()]));
 
-        // The Monday after: next Tuesday starts with nothing packed.
-        $this->travelTo('2026-10-19 13:00:00');
+        // The next Tuesday starts with nothing packed.
+        $this->travelTo('2026-10-20 06:00:00');
 
         $this->actingAs($this->child)
             ->get(route('child.home'))
             ->assertInertia(fn (Assert $page) => $page
-                ->where('packTomorrow.0.packing.date', '2026-10-20')
-                ->where('packTomorrow.0.packing.packed', 0),
+                ->where('activities.0.packing.date', '2026-10-20')
+                ->where('activities.0.packing.packed', 0),
             );
     }
 
-    public function test_a_child_packs_only_for_today_or_tomorrow_and_only_what_they_go_to()
+    public function test_a_child_packs_only_for_today_and_only_what_they_go_to()
     {
         $swimming = $this->swimming();
         $item = $swimming->items()->firstOrFail();
         $sibling = User::factory()->child('7351')->inFamily($this->family, FamilyRole::Child)->create();
+        $this->travelTo('2026-10-13 06:00:00');
 
-        // Next week's Tuesday is not tomorrow.
+        // Next week's Tuesday is not today.
         $this->actingAs($this->child)
             ->post(route('child.activities.pack', [$swimming, '2026-10-20', $item]))
             ->assertNotFound();

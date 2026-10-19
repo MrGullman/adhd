@@ -6,6 +6,9 @@ use App\Enums\RedemptionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Rewards\StoreRewardRequest;
 use App\Http\Requests\Rewards\UpdateRewardRequest;
+use App\Models\Activity;
+use App\Models\ActivityConfirmation;
+use App\Models\ActivityItemCheck;
 use App\Models\PointTransaction;
 use App\Models\Reward;
 use App\Models\RewardRedemption;
@@ -58,6 +61,7 @@ class RewardController extends Controller
                 'cost' => $reward->cost,
                 'active' => $reward->active,
             ]),
+            'waiting' => $this->waiting(),
             'history' => PointTransaction::query()
                 ->with('user:id,name')
                 ->latest('id')
@@ -68,10 +72,53 @@ class RewardController extends Controller
                     'child' => $row->user?->name,
                     'points' => $row->points,
                     'reason' => $row->reason,
+                    'pending' => $row->pending,
                     'date' => $row->created_at?->setTimezone(LocalTime::ZONE)->toDateString(),
                 ]),
             'settings' => Points::settings($family),
         ]);
+    }
+
+    /**
+     * Points that wait for Godkänn, with how much the child ticked off when
+     * packing, so the parent can check before saying yes.
+     *
+     * @return array<int, array{id: int, child: string|null, reason: string, points: int, date: string|null, packed: string|null}>
+     */
+    private function waiting(): array
+    {
+        $rows = PointTransaction::query()->with('user:id,name')->where('pending', true)->oldest('id')->get();
+        $confirmations = ActivityConfirmation::query()
+            ->whereIn('id', $rows->where('source_type', 'packing')->pluck('source_id'))
+            ->get()
+            ->keyBy('id');
+        $activities = Activity::query()->withCount('items')->whereIn('id', $confirmations->pluck('activity_id'))->get()->keyBy('id');
+
+        return $rows->map(function (PointTransaction $row) use ($confirmations, $activities): array {
+            $confirmation = $confirmations->get((int) $row->source_id);
+            $activity = $confirmation ? $activities->get($confirmation->activity_id) : null;
+            $packed = null;
+
+            if ($confirmation && $activity) {
+                $checked = ActivityItemCheck::query()
+                    ->where('activity_id', $activity->id)
+                    ->where('user_id', $confirmation->user_id)
+                    ->whereDate('date', $confirmation->date)
+                    ->count();
+                $packed = $checked > 0
+                    ? "{$checked} av {$activity->items_count} saker bockade"
+                    : 'Svarade ja utan att bocka av';
+            }
+
+            return [
+                'id' => $row->id,
+                'child' => $row->user?->name,
+                'reason' => $row->reason,
+                'points' => $row->points,
+                'date' => $row->created_at?->setTimezone(LocalTime::ZONE)->toDateString(),
+                'packed' => $packed,
+            ];
+        })->values()->all();
     }
 
     public function store(StoreRewardRequest $request): RedirectResponse

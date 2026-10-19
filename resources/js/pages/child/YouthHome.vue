@@ -301,7 +301,7 @@ function removeOwnTask(task: TaskRowData): void {
                         <li
                             v-for="task in group.tasks"
                             :key="task.id"
-                            class="flex min-h-13 items-center gap-3 border-b border-line px-3 py-1 last:border-b-0"
+                            class="flex min-h-13 flex-wrap items-center gap-3 border-b border-line px-3 py-1 last:border-b-0"
                             :class="now?.id === task.id && 'bg-primary-soft'"
                         >
                             <CompletionToggle
@@ -355,6 +355,18 @@ function removeOwnTask(task: TaskRowData): void {
                             >
                                 Ta bort
                             </button>
+                            <!-- T.ex. Läsa i 20 minuter: startas direkt från listan. -->
+                            <VisualTimer
+                                v-if="
+                                    task.timerMinutes &&
+                                    !task.completed &&
+                                    now?.id !== task.id
+                                "
+                                class="basis-full pb-2"
+                                compact
+                                :minutes="task.timerMinutes"
+                                :storage-key="`task:${task.id}`"
+                            />
                         </li>
                     </ul>
                 </div>

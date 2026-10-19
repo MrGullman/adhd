@@ -128,12 +128,17 @@ class ReminderTest extends TestCase
         $this->assertSame([], $this->sentTo($this->child));
     }
 
-    public function test_children_are_reminded_to_pack_the_evening_before()
+    public function test_children_are_reminded_to_pack_in_the_morning_of_the_day()
     {
         Activity::factory()->for($this->family)->weekly(3)->withItems(['Badbyxor'])->concerning($this->child)->create(['name' => 'Simskola']);
         $this->child->forceFill(['quiet_from' => '20:00', 'quiet_until' => '07:00'])->save();
 
+        // The evening before: nothing, packing is not done ahead.
         $this->travelTo('2026-10-13 16:02:00'); // 18:02 in Sweden.
+        $this->send();
+        $this->assertSame([], $this->sentTo($this->child));
+
+        $this->travelTo('2026-10-14 05:02:00'); // 07:02 on the Wednesday.
         $this->send();
 
         $this->assertSame(['Packa till Simskola'], $this->sentTo($this->child));

@@ -325,7 +325,7 @@ point_transactions (poängboken)
 - source_type, source_id (task, routine, packing eller redemption)
 - created_by (vårdnadshavaren, null när poängen kom av sig själv)
 
-Ett barns poäng är summan. Raderna ändras aldrig i efterhand, utom automatiska poäng som tas bort när barnet bockar ur igen.
+Ett barns poäng är summan av de rader som inte väntar (pending = false). Poäng för packning väntar tills en vårdnadshavare trycker Godkänn under Att godkänna (Inte nu tar bort raden). Raderna ändras aldrig i efterhand, utom automatiska poäng som tas bort när barnet bockar ur igen och väntande poäng som godkänns eller tas bort.
 
 rewards
 
@@ -580,8 +580,8 @@ Modeller med bild får picture_id (nullable):
 
 Barnen ska se vad som händer och få hjälp att förbereda sig. Exempel: simskola.
 
-- Dagen innan: "Packa till simskolan imorgon" med bildstöd för det som ska packas
-- Samma dag: "Har du packat till simskolan?" med samma bilder
+- Dagen innan: "Packa till simskolan" visas under Imorgon, bara som information (barn klickade igenom packningen i förväg utan att packa)
+- Samma dag: "Har du packat till simskolan?" med samma bilder. Barnet packar och svarar bara på aktivitetens dag.
 
 Samma tabell används för händelser som rör vuxna, t.ex. när en förälder reser bort eller någon annan hämtar. Barn med NPF oroar sig ofta för "Var är mamma?" och "Vem hämtar mig?".
 
@@ -619,7 +619,7 @@ activity_items (packlistan)
 - label (t.ex. Badbyxor)
 - sort_order
 
-activity_item_checks (barnet bockar av dagen innan)
+activity_item_checks (barnet bockar av på dagen)
 
 - activity_id
 - user_id
@@ -645,7 +645,7 @@ activity_confirmations (barnet svarar "ja, jag har packat" samma dag)
 - Det som avviker från en vanlig dag (studiedag, någon annan hämtar) markeras som Annorlunda
 - Senare: importerade kalendrar (version 2) blir händelser som är dolda för barnen från början
 - Senare: kopplas till kalenderhändelser via namn (t.ex. "Simskola" i Google Kalender)
-- Senare: push-påminnelse dagen innan (PWA)
+- Push-påminnelse 07:00 på aktivitetens dag
 
 I koden:
 

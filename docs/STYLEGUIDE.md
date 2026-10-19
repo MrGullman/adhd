@@ -140,6 +140,8 @@ Ett beslutat undantag från "inga stressande nedräkningar". En visuell timer, s
 - Barnet trycker Starta. Skivan i `primary` krymper medurs. Aldrig röd och aldrig blinkande.
 - Minuter kvar skrivs i hela minuter ("2 min kvar"). Sekunder tickar aldrig.
 - När tiden är slut: ett mjukt pling, en kort vibration och Klart med bock. Börja om finns.
+- När barnet trycker Starta fyller timern skärmen och skärmen somnar inte (Wake Lock) förrän barnet trycker Stäng eller tiden är slut. Efter Stäng fortsätter tiden i den lilla vyn, och Visa stor öppnar den igen.
+- En uppgift med timer, t.ex. läxan Läsa i 20 minuter, kan startas direkt från dagens lista.
 
 ## Rörelse
 
