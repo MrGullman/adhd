@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\InfoController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\TodayController;
 use App\Http\Controllers\WelcomeController;
@@ -14,6 +15,11 @@ Route::get('integritet', fn () => Inertia::render('Privacy', [
     'contact' => config('privacy.contact'),
     'backupDays' => config('backup.cleanup.default_strategy.keep_all_backups_for_days'),
 ]))->name('privacy');
+// Om NPF: public, no login, to share with relatives and school.
+Route::get('om-npf', [InfoController::class, 'index'])->name('info.index');
+Route::get('om-npf/kanner-du-igen-dig', [InfoController::class, 'situations'])->name('info.situations');
+Route::get('om-npf/{article:slug}', [InfoController::class, 'show'])->name('info.show');
+
 Route::get('avstangt', fn () => Inertia::render('Suspended', [
     'contact' => config('privacy.contact'),
 ]))->name('suspended');

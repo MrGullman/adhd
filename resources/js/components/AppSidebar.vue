@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
 import {
+    BookOpen,
     CalendarDays,
     CalendarRange,
     ChefHat,
@@ -30,6 +31,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard, tomorrow, week } from '@/routes';
 import { index as activitiesIndex } from '@/routes/activities';
+import { index as infoIndex } from '@/routes/info';
 import { control as displayControl } from '@/routes/displays';
 import { show as familyShow } from '@/routes/family';
 import { index as communityIndex } from '@/routes/community';
@@ -108,6 +110,11 @@ const allItems: NavItem[] = [
         title: 'Hemskärmen',
         href: displayControl(),
         icon: Monitor,
+    },
+    {
+        title: 'Om NPF',
+        href: infoIndex(),
+        icon: BookOpen,
     },
     {
         title: 'Familjen',
