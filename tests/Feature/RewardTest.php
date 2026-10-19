@@ -42,7 +42,7 @@ class RewardTest extends TestCase
 
     private function points(User $child): int
     {
-        return (int) PointTransaction::query()->withoutGlobalScopes()->where('user_id', $child->id)->sum('points');
+        return (int) PointTransaction::query()->withoutGlobalScopes()->where('user_id', $child->id)->where('pending', false)->sum('points');
     }
 
     public function test_ticking_a_task_gives_points_once_and_unticking_takes_them_back()
@@ -79,7 +79,50 @@ class RewardTest extends TestCase
         $swimming = Activity::factory()->for($this->family)->weekly(2)->withItems(['Badbyxor'])->concerning($this->child)->create();
         $this->actingAs($this->child)->post(route('child.activities.confirm', [$swimming, '2026-10-13']));
         $this->actingAs($this->child)->post(route('child.activities.confirm', [$swimming, '2026-10-13']));
+        $this->assertSame(1, PointTransaction::query()->withoutGlobalScopes()->where('user_id', $this->child->id)->where('pending', true)->count());
+    }
+
+    public function test_packing_points_count_only_when_a_parent_approves()
+    {
+        $this->family->forceFill(['settings' => ['points' => ['enabled' => true, 'task' => 1, 'routine' => 5, 'packing' => 2]]])->save();
+        $swimming = Activity::factory()->for($this->family)->weekly(2)->withItems(['Badbyxor', 'Handduk'])->concerning($this->child)->create(['name' => 'Simskola']);
+        $this->actingAs($this->child)->post(route('child.activities.pack', [$swimming, '2026-10-13', $swimming->items()->firstOrFail()]));
+        $this->actingAs($this->child)->post(route('child.activities.confirm', [$swimming, '2026-10-13']));
+
+        $this->assertSame(0, $this->points($this->child));
+        $this->actingAs($this->child)
+            ->get(route('child.rewards.index'))
+            ->assertInertia(fn (Assert $page) => $page->where('points', 0)->where('pending', 2));
+
+        $waiting = PointTransaction::query()->withoutGlobalScopes()->where('user_id', $this->child->id)->firstOrFail();
+        $this->actingAs($this->parent)
+            ->get(route('rewards.index'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('children.0.points', 0)
+                ->where('waiting.0.child', 'Alva')
+                ->where('waiting.0.reason', 'Packade till Simskola')
+                ->where('waiting.0.packed', '1 av 2 saker bockade'));
+
+        $editor = User::factory()->inFamily($this->family, FamilyRole::Editor)->create();
+        $this->actingAs($editor)->post(route('points.approve', $waiting))->assertForbidden();
+        $this->actingAs($this->child)->post(route('points.approve', $waiting));
+        $this->assertTrue($waiting->fresh()?->pending);
+
+        $this->actingAs($this->parent)->post(route('points.approve', $waiting))->assertRedirect();
         $this->assertSame(2, $this->points($this->child));
+        $this->actingAs($this->parent)->post(route('points.decline', $waiting))->assertForbidden();
+    }
+
+    public function test_not_now_removes_waiting_packing_points()
+    {
+        $this->family->forceFill(['settings' => ['points' => ['enabled' => true, 'task' => 1, 'routine' => 5, 'packing' => 2]]])->save();
+        $swimming = Activity::factory()->for($this->family)->weekly(2)->withItems(['Badbyxor'])->concerning($this->child)->create();
+        $this->actingAs($this->child)->post(route('child.activities.confirm', [$swimming, '2026-10-13']));
+        $waiting = PointTransaction::query()->withoutGlobalScopes()->where('user_id', $this->child->id)->firstOrFail();
+
+        $this->actingAs($this->parent)->post(route('points.decline', $waiting))->assertRedirect();
+
+        $this->assertModelMissing($waiting);
     }
 
     public function test_no_automatic_points_when_the_family_has_turned_them_off()
@@ -224,6 +267,10 @@ class RewardTest extends TestCase
         $this->actingAs($this->parent)->put(route('rewards.update', $theirs), ['name' => 'Ändrat', 'cost' => 1])->assertNotFound();
         $this->actingAs($this->parent)->delete(route('rewards.destroy', $theirs))->assertNotFound();
         $this->actingAs($this->parent)->post(route('redemptions.approve', $theirWish))->assertNotFound();
+        $theirPoints = PointTransaction::factory()->create(['user_id' => User::factory()->create()->id, 'pending' => true]);
+        $this->actingAs($this->parent)->post(route('points.approve', $theirPoints))->assertNotFound();
+        $this->actingAs($this->parent)->post(route('points.decline', $theirPoints))->assertNotFound();
+        $this->assertTrue($theirPoints->fresh()?->pending);
         $this->actingAs($this->child)->post(route('child.rewards.wish', $theirs))->assertNotFound();
 
         $this->actingAs($this->parent)

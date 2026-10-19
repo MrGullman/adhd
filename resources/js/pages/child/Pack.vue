@@ -12,7 +12,6 @@ import type { ActivityEntry } from '@/types';
 
 const props = defineProps<{
     activity: ActivityEntry;
-    isToday: boolean;
 }>();
 
 const style = useChildStyle();
@@ -22,11 +21,7 @@ const left = computed(() => items.value.filter((item) => !item.packed));
 const current = computed(() => left.value[0] ?? null);
 const next = computed(() => left.value[1] ?? null);
 const allPacked = computed(() => items.value.length > 0 && !left.value.length);
-const title = computed(
-    () =>
-        `Packa till ${props.activity.name.toLowerCase()}` +
-        (props.isToday ? '' : ' imorgon'),
-);
+const title = computed(() => `Packa till ${props.activity.name.toLowerCase()}`);
 
 // Read the thing aloud for children who do not read (Swedish voice).
 const canSpeak = typeof window !== 'undefined' && 'speechSynthesis' in window;
@@ -101,7 +96,7 @@ function itemHref(item: { id: number; packed: boolean }) {
                 </h2>
                 <p :class="style.text">Allt är packat.</p>
                 <Link
-                    v-if="isToday && packing && !packing.confirmed"
+                    v-if="packing && !packing.confirmed"
                     :href="
                         ChildActivityController.confirm([
                             activity.id,

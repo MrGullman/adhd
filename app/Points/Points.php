@@ -71,7 +71,12 @@ class Points
         try {
             PointTransaction::query()->firstOrCreate(
                 ['source_type' => $kind, 'source_id' => $sourceId, 'user_id' => $child->id],
-                ['points' => $settings[$kind], 'reason' => Str::limit($reason, 100, '')],
+                [
+                    'points' => $settings[$kind],
+                    // Packing waits for a parent's Godkänn: children clicked through it to get points.
+                    'pending' => $kind === 'packing',
+                    'reason' => Str::limit($reason, 100, ''),
+                ],
             );
         } catch (UniqueConstraintViolationException) {
             // Given at the same moment by another request.
@@ -93,7 +98,7 @@ class Points
 
     public static function balance(User $child): int
     {
-        return (int) PointTransaction::query()->where('user_id', $child->id)->sum('points');
+        return (int) PointTransaction::query()->counted()->where('user_id', $child->id)->sum('points');
     }
 
     /**
@@ -117,6 +122,7 @@ class Points
     public static function balances(): array
     {
         return PointTransaction::query()
+            ->counted()
             ->selectRaw('user_id, sum(points) as total')
             ->groupBy('user_id')
             ->pluck('total', 'user_id')

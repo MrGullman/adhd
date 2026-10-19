@@ -34,7 +34,7 @@ class ReminderPlanner
 
     public const EVENT_MINUTES_BEFORE = 15;
 
-    public const PACKING_TIME = '18:00';
+    public const PACKING_TIME = '07:00';
 
     private ?Family $family = null;
 
@@ -146,24 +146,23 @@ class ReminderPlanner
     }
 
     /**
-     * "Packa till simskolan": the evening before, to each child that packs
-     * and has not packed everything yet.
+     * "Packa till simskolan": in the morning of the day, to each child that
+     * packs and has not packed everything yet (packing is never done ahead).
      *
      * @return list<Reminder>
      */
     private function packing(Family $family, CarbonImmutable $today): array
     {
-        $tomorrow = $today->addDay();
-        $calendar = ActivityCalendar::between($tomorrow, $tomorrow);
+        $calendar = ActivityCalendar::between($today, $today);
         $reminders = [];
 
         foreach ($family->children()->get() as $child) {
-            foreach ($calendar->on($tomorrow, $child) as $activity) {
-                if (! $calendar->packsOn($activity, $child, $tomorrow)) {
+            foreach ($calendar->on($today, $child) as $activity) {
+                if (! $calendar->packsOn($activity, $child, $today)) {
                     continue;
                 }
 
-                $packing = $calendar->packing($activity, $child, $tomorrow);
+                $packing = $calendar->packing($activity, $child, $today);
 
                 if ($packing['packed'] >= $packing['total']) {
                     continue;
@@ -171,10 +170,10 @@ class ReminderPlanner
 
                 $reminders[] = new Reminder(
                     $child,
-                    "packing:{$activity->id}:{$tomorrow->toDateString()}",
+                    "packing:{$activity->id}:{$today->toDateString()}",
                     $this->at($today, self::PACKING_TIME),
                     'Packa till '.$activity->name,
-                    $activity->name.' är imorgon',
+                    $activity->name.' är idag',
                     route('child.home'),
                 );
             }

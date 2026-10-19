@@ -329,7 +329,7 @@ const allDone = computed(
                             <li
                                 v-for="task in group.tasks"
                                 :key="task.id"
-                                class="flex items-center gap-3 rounded-lg border-2 bg-surface-raised p-2"
+                                class="flex flex-wrap items-center gap-3 rounded-lg border-2 bg-surface-raised p-2"
                                 :class="
                                     now?.id === task.id
                                         ? 'border-primary'
@@ -384,6 +384,18 @@ const allDone = computed(
                                 >
                                     Klar
                                 </span>
+                                <!-- T.ex. Läsa i 20 minuter: startas direkt från listan. -->
+                                <VisualTimer
+                                    v-if="
+                                        task.timerMinutes &&
+                                        !task.completed &&
+                                        now?.id !== task.id
+                                    "
+                                    class="basis-full pb-2"
+                                    compact
+                                    :minutes="task.timerMinutes"
+                                    :storage-key="`task:${task.id}`"
+                                />
                             </li>
                         </ul>
                     </div>

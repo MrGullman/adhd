@@ -137,6 +137,8 @@ Route::middleware(['auth', 'verified', 'family', 'role:parent'])->group(function
     Route::delete('beloningar/{reward}', [RewardController::class, 'destroy'])->whereNumber('reward')->name('rewards.destroy');
     Route::post('beloningar/poang', [PointController::class, 'store'])->name('points.store');
     Route::put('beloningar/installningar', [PointController::class, 'settings'])->name('points.settings');
+    Route::post('beloningar/poang/{transaction}/godkann', [PointController::class, 'approve'])->whereNumber('transaction')->name('points.approve');
+    Route::post('beloningar/poang/{transaction}/inte-nu', [PointController::class, 'decline'])->whereNumber('transaction')->name('points.decline');
     Route::post('beloningar/onskningar/{redemption}/ja', [RedemptionController::class, 'approve'])->name('redemptions.approve');
     Route::post('beloningar/onskningar/{redemption}/nej', [RedemptionController::class, 'decline'])->name('redemptions.decline');
 });

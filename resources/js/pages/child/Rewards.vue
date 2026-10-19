@@ -10,6 +10,8 @@ import type { PictureItem } from '@/types';
 defineProps<{
     points: number;
     available: number;
+    /** Points waiting for a parent's Godkänn, e.g. for packing. */
+    pending: number;
     rewards: Array<{
         id: number;
         name: string;
@@ -49,9 +51,14 @@ const style = useChildStyle();
                 aria-label="Poäng"
             >
                 <Star class="size-14 text-orange-strong" aria-hidden="true" />
-                <p class="font-display text-display-l font-semibold">
-                    {{ points }} poäng
-                </p>
+                <div class="flex flex-col">
+                    <p class="font-display text-display-l font-semibold">
+                        {{ points }} poäng
+                    </p>
+                    <p v-if="pending" :class="style.text">
+                        {{ pending }} väntar på ja
+                    </p>
+                </div>
             </section>
 
             <p

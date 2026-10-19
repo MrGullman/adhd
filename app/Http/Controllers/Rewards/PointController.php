@@ -8,10 +8,12 @@ use App\Http\Requests\Rewards\UpdatePointSettingsRequest;
 use App\Models\PointTransaction;
 use App\Support\CurrentFamily;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 /**
- * A parent gives or takes points by hand, and decides what gives points.
+ * A parent gives or takes points by hand, says Godkänn or Inte nu to points
+ * that wait (packing), and decides what gives points.
  */
 class PointController extends Controller
 {
@@ -27,6 +29,31 @@ class PointController extends Controller
         ]);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => $points > 0 ? 'Poängen är givna.' : 'Poängen är borttagna.']);
+
+        return back();
+    }
+
+    public function approve(PointTransaction $transaction): RedirectResponse
+    {
+        Gate::authorize('decide', $transaction);
+
+        $transaction->forceFill(['pending' => false])->save();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Poängen är godkända.']);
+
+        return back();
+    }
+
+    /**
+     * Not done after all: the waiting points go away.
+     */
+    public function decline(PointTransaction $transaction): RedirectResponse
+    {
+        Gate::authorize('decide', $transaction);
+
+        $transaction->delete();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Poängen är borttagna.']);
 
         return back();
     }

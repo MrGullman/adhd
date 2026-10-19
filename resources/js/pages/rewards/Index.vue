@@ -40,11 +40,20 @@ const props = defineProps<{
         enough: boolean;
     }>;
     rewards: Reward[];
+    waiting: Array<{
+        id: number;
+        child: string | null;
+        reason: string;
+        points: number;
+        date: string | null;
+        packed: string | null;
+    }>;
     history: Array<{
         id: number;
         child: string | null;
         points: number;
         reason: string;
+        pending: boolean;
         date: string | null;
     }>;
     settings: {
@@ -241,6 +250,67 @@ function saveSettings(): void {
                     </Button>
                 </div>
             </form>
+        </section>
+
+        <!-- Poäng som väntar på Godkänn, t.ex. för packning -->
+        <section
+            v-if="waiting.length"
+            class="flex flex-col gap-3"
+            aria-labelledby="godkanna"
+        >
+            <h2 id="godkanna" class="text-title">Att godkänna</h2>
+            <p class="text-ink-muted">
+                Kolla att det är gjort innan poängen räknas.
+            </p>
+            <ul class="flex flex-col gap-2">
+                <li
+                    v-for="row in waiting"
+                    :key="row.id"
+                    class="flex flex-wrap items-center gap-3 rounded-lg border border-line bg-surface-raised p-3"
+                >
+                    <div class="min-w-0 flex-1">
+                        <p class="font-bold break-words">
+                            {{ row.child }} · {{ row.reason }}
+                        </p>
+                        <p class="text-caption text-ink-muted">
+                            {{ row.points }} poäng
+                            <template v-if="row.packed">
+                                · {{ row.packed }}
+                            </template>
+                            <template v-if="row.date">
+                                · {{ formatDay(row.date) }}
+                            </template>
+                        </p>
+                    </div>
+                    <div class="flex gap-2">
+                        <Button
+                            variant="outline"
+                            @click="
+                                router.post(
+                                    PointController.approve.url(row.id),
+                                    {},
+                                    { preserveScroll: true },
+                                )
+                            "
+                        >
+                            <Check aria-hidden="true" />
+                            Godkänn
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            @click="
+                                router.post(
+                                    PointController.decline.url(row.id),
+                                    {},
+                                    { preserveScroll: true },
+                                )
+                            "
+                        >
+                            Inte nu
+                        </Button>
+                    </div>
+                </li>
+            </ul>
         </section>
 
         <!-- Önskningar som väntar på svar -->
@@ -481,7 +551,8 @@ function saveSettings(): void {
                 />
                 <p class="text-caption text-ink-muted">
                     0 betyder inga poäng för just det. Bockar barnet ur igen
-                    försvinner poängen.
+                    försvinner poängen. Poängen för packning räknas först när du
+                    har godkänt dem under Att godkänna.
                 </p>
                 <div>
                     <Button
@@ -515,6 +586,9 @@ function saveSettings(): void {
                     </span>
                     <span class="min-w-0 flex-1 break-words">
                         {{ row.child }} · {{ row.reason }}
+                        <span v-if="row.pending" class="text-ink-muted">
+                            · väntar på godkänn
+                        </span>
                     </span>
                     <span
                         v-if="row.date"

@@ -19,9 +19,9 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * The child packs the day before ("Packa till simskolan imorgon") and
- * answers on the day ("Har du packat till simskolan?"), one thing at a time
- * or straight away.
+ * The child packs on the day ("Har du packat till simskolan?"), one thing at
+ * a time or straight away. Tomorrow's packing is only shown, never ticked off
+ * ahead: children clicked through it without packing.
  */
 class ChildActivityController extends Controller
 {
@@ -30,7 +30,7 @@ class ChildActivityController extends Controller
      */
     public function show(Request $request, Activity $activity, string $date): Response
     {
-        $this->authorizeDay($activity, $date, [LocalTime::today(), LocalTime::now()->addDay()->toDateString()]);
+        $this->authorizeDay($activity, $date);
 
         /** @var User $child */
         $child = $request->user();
@@ -42,13 +42,12 @@ class ChildActivityController extends Controller
 
         return Inertia::render('child/Pack', [
             'activity' => $calendar->present($loaded, $day, $child),
-            'isToday' => $date === LocalTime::today(),
         ]);
     }
 
     public function pack(Request $request, Activity $activity, string $date, ActivityItem $item): RedirectResponse
     {
-        $this->authorizeDay($activity, $date, [LocalTime::today(), LocalTime::now()->addDay()->toDateString()]);
+        $this->authorizeDay($activity, $date);
 
         /** @var User $child */
         $child = $request->user();
@@ -63,7 +62,7 @@ class ChildActivityController extends Controller
 
     public function unpack(Request $request, Activity $activity, string $date, ActivityItem $item): RedirectResponse
     {
-        $this->authorizeDay($activity, $date, [LocalTime::today(), LocalTime::now()->addDay()->toDateString()]);
+        $this->authorizeDay($activity, $date);
 
         ActivityItemCheck::query()
             ->where('activity_item_id', $item->id)
@@ -79,7 +78,7 @@ class ChildActivityController extends Controller
      */
     public function confirm(Request $request, Activity $activity, string $date, Points $points): RedirectResponse
     {
-        $this->authorizeDay($activity, $date, [LocalTime::today()]);
+        $this->authorizeDay($activity, $date);
 
         /** @var User $child */
         $child = $request->user();
@@ -95,16 +94,14 @@ class ChildActivityController extends Controller
     }
 
     /**
-     * Only a child who goes, only for a day the activity happens, and only today or tomorrow.
-     *
-     * @param  list<string>  $allowed
+     * Only a child who goes, only today, and only when the activity happens today.
      */
-    private function authorizeDay(Activity $activity, string $date, array $allowed): void
+    private function authorizeDay(Activity $activity, string $date): void
     {
         Gate::authorize('pack', $activity);
 
         abort_unless(
-            in_array($date, $allowed, true) && $activity->occursOn(CarbonImmutable::parse($date, LocalTime::ZONE)),
+            $date === LocalTime::today() && $activity->occursOn(CarbonImmutable::parse($date, LocalTime::ZONE)),
             404,
         );
     }
