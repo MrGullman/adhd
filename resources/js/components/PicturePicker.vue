@@ -107,6 +107,39 @@ function onOpenAutoFocus(event: Event): void {
     }
 }
 
+// iPhone: tapping a button keeps the keyboard open, and if the picker opens
+// while it closes, Safari leaves the picker and its backdrop where the short
+// keyboard view was. Close the keyboard first and open when it is gone.
+function openPicker(): void {
+    const field = document.activeElement;
+    const viewport = window.visualViewport;
+    const keyboardOpen =
+        viewport !== null && viewport.height < window.innerHeight - 100;
+
+    if (!keyboardOpen || !(field instanceof HTMLElement)) {
+        open.value = true;
+
+        return;
+    }
+
+    // Wait until the viewport has stopped changing (or at most 700 ms).
+    let settle: ReturnType<typeof setTimeout> | undefined;
+    const show = (): void => {
+        viewport.removeEventListener('resize', onResize);
+        clearTimeout(settle);
+        clearTimeout(fallback);
+        open.value = true;
+    };
+    const onResize = (): void => {
+        clearTimeout(settle);
+        settle = setTimeout(show, 150);
+    };
+    const fallback = setTimeout(show, 700);
+
+    viewport.addEventListener('resize', onResize);
+    field.blur();
+}
+
 function choose(picture: PictureItem): void {
     model.value = picture;
     emit('select', picture);
@@ -161,11 +194,7 @@ const chip =
             <div class="flex flex-col gap-1">
                 <span class="font-bold">{{ model.label }}</span>
                 <div class="flex gap-2">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        @click="open = true"
-                    >
+                    <Button type="button" variant="outline" @click="openPicker">
                         Byt bild
                     </Button>
                     <Button type="button" variant="ghost" @click="model = null">
@@ -183,7 +212,7 @@ const chip =
                     ? 'h-tap-child font-display text-child-label'
                     : 'min-h-tap-adult'
             "
-            @click="open = true"
+            @click="openPicker"
         >
             <ImagePlus
                 :class="size === 'child' ? 'size-8' : 'size-5'"
