@@ -152,6 +152,11 @@ class IcaClient
             ->throw()
             ->json());
 
+        // {"shoppingLists": [...]}, or just the lists.
+        if (isset($data['shoppingLists']) && is_array($data['shoppingLists'])) {
+            $data = $data['shoppingLists'];
+        }
+
         $lists = [];
 
         foreach ($data as $list) {
@@ -168,14 +173,15 @@ class IcaClient
      */
     public function add(string $accessToken, string $listId, string $name): string
     {
-        $rowId = (string) Str::uuid();
+        $rowId = Str::upper((string) Str::uuid());
 
+        // As ICA's app sends it: a negative sourceId is free text.
         $this->sync($accessToken, $listId, ['createdRows' => [[
-            'productName' => Str::limit($name, 100, ''),
-            'isStrikedOver' => false,
-            'sourceId' => -1,
             'offlineId' => $rowId,
-            'latestChange' => now()->utc()->format('Y-m-d\TH:i:s\Z'),
+            'productName' => Str::limit($name, 100, ''),
+            'sourceId' => -random_int(1_000_000, 1_000_000_000),
+            'isStrikedOver' => false,
+            'recipes' => [],
         ]]]);
 
         return $rowId;
@@ -205,10 +211,7 @@ class IcaClient
     private function sync(string $accessToken, string $listId, array $changes): void
     {
         $this->guard(fn (): Response => Http::timeout(30)->withToken($accessToken)
-            ->post(self::API.'/shoppinglists/'.rawurlencode($listId).'/sync', [
-                ...$changes,
-                'changedShoppingListProperties' => ['latestChange' => now()->utc()->format('Y-m-d\TH:i:s\Z')],
-            ])
+            ->post(self::API.'/shoppinglists/'.rawurlencode($listId).'/sync', $changes)
             ->throw());
     }
 
@@ -236,9 +239,13 @@ class IcaClient
         } catch (IcaException $exception) {
             throw $exception;
         } catch (RequestException $exception) {
-            throw new IcaException($exception->response->status() === 401
-                ? 'ICA vill att du loggar in igen.'
-                : 'ICA svarade inte som väntat ('.$exception->response->status().').', previous: $exception);
+            $status = $exception->response->status();
+
+            throw new IcaException(match ($status) {
+                401 => 'ICA vill att du loggar in igen.',
+                451 => 'ICA svarar bara anrop från svenska adresser.',
+                default => 'ICA svarade inte som väntat ('.$status.').',
+            }, $status, $exception);
         } catch (ConnectionException $exception) {
             throw new IcaException('ICA svarar inte just nu.', previous: $exception);
         }

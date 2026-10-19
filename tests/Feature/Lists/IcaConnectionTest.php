@@ -76,7 +76,7 @@ class IcaConnectionTest extends TestCase
                     ? Http::response('<input type="hidden" name="state" value="abc"><input type="hidden" name="token" value="formtoken">')
                     : Http::response('', $loginStatus),
                 str_contains($url, '/oauth/v2/authorize') => Http::response('', 302, ['Location' => 'icacurity://app?code=xyz&state=abc']),
-                str_ends_with($url, '/shoppinglists') => Http::response([['offlineId' => 'list-1', 'title' => 'Handla'], ['offlineId' => 'list-2', 'title' => 'Helgen']]),
+                str_ends_with($url, '/shoppinglists') => Http::response(['shoppingLists' => [['id' => 1, 'offlineId' => 'list-1', 'title' => 'Handla', 'rows' => []], ['id' => 2, 'offlineId' => 'list-2', 'title' => 'Helgen', 'rows' => []]]]),
                 str_contains($url, '/sync') => (function () use (&$sent, $request, $listStatus) {
                     $sent[] = $request->data();
 
@@ -169,6 +169,27 @@ class IcaConnectionTest extends TestCase
 
         $this->actingAs($this->parent)->delete(route('list-items.destroy', [$this->shopping, $item]));
         $this->assertSame([$item->ica_row_id], $sent[2]['deletedRows']);
+    }
+
+    public function test_a_logged_out_token_is_renewed_once_and_the_change_sent_again()
+    {
+        $this->enable();
+        $this->connection();
+        $calls = 0;
+        Http::fake(function (Request $request) use (&$calls) {
+            return match (true) {
+                str_contains($request->url(), '/oauth/v2/token') => Http::response(['access_token' => 'access-2', 'refresh_token' => 'refresh-2', 'expires_in' => 2592000]),
+                str_contains($request->url(), '/sync') => ++$calls === 1 ? Http::response([], 401) : Http::response([]),
+                default => Http::response('unexpected', 500),
+            };
+        });
+
+        $this->actingAs($this->parent)->post(route('list-items.store', $this->shopping), ['name' => 'Mjölk'])->assertRedirect();
+
+        $this->assertSame(2, $calls);
+        $this->assertNotNull(ListItem::query()->withoutGlobalScopes()->where('name', 'Mjölk')->value('ica_row_id'));
+        $this->assertSame('access-2', IcaConnection::query()->withoutGlobalScopes()->firstOrFail()->token['access_token']);
+        Http::assertSent(fn (Request $request) => str_contains($request->url(), '/sync') && $request->hasHeader('Authorization', 'Bearer access-2'));
     }
 
     public function test_when_ica_fails_the_list_here_works_and_the_error_is_shown_calmly()
