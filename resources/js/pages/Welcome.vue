@@ -2,6 +2,7 @@
 import { Head, Link } from '@inertiajs/vue3';
 import logoUrl from '../../images/logo-wide.png';
 import { dashboard, login, pictureSources, privacy } from '@/routes';
+import { index as infoIndex } from '@/routes/info';
 </script>
 
 <template>
@@ -43,6 +44,13 @@ import { dashboard, login, pictureSources, privacy } from '@/routes';
             class="inline-flex min-h-tap-adult items-center rounded-full bg-primary px-8 font-bold text-on-primary"
         >
             Logga in
+        </Link>
+
+        <Link
+            :href="infoIndex()"
+            class="inline-flex min-h-tap-adult items-center font-bold underline"
+        >
+            Läs om NPF och hur appen hjälper
         </Link>
 
         <div class="flex gap-4">

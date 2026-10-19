@@ -899,6 +899,13 @@ I version 1 (Milestone 10):
 - Barn lagar veckans måltider med recept (App\Food\ChildRecipes) eller alla recept om family_user.all_recipes är på. Det är familjens beslut och väljs på barnets sida.
 - Timrarna och skärmlåset (Wake Lock) finns bara i webbläsaren medan sidan är öppen.
 
+# Om NPF
+
+- Öppna sidor om NPF och vardagen, utan inloggning, så att de kan delas med släkt och skola (/om-npf, InfoController). I appen nås de via Om NPF i menyn.
+- Innehållet skrivs av admin i adminportalen (Om NPF → Kunskapsbibliotek, articles). Typer: välkomsttext (intro), ämnen (topic, kort på startsidan) och situationer (situation, "Känner du igen dig?" med delarna Varför, Vad kan hjälpa och Så kan du använda NPF Familjen).
+- Texten är Markdown och blir HTML på servern med rå HTML och osäkra länkar borttagna (Article::html). Opublicerade sidor syns bara för admin.
+- Allmän information, aldrig medicinska råd: ansvarsfriskrivning och hänvisning till 1177 på varje sida.
+
 # ICA-koppling (test)
 
 - Handlingslistan kan skickas till en av familjens ICA-listor, åt ett håll: tillagt, avbockat, tillbaka och borttaget. En testfunktion som admin slår på per familj (App\Support\FamilyFeatures, families.settings.features.ica) och som kräver ICA_APP_CLIENT_ID/SECRET på servern (services.ica).

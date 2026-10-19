@@ -724,6 +724,18 @@ Lägena heter **Barn** och **Ungdom**. Reglerna står i STYLEGUIDE.md under "Bar
 
 ---
 
+# Om NPF – kunskapsbibliotek
+
+## Tasks
+
+- [x] Öppna sidor utan inloggning: välkomsttext, ämnen som kort (Vad är NPF?, ADHD, autism, vardagen, skolan, vuxna, Så hjälper NPF Familjen) och "Känner du igen dig?"
+- [x] Admin skriver och ändrar allt i adminportalen (Markdown), med utkast som inte syns
+- [x] Sex första situationer med Varför, Vad kan hjälpa och Så kan du använda NPF Familjen
+- [x] Om NPF i menyn och på startsidan, ansvarsfriskrivning och källor (1177, Skolverket, SPSM)
+- [ ] Fler situationer och praktiska råd
+
+---
+
 # Milestone 22 – Smart Display: första skärmen
 
 ## Mål

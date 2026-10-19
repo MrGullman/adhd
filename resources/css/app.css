@@ -270,3 +270,34 @@
         }
     }
 }
+
+/* Om NPF: text written by admins (Markdown), calm and easy to read. */
+@layer components {
+    .info-prose {
+        @apply flex max-w-prose flex-col gap-4;
+    }
+
+    .info-prose h2 {
+        @apply pt-4 font-display text-heading font-semibold;
+    }
+
+    .info-prose h3 {
+        @apply pt-2 font-display text-title font-semibold;
+    }
+
+    .info-prose ul {
+        @apply flex list-disc flex-col gap-2 pl-6;
+    }
+
+    .info-prose ol {
+        @apply flex list-decimal flex-col gap-2 pl-6;
+    }
+
+    .info-prose a {
+        @apply font-bold underline;
+    }
+
+    .info-prose strong {
+        @apply font-bold;
+    }
+}

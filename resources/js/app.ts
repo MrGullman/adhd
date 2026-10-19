@@ -16,6 +16,7 @@ void createInertiaApp({
             case name.startsWith('child-login/'):
             case name.startsWith('child/'):
             case name.startsWith('cook/'):
+            case name.startsWith('info/'):
             case name === 'display/Index':
                 return null;
             case name.startsWith('auth/'):
