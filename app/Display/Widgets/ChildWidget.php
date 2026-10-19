@@ -134,7 +134,7 @@ class ChildWidget implements DisplayWidgetType
                 }
 
                 $shown[] = $activity->id;
-                $packing = $calendar->packs($activity, $child) ? $calendar->packing($activity, $child, $day) : null;
+                $packing = $calendar->packsOn($activity, $child, $day) ? $calendar->packing($activity, $child, $day) : null;
 
                 $result[] = [
                     'id' => $activity->id,
@@ -142,6 +142,7 @@ class ChildWidget implements DisplayWidgetType
                     'name' => $activity->name,
                     'time' => $activity->shortTime(),
                     'picture' => $activity->picture?->toPicker(),
+                    'cancelled' => $calendar->isCancelled($activity, $day),
                     'packed' => $packing === null
                         ? null
                         : $packing['confirmed'] || ($packing['total'] > 0 && $packing['packed'] === $packing['total']),

@@ -10,6 +10,7 @@ type Item = {
     name: string;
     picture: PictureItem | null;
     time: string | null;
+    cancelled?: boolean;
 };
 
 const props = defineProps<{
@@ -141,7 +142,10 @@ function today(index: number): boolean {
                                 class="font-normal text-ink-muted tabular-nums"
                                 >{{ item.time }}
                             </span>
-                            {{ item.name }}
+                            {{ item.name
+                            }}<template v-if="item.cancelled">
+                                · inställd</template
+                            >
                         </span>
                     </span>
                     <span

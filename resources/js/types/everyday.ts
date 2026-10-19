@@ -115,6 +115,11 @@ export type ActivityEntry = {
     picture: PictureItem | null;
     time: string | null;
     unusual: boolean;
+    /** Inställd den här gången: shown that day, without packing. */
+    cancelled?: boolean;
+    weekly?: boolean;
+    /** The day the entry is for. */
+    date?: string;
     nightsLeft: number | null;
     participants: Member[];
     /** A child's own packing, or each child's status for the adults. */

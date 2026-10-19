@@ -78,7 +78,7 @@ class WeekGridWidget implements DisplayWidgetType
                 'cells' => $days->map(fn (CarbonImmutable $day) => $this->sorted([
                     ...$visible[$day->toDateString()]
                         ->filter(fn (Activity $activity) => $activity->participants->contains(fn (User $user) => $user->is($member)))
-                        ->map(fn (Activity $activity) => $this->item($activity))
+                        ->map(fn (Activity $activity) => $this->item($context, $activity, $day))
                         ->all(),
                     ...$events[$day->toDateString()]
                         ->filter(fn (CalendarEvent $event) => $calendars->ownerId($event) === $member->id)
@@ -93,7 +93,7 @@ class WeekGridWidget implements DisplayWidgetType
         $everyone = $days->map(fn (CarbonImmutable $day) => $this->sorted([
             ...$visible[$day->toDateString()]
                 ->filter(fn (Activity $activity) => $activity->participants->isEmpty())
-                ->map(fn (Activity $activity) => $this->item($activity))
+                ->map(fn (Activity $activity) => $this->item($context, $activity, $day))
                 ->all(),
             ...$events[$day->toDateString()]
                 ->filter(fn (CalendarEvent $event) => $calendars->ownerId($event) === null
@@ -155,15 +155,16 @@ class WeekGridWidget implements DisplayWidgetType
     }
 
     /**
-     * @return array{id: int, name: string, picture: array<string, mixed>|null, time: string|null}
+     * @return array{id: int, name: string, picture: array<string, mixed>|null, time: string|null, cancelled: bool}
      */
-    private function item(Activity $activity): array
+    private function item(DisplayContext $context, Activity $activity, CarbonImmutable $day): array
     {
         return [
             'id' => $activity->id,
             'name' => $activity->name,
             'picture' => $activity->picture?->toPicker(),
             'time' => $activity->shortTime(),
+            'cancelled' => $context->calendar()->isCancelled($activity, $day),
         ];
     }
 

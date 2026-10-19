@@ -37,6 +37,7 @@ const props = defineProps<{
             time: string | null;
             picture: PictureItem | null;
             packed: boolean | null;
+            cancelled?: boolean;
         }>;
         lunch: SchoolLunchData | null;
     };
@@ -215,7 +216,10 @@ const dots = computed(() => {
                     <span
                         class="flex-1 font-display text-[length:calc(1.5rem*var(--fit))]"
                     >
-                        {{ activity.name }}
+                        {{ activity.name
+                        }}<template v-if="activity.cancelled">
+                            · inställd</template
+                        >
                         {{
                             activity.when === 'imorgon'
                                 ? 'imorgon'

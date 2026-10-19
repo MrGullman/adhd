@@ -38,7 +38,7 @@ class ChildActivityController extends Controller
         $calendar = ActivityCalendar::between($day, $day);
         $loaded = $calendar->on($day, $child)->first(fn (Activity $candidate) => $candidate->is($activity));
 
-        abort_unless($loaded instanceof Activity && $calendar->packs($loaded, $child), 404);
+        abort_unless($loaded instanceof Activity && $calendar->packsOn($loaded, $child, $day), 404);
 
         return Inertia::render('child/Pack', [
             'activity' => $calendar->present($loaded, $day, $child),

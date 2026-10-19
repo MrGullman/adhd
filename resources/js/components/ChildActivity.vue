@@ -74,7 +74,7 @@ const allPacked = computed(
                     class="mt-1 w-fit rounded-full bg-surface-raised px-3 text-orange-strong"
                     :class="style.text"
                 >
-                    Annorlunda
+                    {{ activity.cancelled ? 'Blir inte av' : 'Annorlunda' }}
                 </span>
             </div>
         </div>
