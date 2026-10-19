@@ -43,8 +43,9 @@ defineProps<{
         <header class="flex flex-col gap-2">
             <h1 class="text-heading font-semibold">Handlingslistan i ICA</h1>
             <p class="text-ink-muted">
-                Det ni lägger till, bockar av och tar bort i Handla händer också
-                i en av era listor i ICA-appen.
+                Handla och en av era listor i ICA-appen hålls lika: det ni
+                lägger till, bockar av och tar bort på det ena stället händer
+                också på det andra.
             </p>
             <p class="rounded-lg bg-surface-sunken p-3 text-caption">
                 Det här är ett test. ICA har inget öppet API, så kopplingen
@@ -147,8 +148,8 @@ defineProps<{
                         </Button>
                     </div>
                     <p class="text-caption text-ink-muted">
-                        Det som står på handlingslistan nu skickas dit, och
-                        sedan allt nytt.
+                        Det som står på handlingslistan nu skickas dit.
+                        Ändringar i ICA-appen kommer hit inom fem minuter.
                     </p>
                 </Form>
                 <p v-else class="text-ink-muted">

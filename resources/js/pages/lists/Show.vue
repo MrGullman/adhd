@@ -90,7 +90,7 @@ function onPicture(picture: PictureItem): void {
             >
                 <ShoppingBasket class="size-4" aria-hidden="true" />
                 <template v-if="ica.listTitle">
-                    Skickas till ICA-listan {{ ica.listTitle }}.
+                    Kopplad till ICA-listan {{ ica.listTitle }}.
                     <template v-if="ica.lastError">
                         {{ ica.lastError }} Listan här fungerar som vanligt.
                     </template>

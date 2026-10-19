@@ -169,6 +169,38 @@ class IcaClient
     }
 
     /**
+     * The rows in one ICA list: what is on it, and whether it is ticked off.
+     *
+     * @return list<array{id: string, name: string, quantity: float|null, unit: string|null, struck: bool, changedAt: string|null}>
+     */
+    public function rows(string $accessToken, string $listId): array
+    {
+        $list = (array) $this->guard(fn (): mixed => Http::timeout(30)->withToken($accessToken)
+            ->get(self::API.'/shoppinglists/'.rawurlencode($listId))
+            ->throw()
+            ->json());
+
+        $rows = [];
+
+        foreach ((array) ($list['rows'] ?? []) as $row) {
+            if (! is_array($row) || ! is_string($row['offlineId'] ?? null) || ! is_string($row['productName'] ?? null)) {
+                continue;
+            }
+
+            $rows[] = [
+                'id' => $row['offlineId'],
+                'name' => $row['productName'],
+                'quantity' => is_numeric($row['quantity'] ?? null) ? (float) $row['quantity'] : null,
+                'unit' => is_string($row['unit'] ?? null) && $row['unit'] !== '' ? $row['unit'] : null,
+                'struck' => (bool) ($row['isStrikedOver'] ?? false),
+                'changedAt' => is_string($row['latestChange'] ?? null) ? $row['latestChange'] : null,
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
      * Adds a row to an ICA list, and returns the row's id there.
      */
     public function add(string $accessToken, string $listId, string $name): string
