@@ -279,7 +279,7 @@ Appens verktyg är tänkta att hjälpa familjer att:
 - **Bygga fungerande rutiner.** Dela upp morgonbestyr, läggdags och andra återkommande aktiviteter i mindre steg.
 - **Uppmuntra och motivera.** Synliggöra framsteg och använda positiva belöningar utifrån familjens egna förutsättningar.
 - **Minska behovet av upprepade påminnelser.** Göra det lättare för varje familjemedlem att själv se nästa steg.
-- **Skapa delaktighet.** Låta barn och vuxna vara med och forma sina rutiner och mål.
+- **Skapa delaktighet.** Barnen väljer sin egen bild, önskar belöningar och kan i läget Ungdom lägga in egna uppgifter. Gör rutinerna tillsammans med barnet, så att de känns som barnets egna.
 
 En plan behöver inte vara perfekt. Den behöver fungera tillräckligt bra för att vara till hjälp.
 
@@ -421,7 +421,7 @@ MD,
 - Ge tid att ställa om, och räkna med att det tar energi.
 MD,
                 'in_app' => <<<'MD'
-Markera dagen som **Annorlunda** när den inte blir som vanligt, så att den syns tydligt för alla. Lägg in det som gäller i stället med bildstöd, så att barnet kan se den nya planen i Min dag och på **hemskärmen**.
+Är det en aktivitet som är varje vecka, som simskolan, trycker du **Ställ in den här gången**. Då syns den som inställd just den dagen, utan packning och påminnelser. Lägg in det som gäller i stället med bildstöd, och markera det som **Annorlunda**, så att barnet kan se den nya planen i Min dag och på **hemskärmen**.
 MD,
             ],
             [

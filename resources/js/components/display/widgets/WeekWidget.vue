@@ -68,7 +68,10 @@ function label(date: string): string {
                         <span
                             class="truncate font-display text-[length:calc(1.2rem*var(--fit))] font-semibold"
                         >
-                            {{ activity.name }}
+                            {{ activity.name
+                            }}<template v-if="activity.cancelled">
+                                · inställd</template
+                            >
                         </span>
                         <span
                             v-if="activity.time"

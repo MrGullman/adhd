@@ -159,7 +159,7 @@ class ReminderPlanner
 
         foreach ($family->children()->get() as $child) {
             foreach ($calendar->on($tomorrow, $child) as $activity) {
-                if (! $calendar->packs($activity, $child)) {
+                if (! $calendar->packsOn($activity, $child, $tomorrow)) {
                     continue;
                 }
 
@@ -199,7 +199,7 @@ class ReminderPlanner
 
         foreach ([$today, $tomorrow] as $day) {
             foreach ($calendar->on($day) as $activity) {
-                if ($activity->time === null || ! $activity->reminders) {
+                if ($activity->time === null || ! $activity->reminders || $calendar->isCancelled($activity, $day)) {
                     continue;
                 }
 

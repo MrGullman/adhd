@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Activities\ActivityCancellationController;
 use App\Http\Controllers\Activities\ActivityController;
 use App\Http\Controllers\Activities\CalendarController;
 use App\Http\Controllers\Activities\ChildActivityController;
@@ -97,6 +98,10 @@ Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function 
 
     Route::get('aktiviteter', [ActivityController::class, 'index'])->name('activities.index');
     Route::get('aktiviteter/ny', [ActivityController::class, 'create'])->name('activities.create');
+    Route::post('aktiviteter/{activity}/{date}/installd', [ActivityCancellationController::class, 'store'])
+        ->where('date', '\\d{4}-\\d{2}-\\d{2}')->name('activities.cancellations.store');
+    Route::delete('aktiviteter/{activity}/{date}/installd', [ActivityCancellationController::class, 'destroy'])
+        ->where('date', '\\d{4}-\\d{2}-\\d{2}')->name('activities.cancellations.destroy');
     Route::post('aktiviteter', [ActivityController::class, 'store'])->name('activities.store');
     Route::get('aktiviteter/{activity}/andra', [ActivityController::class, 'edit'])->name('activities.edit');
     Route::put('aktiviteter/{activity}', [ActivityController::class, 'update'])->name('activities.update');

@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Enums\ActivityType;
 use App\Models\Activity;
+use App\Models\ActivityCancellation;
 use App\Models\ActivityConfirmation;
 use App\Models\ActivityItem;
 use App\Models\ActivityItemCheck;
@@ -35,6 +36,13 @@ class ActivityCalendar
      * @var array<string, true>
      */
     private array $confirmed = [];
+
+    /**
+     * "Inställd den här gången" per "activity:date".
+     *
+     * @var array<string, true>
+     */
+    private array $cancelled = [];
 
     /**
      * The family's children, for the adults' packing overview.
@@ -79,6 +87,14 @@ class ActivityCalendar
                 $this->packed[$this->key($check->activity_id, $check->user_id, $check->date->toDateString())][] = $check->activity_item_id;
             });
 
+        ActivityCancellation::query()
+            ->whereIn('activity_id', $ids)
+            ->whereBetween('date', [$first, $last])
+            ->get()
+            ->each(function (ActivityCancellation $cancellation): void {
+                $this->cancelled[$cancellation->activity_id.':'.$cancellation->date->toDateString()] = true;
+            });
+
         ActivityConfirmation::query()
             ->whereIn('activity_id', $ids)
             ->whereBetween('date', [$first, $last])
@@ -104,6 +120,22 @@ class ActivityCalendar
             ->filter(fn (Activity $activity) => $activity->occursOn($day))
             ->filter(fn (Activity $activity) => $child === null || $this->concerns($activity, $child))
             ->values();
+    }
+
+    /**
+     * "Inställd den här gången": the activity does not happen that day.
+     */
+    public function isCancelled(Activity $activity, CarbonImmutable $day): bool
+    {
+        return isset($this->cancelled[$activity->id.':'.$day->toDateString()]);
+    }
+
+    /**
+     * Whether a child packs for an activity that day: never when it is cancelled.
+     */
+    public function packsOn(Activity $activity, User $child, CarbonImmutable $day): bool
+    {
+        return ! $this->isCancelled($activity, $day) && $this->packs($activity, $child);
     }
 
     /**
@@ -151,7 +183,11 @@ class ActivityCalendar
             'name' => $activity->name,
             'picture' => $activity->picture?->toPicker(),
             'time' => $activity->shortTime(),
-            'unusual' => $activity->unusual,
+            // Inställd: shown that day, marked as different, without packing.
+            'cancelled' => $this->isCancelled($activity, $day),
+            'weekly' => $activity->isWeekly(),
+            'date' => $day->toDateString(),
+            'unusual' => $activity->unusual || $this->isCancelled($activity, $day),
             'nightsLeft' => $this->nightsLeft($activity, $day),
             'participants' => $activity->participants->map(fn (User $user) => [
                 'id' => $user->id,
@@ -159,9 +195,9 @@ class ActivityCalendar
                 'avatarColor' => $user->avatar_color->value,
                 'avatarUrl' => $user->avatarUrl(),
             ])->values()->all(),
-            'packing' => $child === null
+            'packing' => $this->isCancelled($activity, $day) ? null : ($child === null
                 ? $this->packingOfChildren($activity, $day)
-                : ($this->packs($activity, $child) ? $this->packing($activity, $child, $day) : null),
+                : ($this->packs($activity, $child) ? $this->packing($activity, $child, $day) : null)),
         ];
     }
 

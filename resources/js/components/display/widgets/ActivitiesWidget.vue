@@ -36,7 +36,10 @@ defineProps<{
                     <span
                         class="font-display text-[length:calc(1.6rem*var(--fit))] break-words"
                     >
-                        {{ activity.name }}
+                        {{ activity.name
+                        }}<template v-if="activity.cancelled">
+                            · inställd</template
+                        >
                         <span v-if="activity.time" class="tabular-nums">
                             {{ activity.time }}
                         </span>

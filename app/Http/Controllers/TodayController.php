@@ -230,7 +230,7 @@ class TodayController extends Controller
                 ->values(),
             // "Packa till simskolan imorgon"
             'packTomorrow' => $tomorrows
-                ->filter(fn (Activity $activity) => $calendar->packs($activity, $child))
+                ->filter(fn (Activity $activity) => $calendar->packsOn($activity, $child, $tomorrow))
                 ->map(fn (Activity $activity) => $calendar->present($activity, $tomorrow, $child))
                 ->values(),
             'tomorrow' => $tomorrows->map(fn (Activity $activity) => $calendar->present($activity, $tomorrow, $child))->values(),

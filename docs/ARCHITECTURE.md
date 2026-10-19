@@ -899,6 +899,11 @@ I version 1 (Milestone 10):
 - Barn lagar veckans måltider med recept (App\Food\ChildRecipes) eller alla recept om family_user.all_recipes är på. Det är familjens beslut och väljs på barnets sida.
 - Timrarna och skärmlåset (Wake Lock) finns bara i webbläsaren medan sidan är öppen.
 
+# Inställd den här gången
+
+- activity_cancellations: ett datum då en aktivitet som är varje vecka inte blir av. Vuxna som får ändra ställer in och ångrar från aktivitetskortet (ActivityCancellationController), bara för kommande tillfällen.
+- ActivityCalendar::isCancelled och packsOn: tillfället visas med cancelled och unusual, utan packning. Packningspåminnelse, aktivitetspåminnelser och Packa-sidan hoppar över det, och hemskärmen skriver "inställd".
+
 # Om NPF
 
 - Öppna sidor om NPF och vardagen, utan inloggning, så att de kan delas med släkt och skola (/om-npf, InfoController). I appen nås de via Om NPF i menyn.

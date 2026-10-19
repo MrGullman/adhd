@@ -42,7 +42,7 @@ class ChildRoutineController extends Controller
             'routine' => RoutineDay::for($routine, $child)->focus(LocalTime::now()),
             // For the step "Kolla packningen": what to have with you today.
             'packing' => $calendar->on($today, $child)
-                ->filter(fn (Activity $activity) => $calendar->packs($activity, $child))
+                ->filter(fn (Activity $activity) => $calendar->packsOn($activity, $child, $today))
                 ->map(fn (Activity $activity) => $calendar->present($activity, $today, $child))
                 ->values(),
         ]);
