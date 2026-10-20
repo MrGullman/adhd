@@ -93,7 +93,8 @@ Route::middleware(['auth', 'verified', 'family', 'role:adult'])->group(function 
     Route::put('mat/vecka/byte', [MealPlanController::class, 'dinnerSwitch'])->name('meal-plan.dinner-switch');
     Route::get('mat/ingredienser', [IngredientController::class, 'index'])->name('ingredients.index');
 
-    Route::get('imorgon', [CalendarController::class, 'tomorrow'])->name('tomorrow');
+    // Imorgon is a day ahead in Idag now. Old links and bookmarks still work.
+    Route::get('imorgon', fn () => to_route('dashboard', ['dag' => 1]));
     Route::get('veckan', [CalendarController::class, 'week'])->name('week');
 
     Route::get('aktiviteter', [ActivityController::class, 'index'])->name('activities.index');

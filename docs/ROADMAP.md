@@ -86,6 +86,10 @@ Milestone 21 före 20: mat (inventering, laga och importera), sedan visningsläg
 
 Milestone 22–25: NPF Familjen Smart Display. Börjar på befintlig Raspberry Pi 3 och bygger vidare på hemskärmen (Milestone 11). Kamera och pekskärm kommer sist och kräver beslut först (se respektive milestone).
 
+## Efter att familjen har använt appen
+
+Milestone 26: dagar framåt i Min dag, kalendrar per barn, särskilda dagar och rutiner för vissa veckor.
+
 ---
 
 # Milestone 0 – Setup
@@ -831,6 +835,48 @@ Skärmen känner igen vem som står framför den och visar personens egen vy, oc
 - [ ] Integritetspolicyn uppdateras innan funktionen erbjuds andra familjer
 
 ---
+
+---
+
+# Milestone 26 – Dagar framåt, kalendrar per barn och rutiner per vecka
+
+## Mål
+
+Färre flikar och mer kontroll för vårdnadshavare. Man stegar framåt några dagar i Min dag i stället för att öppna en egen Imorgon-flik. Synkade kalendrar syns bara för de barn som vårdnadshavaren har valt. Rutiner kan gälla vissa veckor.
+
+## Beslutat
+
+- Fliken Imorgon tas bort. I Min dag stegar man framåt med en pil, högst 4 dagar. Hemskärmens widget Imorgon och "Packa till simskolan" dagen innan finns kvar.
+- En dag framåt visas bara som information: rubrik med dagen (t.ex. "Torsdag 22/10"), inga Klar-knappar och knappen Tillbaka till idag. Appen öppnar alltid på idag.
+- Dagar framåt visar aktiviteter, händelser, uppgifter och packning, men inte rutiner.
+- Vårdnadshavare väljer per barn om barnet kan se dagar framåt: Bara idag eller Upp till 4 dagar. Förval: Bara idag i läget Barn och Upp till 4 dagar i läget Ungdom. Barnet kan aldrig bocka av något på en dag framåt, och det kontrolleras på servern.
+- Kalendrar: "Visa för barnen" byts mot "Visa för", där vårdnadshavaren väljer vilka barn som ser kalendern. Om kalendern tillhör ett barn är det barnet förvalt. Inget annat barn är förvalt.
+- Vårdnadshavare ser alla kalendrar. Andra vuxna (editor och viewer) ser bara de kalendrar som är valda för något barn, aldrig vårdnadshavarnas egna.
+- Vuxnas Min dag visar alla synkade händelser, utan gränsen på tre saker per dag.
+- Särskilda dagar visas på en rad under datumet. Röda dagar och högtider (t.ex. Julafton, Midsommarafton) visas för alla, med bild för barnen. Namnsdagar och flaggdagar visas bara för vuxna. Allt räknas ut i koden, utan anrop utåt.
+- Rutiner kan gälla Alla veckor, Jämna veckor eller Udda veckor (ISO-veckonummer), och en period från–till (t.ex. sommarlov).
+
+## Tasks
+
+- [x] Stega framåt i Idag för vuxna (högst 4 dagar, ?dag=1–4), med Tillbaka till idag
+- [x] Ta bort fliken Imorgon. /imorgon leder till dashboard?dag=1.
+- [x] Inställning per barn: family_user.days_ahead (0 eller 4, null följer läget), på barnets sida, bara för vårdnadshavare
+- [x] Stega framåt i barnets Min dag i lägena Barn och Ungdom när det är tillåtet, utan att kunna bocka av
+- [x] Servern nekar barn att bocka av uppgifter på dagar framåt (läxor undantagna). Rutiner och packning gick redan bara idag.
+- [x] calendar_child tabell: "Visa för" per barn i stället för calendars.visible_to_children (migrera dagens val)
+- [x] Barnets Min dag, Min vecka och hemskärmen följer "Visa för" (den personliga vyn på hemskärmen visar inga kalenderhändelser)
+- [x] Editor och viewer ser bara kalendrar som är valda för något barn
+- [x] Särskilda dagar: röda dagar, högtider och flaggdagar (App\Support\SpecialDays), visas under datumet
+- [ ] Namnsdagar för vuxna (behöver en säker källa för namnlängden)
+- [x] Rutiner: veckor (alla, jämna, udda) och period från–till, i formuläret och i vilken rutin som visas idag
+- [x] Tester: ingen avbockning framåt, barn ser bara dagar framåt när det är valt, ett barn ser bara kalendrar valda för det barnet, editor och viewer ser inte vårdnadshavarnas kalendrar, jämna och udda veckor (även vecka 53), isolationstest för calendar_child
+
+## Definition of Done
+
+- Fliken Imorgon är borta och man stegar framåt i Min dag
+- Barn ser dagar framåt bara när vårdnadshavaren har valt det, och kan inte göra något där
+- Varje kalender syns bara för de barn som är valda
+- En rutin för jämna veckor syns bara jämna veckor
 
 ---
 

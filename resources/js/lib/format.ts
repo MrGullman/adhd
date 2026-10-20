@@ -45,3 +45,21 @@ const day = new Intl.DateTimeFormat('sv-SE', {
 export function formatDay(date: string): string {
     return day.format(new Date(`${date}T00:00:00Z`));
 }
+
+const weekday = new Intl.DateTimeFormat('sv-SE', {
+    weekday: 'long',
+    timeZone: 'UTC',
+});
+
+/**
+ * "Imorgon" or "Torsdag": a day ahead, by how many days from today.
+ */
+export function aheadName(date: string, offset: number): string {
+    if (offset === 1) {
+        return 'Imorgon';
+    }
+
+    const name = weekday.format(new Date(`${date}T00:00:00Z`));
+
+    return name.charAt(0).toUpperCase() + name.slice(1);
+}

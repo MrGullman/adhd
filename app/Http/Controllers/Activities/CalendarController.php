@@ -16,8 +16,8 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * Imorgon and Veckan: activities, calendar events and what is different. No
- * routines or everyday tasks (docs/ARCHITECTURE.md).
+ * Veckan: activities, calendar events and what is different. No routines or
+ * everyday tasks (docs/ARCHITECTURE.md). Imorgon is a day ahead in Idag.
  */
 class CalendarController extends Controller
 {
@@ -25,22 +25,6 @@ class CalendarController extends Controller
      * At most this many things per day on a child's week.
      */
     private const CHILD_WEEK_LIMIT = 3;
-
-    public function tomorrow(): Response
-    {
-        $tomorrow = LocalTime::now()->startOfDay()->addDay();
-        $calendar = ActivityCalendar::between($tomorrow, $tomorrow);
-        $activities = $calendar->on($tomorrow);
-        $events = FamilyCalendar::between($tomorrow, $tomorrow);
-
-        return Inertia::render('activities/Tomorrow', [
-            'date' => $tomorrow->toDateString(),
-            'activities' => $activities->map(fn (Activity $activity) => $calendar->present($activity, $tomorrow))->values(),
-            'calendarEvents' => $events->on($tomorrow, null, $activities->map(fn (Activity $activity) => $activity->name)->values()->all())
-                ->map(fn (CalendarEvent $event) => $events->present($event, $tomorrow))
-                ->values(),
-        ]);
-    }
 
     public function week(Request $request): Response
     {
@@ -68,14 +52,15 @@ class CalendarController extends Controller
         $monday = $today->startOfWeek(CarbonInterface::MONDAY)->addWeeks($offset);
         $calendar = ActivityCalendar::between($monday, $monday->addDays(6));
         $events = FamilyCalendar::between($monday, $monday->addDays(6));
+        $viewer = $request->user();
 
         return [
             'offset' => $offset,
             'weekNumber' => $monday->isoWeek(),
-            'days' => array_map(function (CarbonImmutable $day) use ($calendar, $events, $child, $today) {
+            'days' => array_map(function (CarbonImmutable $day) use ($calendar, $events, $child, $viewer, $today) {
                 $activities = $calendar->on($day, $child);
                 // Calendar events the viewer may see, not already shown as an activity.
-                $dayEvents = $events->on($day, $child, $activities->map(fn (Activity $activity) => $activity->name)->values()->all());
+                $dayEvents = $events->on($day, $viewer, $activities->map(fn (Activity $activity) => $activity->name)->values()->all());
 
                 // A child sees at most three things a day: activities first.
                 $shown = $child === null ? $activities : $activities->take(self::CHILD_WEEK_LIMIT);

@@ -5,6 +5,7 @@ namespace App\Http\Requests\Routines;
 use App\Enums\DayPart;
 use App\Enums\FamilyRole;
 use App\Enums\StepType;
+use App\Enums\Weeks;
 use App\Models\Routine;
 use App\Rules\VisiblePicture;
 use App\Support\CurrentFamily;
@@ -42,6 +43,9 @@ class StoreRoutineRequest extends FormRequest
             'done_by' => ['nullable', 'date_format:H:i', Rule::when($this->filled('start_time'), ['after:start_time'])],
             'weekdays' => ['array'],
             'weekdays.*' => ['integer', 'between:1,7', 'distinct'],
+            'weeks' => ['nullable', Rule::enum(Weeks::class)],
+            'starts_on' => ['nullable', 'date_format:Y-m-d'],
+            'ends_on' => ['nullable', 'date_format:Y-m-d', Rule::when($this->filled('starts_on'), ['after_or_equal:starts_on'])],
             'ordered' => ['boolean'],
             'steps' => ['required', 'array', 'min:1', 'max:30'],
             'steps.*.id' => ['nullable', 'integer'],
@@ -69,6 +73,9 @@ class StoreRoutineRequest extends FormRequest
             'start_time' => 'börjar',
             'done_by' => 'klar senast',
             'weekdays' => 'veckodagar',
+            'weeks' => 'veckor',
+            'starts_on' => 'från',
+            'ends_on' => 'till',
             'steps' => 'steg',
             'steps.*.label' => 'stegets text',
             'steps.*.minutes' => 'minuter',
@@ -83,6 +90,7 @@ class StoreRoutineRequest extends FormRequest
         return [
             'steps.required' => 'Lägg till minst ett steg.',
             'done_by.after' => '"Klar senast" måste vara efter starten.',
+            'ends_on.after_or_equal' => '"Till" kan inte vara före "Från".',
             'steps.*.minutes.required_if_accepted' => 'Skriv hur många minuter timern ska gå.',
         ];
     }
@@ -102,6 +110,9 @@ class StoreRoutineRequest extends FormRequest
             'done_by' => $this->filled('done_by') ? $this->string('done_by')->toString() : null,
             // Every day is stored as null.
             'weekdays' => count($weekdays) === 7 ? null : ($weekdays ?: null),
+            'weeks' => $this->enum('weeks', Weeks::class) ?? Weeks::All,
+            'starts_on' => $this->filled('starts_on') ? $this->string('starts_on')->toString() : null,
+            'ends_on' => $this->filled('ends_on') ? $this->string('ends_on')->toString() : null,
             'ordered' => $this->boolean('ordered', true),
         ];
     }

@@ -71,6 +71,7 @@ class ChildController extends Controller
                     'childPictures' => $child->child_pictures,
                     'rewardsEnabled' => (bool) $membership?->rewards_enabled,
                     'allRecipes' => (bool) $membership?->all_recipes,
+                    'daysAhead' => $family->daysAheadFor($child),
                     'pointsEnabled' => Points::settings($family)['enabled'],
                 ],
                 // Devices where the child has turned reminders on, for "Skicka en testnotis".

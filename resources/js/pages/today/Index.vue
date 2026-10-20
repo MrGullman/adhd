@@ -6,10 +6,12 @@ import TaskController from '@/actions/App/Http/Controllers/Tasks/TaskController'
 import ActivityCard from '@/components/ActivityCard.vue';
 import CalendarEventRow from '@/components/CalendarEventRow.vue';
 import DayPartLabel from '@/components/DayPartLabel.vue';
+import DayStepper from '@/components/DayStepper.vue';
 import DinnerCard from '@/components/DinnerCard.vue';
 import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import MyDay from '@/components/MyDay.vue';
 import SchoolLunch from '@/components/SchoolLunch.vue';
+import SpecialDays from '@/components/SpecialDays.vue';
 import TaskRow from '@/components/TaskRow.vue';
 import { formatDay } from '@/lib/format';
 import { dashboard } from '@/routes';
@@ -33,6 +35,9 @@ defineOptions({
 
 const props = defineProps<{
     date: string;
+    specialDays: string[];
+    /** How many days ahead the adults can step. */
+    maxOffset: number;
     currentPart: DayPart;
     groups: DayGroup[];
     members: Array<
@@ -123,15 +128,19 @@ const chip =
                 <p class="text-ink-muted first-letter:uppercase">
                     {{ formatDay(date) }}
                 </p>
+                <SpecialDays :days="specialDays" />
             </div>
-            <Link
-                v-if="canEdit"
-                :href="TaskController.create({ query: { dag: date } })"
-                class="flex min-h-tap-adult items-center gap-2 rounded-full bg-primary px-5 font-bold text-on-primary"
-            >
-                <Plus class="size-5" aria-hidden="true" />
-                Ny uppgift
-            </Link>
+            <div class="flex flex-wrap items-center gap-2">
+                <DayStepper :date="date" :offset="0" :max-offset="maxOffset" />
+                <Link
+                    v-if="canEdit"
+                    :href="TaskController.create({ query: { dag: date } })"
+                    class="flex min-h-tap-adult items-center gap-2 rounded-full bg-primary px-5 font-bold text-on-primary"
+                >
+                    <Plus class="size-5" aria-hidden="true" />
+                    Ny uppgift
+                </Link>
+            </div>
         </header>
 
         <!-- Familjen eller Min dag: appen kommer ihåg valet på enheten -->

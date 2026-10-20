@@ -283,9 +283,9 @@ class ActivityTest extends TestCase
         $this->swimming();
 
         $this->actingAs($this->parent)
-            ->get(route('tomorrow'))
+            ->get(route('dashboard', ['dag' => 1]))
             ->assertInertia(fn (Assert $page) => $page
-                ->component('activities/Tomorrow')
+                ->component('today/Ahead')
                 ->where('date', '2026-10-13')
                 ->where('activities.0.name', 'Simskola')
                 ->where('activities.0.packing.0.packed', 0)

@@ -35,6 +35,7 @@ const props = defineProps<{
             childPictures: boolean;
             rewardsEnabled: boolean;
             allRecipes: boolean;
+            daysAhead: number;
             pointsEnabled: boolean;
         };
         reminders: {

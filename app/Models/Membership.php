@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property int|null $school_menu_id
  * @property bool $rewards_enabled
  * @property bool $all_recipes
+ * @property int|null $days_ahead Null: follows the child's view.
  * @property bool $child_reminders
  * @property list<int>|null $child_reminder_ids Null: every child.
  */
@@ -36,6 +37,7 @@ class Membership extends Pivot
             'role' => FamilyRole::class,
             'rewards_enabled' => 'boolean',
             'all_recipes' => 'boolean',
+            'days_ahead' => 'integer',
             'child_reminders' => 'boolean',
             'child_reminder_ids' => 'array',
         ];

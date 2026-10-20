@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
 import {
+    ArrowRight,
     CalendarDays,
     ChefHat,
     Check,
@@ -23,6 +24,7 @@ import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import PictureThumb from '@/components/PictureThumb.vue';
 import PushToggle from '@/components/PushToggle.vue';
 import SchoolLunch from '@/components/SchoolLunch.vue';
+import SpecialDays from '@/components/SpecialDays.vue';
 import VisualTimer from '@/components/VisualTimer.vue';
 import { useDoneLast } from '@/composables/useDoneLast';
 import { formatDay } from '@/lib/format';
@@ -30,6 +32,7 @@ import { homeworkText, isDueNow, whenText } from '@/lib/now';
 import { logout } from '@/routes';
 import {
     avatar as childAvatar,
+    home as childHome,
     recipes as childRecipes,
     shopping,
     week as childWeek,
@@ -49,6 +52,7 @@ import type {
 const props = defineProps<{
     child: { name: string; avatarColor: string; avatarUrl?: string | null };
     date: string;
+    specialDays: string[];
     currentPart: DayPart;
     now: TaskRowData | null;
     groups: DayGroup[];
@@ -62,6 +66,8 @@ const props = defineProps<{
     dinner: (MealEntry & { canCook?: boolean }) | null;
     points: number | null;
     vapidPublicKey: string | null;
+    /** Days ahead the child may look at, chosen by a parent. */
+    daysAhead: number;
 }>();
 
 // What is left first: done things move to "Klart idag" at the bottom.
@@ -118,6 +124,7 @@ const allDone = computed(
                     >
                         {{ formatDay(date) }}
                     </p>
+                    <SpecialDays :days="specialDays" child />
                 </div>
                 <Link
                     v-if="points !== null"
@@ -458,6 +465,14 @@ const allDone = computed(
             </section>
 
             <footer class="flex flex-wrap gap-3 pt-4">
+                <Link
+                    v-if="daysAhead > 0"
+                    :href="childHome({ query: { dag: 1 } })"
+                    class="flex h-tap-child items-center gap-3 rounded-full border-2 border-line bg-surface-raised px-8 font-display text-child-label font-semibold"
+                >
+                    Imorgon
+                    <ArrowRight class="size-8" aria-hidden="true" />
+                </Link>
                 <Link
                     :href="childWeek()"
                     class="flex h-tap-child items-center gap-3 rounded-full border-2 border-line bg-surface-raised px-8 font-display text-child-label font-semibold"

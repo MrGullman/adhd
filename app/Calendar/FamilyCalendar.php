@@ -3,21 +3,24 @@
 namespace App\Calendar;
 
 use App\Display\DisplayContext;
+use App\Enums\FamilyRole;
 use App\Models\Activity;
 use App\Models\CalendarEvent;
+use App\Models\Membership;
 use App\Models\User;
 use App\Support\CurrentFamily;
 use App\Support\LocalTime;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * The family calendars' events for a period, read from the database only.
  *
- * Who sees what:
- * - adults see every calendar
- * - a child sees their own calendar and the ones shown to the children
- * - the home display shows what any child may see
+ * Who sees what ("Visa för", calendar_child):
+ * - parents see every calendar
+ * - a child sees the calendars shown to that child
+ * - other adults and the home display see the calendars shown to any child
  *
  * An event named like an activity (e.g. "Simskola") gets the activity's
  * picture, and is left out on days the activity is already shown.
@@ -27,8 +30,8 @@ class FamilyCalendar
     /** @var Collection<int, CalendarEvent> */
     private Collection $events;
 
-    /** @var list<int> */
-    private array $childIds;
+    /** @var array<int, FamilyRole|null> Roles by user id, asked once per viewer. */
+    private array $roles = [];
 
     /** @var array<string, Activity> Activities by lower-case name. */
     private array $activities = [];
@@ -40,17 +43,12 @@ class FamilyCalendar
         $end = $to->endOfDay()->utc();
 
         $this->events = CalendarEvent::query()
-            ->with('calendar.owner.picture')
+            ->with(['calendar.owner.picture', 'calendar.children:id'])
             ->where('starts_at', '<=', $end)
             ->where(fn ($query) => $query->where('ends_at', '>=', $start)->orWhere(fn ($query) => $query->whereNull('ends_at')->where('starts_at', '>=', $start)))
             ->orderBy('all_day', 'desc')
             ->orderBy('starts_at')
             ->get();
-
-        $this->childIds = array_values(array_map(
-            intval(...),
-            app(CurrentFamily::class)->getOrFail()->children()->pluck('users.id')->all(),
-        ));
 
         foreach (Activity::query()->with('picture')->get() as $activity) {
             $this->activities[mb_strtolower(trim($activity->name))] ??= $activity;
@@ -63,8 +61,8 @@ class FamilyCalendar
     }
 
     /**
-     * Events on a day as someone sees them: null for an adult, a child, or
-     * "display" for the home display.
+     * Events on a day as someone sees them: a family member, "display" for
+     * the home display, or null for every event (e.g. reminders).
      *
      * @param  array<int, string>  $activityNames  Activities shown the same day, to not show twice.
      * @return Collection<int, CalendarEvent>
@@ -124,15 +122,35 @@ class FamilyCalendar
         }
 
         if ($viewer === 'display') {
-            return $calendar->isVisibleToChildren($this->childIds);
+            return $calendar->isShownToChildren();
         }
 
-        if ($viewer instanceof User) {
-            // A child's own calendar, or one shown to the children that is not a sibling's.
-            return $calendar->user_id === $viewer->id
-                || ($calendar->visible_to_children && ! in_array($calendar->user_id, $this->childIds, true));
+        if (! $viewer instanceof User) {
+            return false;
         }
 
-        return false;
+        return match ($this->roleOf($viewer)) {
+            FamilyRole::Parent => true,
+            FamilyRole::Child => $calendar->isShownTo($viewer),
+            // Other adults never see the parents' own calendars.
+            FamilyRole::Editor, FamilyRole::Viewer => $calendar->isShownToChildren(),
+            null => false,
+        };
+    }
+
+    private function roleOf(User $user): ?FamilyRole
+    {
+        $current = app(CurrentFamily::class);
+
+        if ($user->is(Auth::user())) {
+            return $current->role();
+        }
+
+        if (! array_key_exists($user->id, $this->roles)) {
+            $membership = $current->getOrFail()->members()->whereKey($user->id)->first()?->getRelation('pivot');
+            $this->roles[$user->id] = $membership instanceof Membership ? $membership->role : null;
+        }
+
+        return $this->roles[$user->id];
     }
 }

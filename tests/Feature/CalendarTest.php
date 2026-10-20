@@ -181,16 +181,44 @@ class CalendarTest extends TestCase
         $this->assertModelExists($calendar);
     }
 
-    public function test_children_only_see_their_own_calendar_and_the_ones_shown_to_them()
+    public function test_a_parent_chooses_which_children_see_a_calendar()
+    {
+        Queue::fake();
+        $sibling = User::factory()->child('7351')->inFamily($this->family, FamilyRole::Child)->create(['name' => 'Bo']);
+
+        $this->actingAs($this->parent)
+            ->post(route('calendars.store'), ['name' => 'Fotboll', 'url' => 'https://8.8.8.8/a.ics', 'user_id' => $this->child->id, 'children' => [$this->child->id, $sibling->id]])
+            ->assertRedirect(route('calendars.index'));
+
+        $calendar = Calendar::query()->sole();
+        $this->assertEqualsCanonicalizing([$this->child->id, $sibling->id], $calendar->children()->pluck('users.id')->all());
+
+        $this->actingAs($this->parent)
+            ->put(route('calendars.update', $calendar), ['name' => 'Fotboll', 'user_id' => $this->child->id, 'children' => [$sibling->id]])
+            ->assertSessionHasNoErrors();
+        $this->assertSame([$sibling->id], $calendar->children()->pluck('users.id')->all());
+
+        // Only the family's children can be chosen.
+        $this->actingAs($this->parent)
+            ->put(route('calendars.update', $calendar), ['name' => 'Fotboll', 'children' => [$this->parent->id]])
+            ->assertSessionHasErrors('children.0');
+        $this->actingAs($this->parent)
+            ->put(route('calendars.update', $calendar), ['name' => 'Fotboll', 'children' => [User::factory()->child('9182')->create()->id]])
+            ->assertSessionHasErrors('children.0');
+    }
+
+    public function test_each_child_only_sees_the_calendars_shown_to_them()
     {
         $sibling = User::factory()->child('7351')->inFamily($this->family, FamilyRole::Child)->create(['name' => 'Bo']);
         $at = fn (string $time) => now()->setTimeFromTimeString($time);
         $event = fn (Calendar $calendar, string $title) => CalendarEvent::factory()->for($calendar)->create(['title' => $title, 'starts_at' => $at('14:00'), 'ends_at' => $at('15:00')]);
 
         $event(Calendar::factory()->for($this->family)->create(['user_id' => $this->parent->id]), 'Lönesamtal');
-        $event(Calendar::factory()->for($this->family)->create(['user_id' => $this->parent->id, 'visible_to_children' => true]), 'Mamma jobbar sent');
-        $event(Calendar::factory()->for($this->family)->create(['user_id' => $this->child->id]), 'Kalas hos Siv');
-        $event(Calendar::factory()->for($this->family)->create(['user_id' => $sibling->id]), 'Bos tandläkare');
+        $event(Calendar::factory()->for($this->family)->shownTo($this->child)->create(['user_id' => $this->parent->id]), 'Mamma jobbar sent');
+        $event(Calendar::factory()->for($this->family)->shownTo($this->child)->create(['user_id' => $this->child->id]), 'Kalas hos Siv');
+        $event(Calendar::factory()->for($this->family)->shownTo($sibling)->create(['user_id' => $sibling->id]), 'Bos tandläkare');
+        // A child's own calendar the parent chose not to show.
+        $event(Calendar::factory()->for($this->family)->create(['user_id' => $this->child->id]), 'Utvecklingssamtal');
 
         $this->actingAs($this->child)
             ->get(route('child.home'))
@@ -198,18 +226,41 @@ class CalendarTest extends TestCase
                 ->where('calendarEvents.0.title', 'Mamma jobbar sent')
                 ->where('calendarEvents.1.title', 'Kalas hos Siv'));
 
+        $this->actingAs($sibling)
+            ->get(route('child.home'))
+            ->assertInertia(fn (Assert $page) => $page->has('calendarEvents', 1)->where('calendarEvents.0.title', 'Bos tandläkare'));
+
         $this->actingAs($this->parent)
             ->get(route('dashboard'))
-            ->assertInertia(fn (Assert $page) => $page->has('calendarEvents', 4)
+            ->assertInertia(fn (Assert $page) => $page->has('calendarEvents', 5)
                 ->where('calendarEvents.0.time', '16:00')
                 ->where('calendarEvents.0.endTime', '17:00'));
+    }
+
+    public function test_other_adults_only_see_calendars_shown_to_a_child()
+    {
+        $at = fn (string $time) => now()->setTimeFromTimeString($time);
+        $event = fn (Calendar $calendar, string $title) => CalendarEvent::factory()->for($calendar)->create(['title' => $title, 'starts_at' => $at('14:00'), 'ends_at' => $at('15:00')]);
+        $event(Calendar::factory()->for($this->family)->create(['user_id' => $this->parent->id]), 'Lönesamtal');
+        $event(Calendar::factory()->for($this->family)->shownTo($this->child)->create(), 'Studiedag');
+
+        foreach ([FamilyRole::Editor, FamilyRole::Viewer] as $role) {
+            $adult = User::factory()->inFamily($this->family, $role)->create();
+
+            $this->actingAs($adult)
+                ->get(route('dashboard'))
+                ->assertInertia(fn (Assert $page) => $page->has('calendarEvents', 1)->where('calendarEvents.0.title', 'Studiedag'));
+            $this->actingAs($adult)
+                ->get(route('week'))
+                ->assertInertia(fn (Assert $page) => $page->has('days.1.calendarEvents', 1)->where('days.1.calendarEvents.0.title', 'Studiedag'));
+        }
     }
 
     public function test_an_event_named_like_an_activity_is_shown_once_with_its_picture()
     {
         $picture = Picture::factory()->create(['family_id' => $this->family->id, 'label' => 'Simning']);
         Activity::factory()->for($this->family)->weekly(2)->concerning($this->child)->create(['name' => 'Simskola', 'picture_id' => $picture->id]);
-        $calendar = Calendar::factory()->for($this->family)->create(['visible_to_children' => true]);
+        $calendar = Calendar::factory()->for($this->family)->shownTo($this->child)->create();
         CalendarEvent::factory()->for($calendar)->create(['title' => 'Simskola', 'starts_at' => '2026-10-13 15:15:00', 'ends_at' => '2026-10-13 16:00:00']);
         CalendarEvent::factory()->for($calendar)->create(['title' => 'simskola', 'starts_at' => '2026-10-14 15:15:00', 'ends_at' => '2026-10-14 16:00:00']);
 
@@ -229,11 +280,11 @@ class CalendarTest extends TestCase
         DisplayWidget::factory()->for($device)->create(['family_id' => $this->family->id, 'type' => 'week_grid', 'w' => 12, 'h' => 4, 'settings' => ['member_ids' => [], 'rows' => []]]);
         DisplayWidget::factory()->for($device)->create(['family_id' => $this->family->id, 'type' => 'calendar', 'y' => 4, 'w' => 4, 'h' => 2]);
 
-        $work = Calendar::factory()->for($this->family)->create(['user_id' => $this->parent->id, 'visible_to_children' => true]);
+        $work = Calendar::factory()->for($this->family)->shownTo($this->child)->create(['user_id' => $this->parent->id]);
         CalendarEvent::factory()->for($work)->create(['title' => 'Jobbar natt', 'starts_at' => '2026-10-13 19:20:00', 'ends_at' => '2026-10-14 05:20:00']);
         $private = Calendar::factory()->for($this->family)->create(['user_id' => $this->parent->id]);
         CalendarEvent::factory()->for($private)->create(['title' => 'Lönesamtal', 'starts_at' => '2026-10-13 12:00:00', 'ends_at' => '2026-10-13 13:00:00']);
-        $family = Calendar::factory()->for($this->family)->create(['visible_to_children' => true]);
+        $family = Calendar::factory()->for($this->family)->shownTo($this->child)->create();
         CalendarEvent::factory()->for($family)->create(['title' => 'Studiedag', 'all_day' => true, 'starts_at' => '2026-10-16 00:00:00', 'ends_at' => '2026-10-17 00:00:00']);
 
         $this->get(route('display.show', $token))
@@ -251,12 +302,12 @@ class CalendarTest extends TestCase
     public function test_tomorrow_and_the_weeks_show_calendar_events_too()
     {
         $work = Calendar::factory()->for($this->family)->create(['user_id' => $this->parent->id]);
-        $shared = Calendar::factory()->for($this->family)->create(['visible_to_children' => true]);
+        $shared = Calendar::factory()->for($this->family)->shownTo($this->child)->create();
         CalendarEvent::factory()->for($work)->create(['title' => 'Lönesamtal', 'starts_at' => '2026-10-14 08:00:00', 'ends_at' => '2026-10-14 09:00:00']);
         CalendarEvent::factory()->for($shared)->create(['title' => 'Höstlov', 'all_day' => true, 'starts_at' => '2026-10-26 00:00:00', 'ends_at' => '2026-10-31 00:00:00']);
 
         $this->actingAs($this->parent)
-            ->get(route('tomorrow'))
+            ->get(route('dashboard', ['dag' => 1]))
             ->assertInertia(fn (Assert $page) => $page->where('calendarEvents.0.title', 'Lönesamtal')->where('calendarEvents.0.time', '10:00'));
 
         // In two weeks, Monday 26 October: the autumn break.

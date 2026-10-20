@@ -32,6 +32,7 @@ class ChildViewController extends Controller
             ->update([
                 'rewards_enabled' => $request->boolean('rewards_enabled'),
                 'all_recipes' => $request->boolean('all_recipes'),
+                'days_ahead' => $request->integer('days_ahead'),
             ]);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Sparat.']);

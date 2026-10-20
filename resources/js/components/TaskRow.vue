@@ -14,6 +14,8 @@ defineProps<{
     task: TaskRowData;
     /** Tick off and open the task to change it. */
     canEdit: boolean;
+    /** False on a day ahead: only to look at and change. */
+    canComplete?: boolean;
 }>();
 </script>
 
@@ -23,7 +25,7 @@ defineProps<{
         class="flex items-center gap-2 rounded-lg border border-line bg-surface-raised py-1 pr-3 pl-1"
     >
         <CompletionToggle
-            v-if="canEdit"
+            v-if="canEdit && canComplete !== false"
             :completed="task.completed"
             :href="
                 task.completed
@@ -36,7 +38,7 @@ defineProps<{
             :is="canEdit ? Link : 'div'"
             v-bind="canEdit ? { href: TaskController.edit(task.id) } : {}"
             class="flex min-w-0 flex-1 items-center gap-3 py-2"
-            :class="!canEdit && 'pl-3'"
+            :class="(!canEdit || canComplete === false) && 'pl-3'"
         >
             <span
                 v-if="task.time"

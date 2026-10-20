@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
@@ -21,13 +22,12 @@ use Illuminate\Support\Carbon;
  * @property string $name
  * @property string $provider
  * @property string $url
- * @property bool $visible_to_children
  * @property Carbon|null $last_synced_at
  * @property Carbon|null $last_failed_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['user_id', 'name', 'url', 'visible_to_children'])]
+#[Fillable(['user_id', 'name', 'url'])]
 #[Hidden(['url'])]
 class Calendar extends Model
 {
@@ -43,7 +43,6 @@ class Calendar extends Model
     {
         return [
             'url' => 'encrypted',
-            'visible_to_children' => 'boolean',
             'last_synced_at' => 'datetime',
             'last_failed_at' => 'datetime',
         ];
@@ -66,13 +65,29 @@ class Calendar extends Model
     }
 
     /**
-     * Whether a child at home may see the events: the child's own calendar,
-     * or one an adult chose to show the children.
+     * The children who see the calendar ("Visa för").
      *
-     * @param  list<int>  $childIds
+     * @return BelongsToMany<User, $this>
      */
-    public function isVisibleToChildren(array $childIds): bool
+    public function children(): BelongsToMany
     {
-        return $this->visible_to_children || ($this->user_id !== null && in_array($this->user_id, $childIds, true));
+        return $this->belongsToMany(User::class, 'calendar_child');
+    }
+
+    /**
+     * Whether the calendar is shown to this child.
+     */
+    public function isShownTo(User $child): bool
+    {
+        return $this->children->contains($child);
+    }
+
+    /**
+     * Whether any child sees the calendar: then the home display and the
+     * other adults may show it too.
+     */
+    public function isShownToChildren(): bool
+    {
+        return $this->children->isNotEmpty();
     }
 }

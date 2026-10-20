@@ -26,7 +26,7 @@ class CalendarController extends Controller
 
         return Inertia::render('calendars/Index', [
             'calendars' => Calendar::query()
-                ->with('owner:id,name')
+                ->with(['owner:id,name', 'children:id'])
                 ->withCount('events')
                 ->orderBy('name')
                 ->get()
@@ -35,7 +35,7 @@ class CalendarController extends Controller
                     'name' => $calendar->name,
                     'userId' => $calendar->user_id,
                     'owner' => $calendar->owner?->name,
-                    'visibleToChildren' => $calendar->visible_to_children,
+                    'children' => $calendar->children->map(fn (User $child) => $child->id)->values(),
                     'events' => $calendar->events_count,
                     'lastSyncedAt' => $calendar->last_synced_at?->toIso8601String(),
                     'failing' => $calendar->last_failed_at !== null,
@@ -44,12 +44,17 @@ class CalendarController extends Controller
                 'id' => $member->id,
                 'name' => $member->name,
             ]),
+            'children' => $current->getOrFail()->children()->orderBy('name')->get()->map(fn (User $child) => [
+                'id' => $child->id,
+                'name' => $child->name,
+            ]),
         ]);
     }
 
     public function store(StoreCalendarRequest $request, CurrentFamily $current): RedirectResponse
     {
         $calendar = Calendar::query()->create($request->calendar());
+        $calendar->children()->sync($request->children());
 
         SyncCalendarJob::dispatch($calendar->id, $current->getOrFail()->id);
 
@@ -61,6 +66,7 @@ class CalendarController extends Controller
     public function update(UpdateCalendarRequest $request, CurrentFamily $current, Calendar $calendar): RedirectResponse
     {
         $calendar->update($request->changes());
+        $calendar->children()->sync($request->children());
 
         if ($request->filled('url')) {
             SyncCalendarJob::dispatch($calendar->id, $current->getOrFail()->id);

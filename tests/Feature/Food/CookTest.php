@@ -110,6 +110,7 @@ class CookTest extends TestCase
             'child_pictures' => true,
             'rewards_enabled' => true,
             'all_recipes' => true,
+            'days_ahead' => 0,
         ])->assertRedirect();
 
         $this->actingAs($this->child)->get(route('recipes.cook', $other))->assertOk();

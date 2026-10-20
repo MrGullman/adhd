@@ -22,6 +22,8 @@ defineProps<{
     children: Member[];
     dayParts: DayPartOption[];
     weekdays: Array<{ value: number; label: string; short: string }>;
+    weekOptions: Array<{ value: string; label: string }>;
+    currentWeek: number;
     routine: RoutineDraft & { id: number };
 }>();
 </script>
@@ -41,6 +43,8 @@ defineProps<{
             :children="children"
             :day-parts="dayParts"
             :weekdays="weekdays"
+            :week-options="weekOptions"
+            :current-week="currentWeek"
             :routine="routine"
             submit-label="Spara"
         />
