@@ -52,11 +52,7 @@ const groupsWithTasks = computed(() =>
                 </p>
                 <SpecialDays :days="specialDays" />
             </div>
-            <DayStepper
-                :date="date"
-                :offset="offset"
-                :max-offset="maxOffset"
-            />
+            <DayStepper :date="date" :offset="offset" :max-offset="maxOffset" />
         </header>
 
         <Link

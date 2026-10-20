@@ -316,9 +316,7 @@ const selectClass =
                             <template v-if="calendar.children.length">
                                 · visas för {{ shownTo(calendar) }}
                             </template>
-                            <template v-else>
-                                · bara vårdnadshavare
-                            </template>
+                            <template v-else> · bara vårdnadshavare </template>
                         </p>
                         <p class="text-caption text-ink-muted">
                             <template v-if="calendar.lastSyncedAt">

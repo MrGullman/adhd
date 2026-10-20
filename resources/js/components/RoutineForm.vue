@@ -267,7 +267,11 @@ const selectClass =
             </div>
             <div class="grid gap-2">
                 <Label for="routine-ends-on">Till (valfritt)</Label>
-                <Input id="routine-ends-on" v-model="form.ends_on" type="date" />
+                <Input
+                    id="routine-ends-on"
+                    v-model="form.ends_on"
+                    type="date"
+                />
                 <InputError :message="form.errors.ends_on" />
             </div>
         </div>
