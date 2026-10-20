@@ -32,6 +32,9 @@ export type RoutineDraft = {
     startTime: string | null;
     doneBy: string | null;
     weekdays: number[];
+    weeks?: string;
+    startsOn?: string | null;
+    endsOn?: string | null;
     ordered: boolean;
     steps: Array<Omit<StepDraft, 'id'> & { id: number }>;
 };
@@ -41,6 +44,8 @@ const props = defineProps<{
     children: Member[];
     dayParts: DayPartOption[];
     weekdays: Weekday[];
+    weekOptions: Array<{ value: string; label: string }>;
+    currentWeek: number;
     submitLabel: string;
     routine?: RoutineDraft;
 }>();
@@ -64,6 +69,9 @@ const form = useForm({
     start_time: props.routine?.startTime ?? '',
     done_by: props.routine?.doneBy ?? '',
     weekdays: props.routine?.weekdays ?? [],
+    weeks: props.routine?.weeks ?? 'all',
+    starts_on: props.routine?.startsOn ?? '',
+    ends_on: props.routine?.endsOn ?? '',
     ordered: props.routine?.ordered ?? true,
     steps: (props.routine?.steps ?? [newStep()]) as StepDraft[],
 });
@@ -228,6 +236,46 @@ const selectClass =
                 </button>
             </div>
         </fieldset>
+
+        <div class="grid gap-4 sm:grid-cols-3">
+            <div class="grid gap-2">
+                <Label for="routine-weeks">Vilka veckor?</Label>
+                <select
+                    id="routine-weeks"
+                    v-model="form.weeks"
+                    :class="selectClass"
+                    aria-describedby="routine-weeks-help"
+                >
+                    <option
+                        v-for="option in weekOptions"
+                        :key="option.value"
+                        :value="option.value"
+                    >
+                        {{ option.label }}
+                    </option>
+                </select>
+                <InputError :message="form.errors.weeks" />
+            </div>
+            <div class="grid gap-2">
+                <Label for="routine-starts-on">Från (valfritt)</Label>
+                <Input
+                    id="routine-starts-on"
+                    v-model="form.starts_on"
+                    type="date"
+                />
+                <InputError :message="form.errors.starts_on" />
+            </div>
+            <div class="grid gap-2">
+                <Label for="routine-ends-on">Till (valfritt)</Label>
+                <Input id="routine-ends-on" v-model="form.ends_on" type="date" />
+                <InputError :message="form.errors.ends_on" />
+            </div>
+        </div>
+        <p id="routine-weeks-help" class="-mt-4 text-caption text-ink-muted">
+            Nu är det vecka {{ currentWeek }} ({{
+                currentWeek % 2 === 0 ? 'jämn' : 'udda'
+            }}). Från och till passar för t.ex. sommarlovet.
+        </p>
 
         <label class="flex items-center gap-3">
             <input v-model="form.ordered" type="checkbox" class="size-5" />

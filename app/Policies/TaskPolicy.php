@@ -7,6 +7,7 @@ use App\Enums\FamilyRole;
 use App\Models\Task;
 use App\Models\User;
 use App\Policies\Concerns\ResolvesFamilyRole;
+use App\Support\LocalTime;
 
 class TaskPolicy
 {
@@ -57,13 +58,17 @@ class TaskPolicy
     }
 
     /**
-     * Tick a task off or back on. Children tick off their own tasks.
+     * Tick a task off or back on. Children tick off their own tasks, on the
+     * day or earlier: a day ahead is only to look at. Läxor can be done
+     * before they are due.
      */
     public function complete(User $user, Task $task): bool
     {
         $role = $this->roleIn($user, $task->family_id);
 
         return ($role?->canEdit() ?? false)
-            || ($role === FamilyRole::Child && $task->assigned_to === $user->id);
+            || ($role === FamilyRole::Child
+                && $task->assigned_to === $user->id
+                && ($task->homework || $task->date->toDateString() <= LocalTime::today()));
     }
 }

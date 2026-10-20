@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ChildView;
 use App\Enums\DayPart;
 use App\Enums\FamilyRole;
 use App\Enums\ListType;
@@ -28,6 +29,11 @@ class Family extends Model
 {
     /** @use HasFactory<FamilyFactory> */
     use HasFactory;
+
+    /**
+     * How far ahead Min dag can be stepped, for adults and children who may.
+     */
+    public const MAX_DAYS_AHEAD = 4;
 
     /**
      * Get the attributes that should be cast.
@@ -148,6 +154,24 @@ class Family extends Model
             ->value('school_menu_id');
 
         return $id === null ? null : (int) $id;
+    }
+
+    /**
+     * How many days ahead the child may look in Min dag: what a parent chose,
+     * otherwise none in läget Barn and four in läget Ungdom.
+     */
+    public function daysAheadFor(User $child): int
+    {
+        $chosen = Membership::query()
+            ->where('family_id', $this->id)
+            ->where('user_id', $child->id)
+            ->value('days_ahead');
+
+        if ($chosen !== null) {
+            return (int) $chosen;
+        }
+
+        return $child->child_view === ChildView::Youth ? self::MAX_DAYS_AHEAD : 0;
     }
 
     /**

@@ -225,6 +225,58 @@ class RoutineTest extends TestCase
             );
     }
 
+    public function test_a_routine_can_be_for_even_or_odd_weeks_and_a_period()
+    {
+        $this->actingAs($this->parent)
+            ->post(route('routines.store'), [
+                'name' => 'Morgon hos pappa',
+                'children' => [$this->child->id],
+                'weeks' => 'odd',
+                'starts_on' => '2026-10-19',
+                'ends_on' => '2027-06-12',
+                'steps' => [['label' => 'Gå upp', 'type' => 'step']],
+            ])
+            ->assertRedirect(route('routines.index'));
+
+        $routine = $this->stored('Morgon hos pappa');
+        $this->assertSame('2026-10-19', $routine->starts_on?->toDateString());
+
+        // The form says which week it is now, so it is easy to pick even or odd.
+        $this->actingAs($this->parent)
+            ->get(route('routines.edit', $routine))
+            ->assertInertia(fn (Assert $page) => $page->where('currentWeek', 42)->where('routine.weeks', 'odd')->where('routine.endsOn', '2027-06-12'));
+
+        // Week 42 is even, and before the period anyway.
+        $this->actingAs($this->child)->get(route('child.home'))->assertInertia(fn (Assert $page) => $page->has('routines', 0));
+
+        // Week 43 is odd.
+        $this->travelTo('2026-10-21 05:00:00');
+        $this->actingAs($this->child)->get(route('child.home'))->assertInertia(fn (Assert $page) => $page->where('routines.0.name', 'Morgon hos pappa'));
+
+        // Week 44 is even.
+        $this->travelTo('2026-10-28 05:00:00');
+        $this->actingAs($this->child)->get(route('child.home'))->assertInertia(fn (Assert $page) => $page->has('routines', 0));
+
+        // 2026 has a week 53: it is odd, and so is week 1 after it.
+        $this->assertTrue($routine->runsOn(now()->setDate(2026, 12, 30)));
+        $this->assertTrue($routine->runsOn(now()->setDate(2027, 1, 6)));
+        // After the period.
+        $this->assertFalse($routine->runsOn(now()->setDate(2027, 6, 16)));
+    }
+
+    public function test_the_period_cannot_end_before_it_starts()
+    {
+        $this->actingAs($this->parent)
+            ->post(route('routines.store'), [
+                'name' => 'Sommarlov',
+                'starts_on' => '2027-06-14',
+                'ends_on' => '2027-06-01',
+                'weeks' => 'sometimes',
+                'steps' => [['label' => 'Gå upp', 'type' => 'step']],
+            ])
+            ->assertSessionHasErrors(['ends_on', 'weeks']);
+    }
+
     public function test_the_adults_follow_the_childrens_routines_on_idag()
     {
         $routine = $this->routine([['Gå upp'], ['Klä på dig']]);

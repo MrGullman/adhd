@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Family;
 
 use App\Enums\ChildView;
+use App\Models\Family;
 use App\Support\CurrentFamily;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -31,6 +32,7 @@ class UpdateChildViewRequest extends FormRequest
             'child_pictures' => ['required', 'boolean'],
             'rewards_enabled' => ['required', 'boolean'],
             'all_recipes' => ['required', 'boolean'],
+            'days_ahead' => ['required', 'integer', Rule::in([0, Family::MAX_DAYS_AHEAD])],
         ];
     }
 
@@ -39,6 +41,6 @@ class UpdateChildViewRequest extends FormRequest
      */
     public function attributes(): array
     {
-        return ['child_view' => 'läge', 'child_pictures' => 'bildstöd', 'rewards_enabled' => 'poäng och belöningar', 'all_recipes' => 'alla recept'];
+        return ['child_view' => 'läge', 'child_pictures' => 'bildstöd', 'rewards_enabled' => 'poäng och belöningar', 'all_recipes' => 'alla recept', 'days_ahead' => 'dagar framåt'];
     }
 }

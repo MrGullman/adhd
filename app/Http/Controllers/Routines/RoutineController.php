@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Routines;
 
 use App\Actions\Routines\SaveRoutine;
 use App\Enums\DayPart;
+use App\Enums\Weeks;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tasks\Concerns\TaskFormOptions;
 use App\Http\Requests\Routines\StoreRoutineRequest;
@@ -99,6 +100,9 @@ class RoutineController extends Controller
                 'startTime' => Routine::short($routine->start_time),
                 'doneBy' => Routine::short($routine->done_by),
                 'weekdays' => $routine->weekdays ?? [],
+                'weeks' => $routine->weeks->value,
+                'startsOn' => $routine->starts_on?->toDateString(),
+                'endsOn' => $routine->ends_on?->toDateString(),
                 'ordered' => $routine->ordered,
                 'steps' => $routine->steps->map(fn (RoutineStep $step) => [
                     'id' => $step->id,
@@ -154,6 +158,21 @@ class RoutineController extends Controller
             default => $routine->day_part === null ? null : mb_strtolower($routine->day_part->label()),
         };
 
+        if ($routine->weeks !== Weeks::All) {
+            $days .= ' · '.mb_strtolower($routine->weeks->label());
+        }
+
+        $period = match (true) {
+            $routine->starts_on !== null && $routine->ends_on !== null => $routine->starts_on->format('j/n').'–'.$routine->ends_on->format('j/n'),
+            $routine->starts_on !== null => 'från '.$routine->starts_on->format('j/n'),
+            $routine->ends_on !== null => 'till '.$routine->ends_on->format('j/n'),
+            default => null,
+        };
+
+        if ($period !== null) {
+            $days .= " · {$period}";
+        }
+
         return $when === null ? $days : "{$days} · {$when}";
     }
 
@@ -179,6 +198,8 @@ class RoutineController extends Controller
                 'start' => $family->dayParts()[$part->value],
             ]),
             'weekdays' => $this->weekdayOptions(),
+            'weekOptions' => collect(Weeks::cases())->map(fn (Weeks $weeks) => ['value' => $weeks->value, 'label' => $weeks->label()]),
+            'currentWeek' => (int) LocalTime::now()->format('W'),
         ];
     }
 }

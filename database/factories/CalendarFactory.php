@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Calendar;
 use App\Models\Family;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -22,7 +23,14 @@ class CalendarFactory extends Factory
             'family_id' => Family::factory(),
             'name' => 'Familjen',
             'url' => 'https://calendar.example.com/'.fake()->uuid().'/basic.ics',
-            'visible_to_children' => false,
         ];
+    }
+
+    /**
+     * "Visa för" these children.
+     */
+    public function shownTo(User ...$children): static
+    {
+        return $this->afterCreating(fn (Calendar $calendar) => $calendar->children()->attach(array_map(fn (User $child) => $child->id, $children)));
     }
 }

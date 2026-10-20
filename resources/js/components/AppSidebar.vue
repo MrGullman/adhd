@@ -13,7 +13,6 @@ import {
     ListTodo,
     MessagesSquare,
     Monitor,
-    Sunrise,
     Users,
 } from '@lucide/vue';
 import AppLogo from '@/components/AppLogo.vue';
@@ -29,7 +28,7 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from '@/components/ui/sidebar';
-import { dashboard, tomorrow, week } from '@/routes';
+import { dashboard, week } from '@/routes';
 import { index as activitiesIndex } from '@/routes/activities';
 import { index as infoIndex } from '@/routes/info';
 import { control as displayControl } from '@/routes/displays';
@@ -55,11 +54,6 @@ const allItems: NavItem[] = [
         title: 'Idag',
         href: dashboard(),
         icon: LayoutGrid,
-    },
-    {
-        title: 'Imorgon',
-        href: tomorrow(),
-        icon: Sunrise,
     },
     {
         title: 'Veckan',

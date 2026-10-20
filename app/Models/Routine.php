@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\DayPart;
+use App\Enums\Weeks;
 use App\Models\Scopes\FamilyScope;
 use Carbon\CarbonInterface;
 use Database\Factories\RoutineFactory;
@@ -34,12 +35,15 @@ use Illuminate\Support\Facades\DB;
  * @property string|null $start_time
  * @property string|null $done_by
  * @property list<int>|null $weekdays
+ * @property Weeks $weeks
+ * @property Carbon|null $starts_on
+ * @property Carbon|null $ends_on
  * @property bool $ordered
  * @property int|null $created_by
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['picture_id', 'name', 'day_part', 'start_time', 'done_by', 'weekdays', 'ordered'])]
+#[Fillable(['picture_id', 'name', 'day_part', 'start_time', 'done_by', 'weekdays', 'weeks', 'starts_on', 'ends_on', 'ordered'])]
 #[ScopedBy([FamilyScope::class])]
 class Routine extends Model
 {
@@ -56,6 +60,9 @@ class Routine extends Model
         return [
             'day_part' => DayPart::class,
             'weekdays' => 'array',
+            'weeks' => Weeks::class,
+            'starts_on' => 'date',
+            'ends_on' => 'date',
             'ordered' => 'boolean',
         ];
     }
@@ -115,7 +122,12 @@ class Routine extends Model
 
     public function runsOn(CarbonInterface $date): bool
     {
-        return $this->weekdays === null || $this->weekdays === [] || in_array($date->dayOfWeekIso, $this->weekdays, true);
+        $day = $date->toDateString();
+
+        return ($this->weekdays === null || $this->weekdays === [] || in_array($date->dayOfWeekIso, $this->weekdays, true))
+            && ($this->weeks ?? Weeks::All)->includes($date)
+            && ($this->starts_on === null || $this->starts_on->toDateString() <= $day)
+            && ($this->ends_on === null || $this->ends_on->toDateString() >= $day);
     }
 
     /**

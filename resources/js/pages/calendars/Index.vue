@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, router, useForm } from '@inertiajs/vue3';
-import { CalendarDays, Pencil, RefreshCw, Trash2 } from '@lucide/vue';
-import { ref } from 'vue';
+import { CalendarDays, Check, Pencil, RefreshCw, Trash2 } from '@lucide/vue';
+import { ref, watch } from 'vue';
 import CalendarController from '@/actions/App/Http/Controllers/Family/CalendarController';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
@@ -24,16 +24,24 @@ type Calendar = {
     name: string;
     userId: number | null;
     owner: string | null;
-    visibleToChildren: boolean;
+    children: number[];
     events: number;
     lastSyncedAt: string | null;
     failing: boolean;
 };
 
-defineProps<{
+const props = defineProps<{
     calendars: Calendar[];
     members: Array<{ id: number; name: string }>;
+    children: Array<{ id: number; name: string }>;
 }>();
+
+function shownTo(calendar: Calendar): string {
+    return props.children
+        .filter((child) => calendar.children.includes(child.id))
+        .map((child) => child.name)
+        .join(', ');
+}
 
 // How to find the secret iCal link in each service.
 const guides = [
@@ -74,15 +82,36 @@ const form = useForm({
     name: '',
     url: '',
     user_id: '' as number | '',
-    visible_to_children: false,
+    children: [] as number[],
 });
+
+// A new calendar of a child's own is shown to that child, unless an adult takes it away.
+watch(
+    () => form.user_id,
+    (owner) => {
+        if (
+            editing.value === null &&
+            typeof owner === 'number' &&
+            props.children.some((child) => child.id === owner) &&
+            !form.children.includes(owner)
+        ) {
+            form.children.push(owner);
+        }
+    },
+);
+
+function toggleChild(id: number): void {
+    form.children = form.children.includes(id)
+        ? form.children.filter((child) => child !== id)
+        : [...form.children, id];
+}
 
 function edit(calendar: Calendar): void {
     editing.value = calendar.id;
     form.name = calendar.name;
     form.url = '';
+    form.children = [...calendar.children];
     form.user_id = calendar.userId ?? '';
-    form.visible_to_children = calendar.visibleToChildren;
     form.clearErrors();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -221,21 +250,33 @@ const selectClass =
                         <InputError :message="form.errors.user_id" />
                     </div>
                 </div>
-                <label class="flex min-h-tap-adult items-start gap-3">
-                    <input
-                        v-model="form.visible_to_children"
-                        type="checkbox"
-                        class="mt-1 size-5"
-                    />
-                    <span>
-                        <span class="block font-bold">Visa för barnen</span>
-                        <span class="text-caption text-ink-muted">
-                            Händelserna syns i barnens Min dag och på
-                            hemskärmen. Ett barns egen kalender syns alltid för
-                            barnet.
-                        </span>
-                    </span>
-                </label>
+                <fieldset v-if="children.length" class="grid gap-2">
+                    <legend class="mb-1 font-bold">Visa för</legend>
+                    <p class="text-caption text-ink-muted">
+                        Händelserna syns i de valda barnens Min dag och Min
+                        vecka. Valda kalendrar syns också på hemskärmen och för
+                        andra vuxna. Inget val: bara vårdnadshavare ser
+                        kalendern.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <button
+                            v-for="child in children"
+                            :key="child.id"
+                            type="button"
+                            class="flex min-h-tap-adult cursor-pointer items-center gap-2 rounded-full border-2 border-line bg-surface-raised px-4 font-bold aria-pressed:border-primary aria-pressed:bg-primary-soft"
+                            :aria-pressed="form.children.includes(child.id)"
+                            @click="toggleChild(child.id)"
+                        >
+                            <Check
+                                v-if="form.children.includes(child.id)"
+                                class="size-4"
+                                aria-hidden="true"
+                            />
+                            {{ child.name }}
+                        </button>
+                    </div>
+                    <InputError :message="form.errors['children.0']" />
+                </fieldset>
                 <div class="flex flex-wrap gap-2">
                     <Button type="submit" :disabled="form.processing">
                         {{ editing ? 'Spara' : 'Lägg till' }}
@@ -272,8 +313,11 @@ const selectClass =
                         <p class="font-bold break-words">{{ calendar.name }}</p>
                         <p class="text-caption text-ink-muted">
                             {{ calendar.owner ?? 'Hela familjen' }}
-                            <template v-if="calendar.visibleToChildren">
-                                · visas för barnen
+                            <template v-if="calendar.children.length">
+                                · visas för {{ shownTo(calendar) }}
+                            </template>
+                            <template v-else>
+                                · bara vårdnadshavare
                             </template>
                         </p>
                         <p class="text-caption text-ink-muted">

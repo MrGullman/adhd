@@ -25,6 +25,7 @@ use App\Support\DayPlan;
 use App\Support\LocalTime;
 use App\Support\RoutineDay;
 use App\Support\SchoolLunch;
+use App\Support\SpecialDays;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -43,6 +44,13 @@ class TodayController extends Controller
         /** @var User $user */
         $user = $request->user();
 
+        // A day ahead (?dag=1 is tomorrow), only to look at.
+        $offset = max(0, min(Family::MAX_DAYS_AHEAD, $request->integer('dag')));
+
+        if ($offset > 0) {
+            return Inertia::render('today/Ahead', $this->ahead($family, $user, $offset, Family::MAX_DAYS_AHEAD));
+        }
+
         // Done and total per member, for "3 av 5 klara".
         $progress = Task::query()
             ->whereDate('date', $today)
@@ -59,8 +67,10 @@ class TodayController extends Controller
 
         return Inertia::render('today/Index', [
             'date' => $today,
+            'specialDays' => SpecialDays::on($today),
+            'maxOffset' => Family::MAX_DAYS_AHEAD,
             'activities' => $activities->map(fn (Activity $activity) => $calendar->present($activity, $now))->values(),
-            'calendarEvents' => $events->on($now, null, $activities->map(fn (Activity $activity) => $activity->name)->values()->all())
+            'calendarEvents' => $events->on($now, $user, $activities->map(fn (Activity $activity) => $activity->name)->values()->all())
                 ->map(fn (CalendarEvent $event) => $events->present($event, $now))
                 ->values(),
             'lunches' => $this->lunches($family),
@@ -107,16 +117,28 @@ class TodayController extends Controller
 
         /** @var User $child */
         $child = $request->user();
+        $daysAhead = $family->daysAheadFor($child);
+        $offset = max(0, min($daysAhead, $request->integer('dag')));
+
+        if ($offset > 0) {
+            return Inertia::render('child/Ahead', [
+                'child' => ['name' => $child->name],
+                ...$this->ahead($family, $child, $offset, $daysAhead, $child),
+            ]);
+        }
+
         $plan = DayPlan::for($family, LocalTime::today(), $child->id);
         $currentPart = $family->dayPartFor(LocalTime::now()->format('H:i'));
 
         return Inertia::render($child->child_view === ChildView::Youth ? 'child/YouthHome' : 'child/Home', [
+            'daysAhead' => $daysAhead,
             'child' => [
                 'name' => $child->name,
                 'avatarColor' => $child->avatar_color->value,
                 'avatarUrl' => $child->avatarUrl(),
             ],
             'date' => LocalTime::today(),
+            'specialDays' => SpecialDays::on(LocalTime::today(), forChildren: true),
             'currentPart' => $currentPart->value,
             'now' => $plan->now($currentPart),
             'groups' => $plan->groups(),
@@ -128,6 +150,32 @@ class TodayController extends Controller
             'points' => Points::enabledFor($family, $child) ? Points::balance($child) : null,
             'vapidPublicKey' => $child->reminders_enabled ? config('webpush.vapid.public_key') : null,
         ]);
+    }
+
+    /**
+     * A day ahead in Min dag, only to look at: what happens and the tasks,
+     * no routines (docs/ARCHITECTURE.md, Idag, Imorgon och Veckan).
+     *
+     * @return array<string, mixed>
+     */
+    private function ahead(Family $family, User $viewer, int $offset, int $maxOffset, ?User $child = null): array
+    {
+        $day = LocalTime::now()->startOfDay()->addDays($offset);
+        $calendar = ActivityCalendar::between($day, $day);
+        $activities = $calendar->on($day, $child);
+        $events = FamilyCalendar::between($day, $day);
+
+        return [
+            'date' => $day->toDateString(),
+            'specialDays' => SpecialDays::on($day->toDateString(), forChildren: $child !== null),
+            'offset' => $offset,
+            'maxOffset' => $maxOffset,
+            'activities' => $activities->map(fn (Activity $activity) => $calendar->present($activity, $day, $child))->values(),
+            'calendarEvents' => $events->on($day, $viewer, $activities->map(fn (Activity $activity) => $activity->name)->values()->all())
+                ->map(fn (CalendarEvent $event) => $events->present($event, $day))
+                ->values(),
+            'groups' => DayPlan::for($family, $day->toDateString(), $child?->id)->groups(),
+        ];
     }
 
     /**

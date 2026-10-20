@@ -56,6 +56,7 @@ class RemoveChild
         $inFamily('reward_redemptions')->delete();
         $inFamily('login_events')->delete();
         $inFamily('devices')->delete();
+        DB::table('calendar_child')->whereIn('calendar_id', DB::table('calendars')->where('family_id', $family->id)->select('id'))->where('user_id', $child->id)->delete();
         DB::table('calendars')->where('family_id', $family->id)->where('user_id', $child->id)->update(['user_id' => null]);
         DB::table('family_user')->where('family_id', $family->id)->where('user_id', $child->id)->delete();
     }

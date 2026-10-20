@@ -668,6 +668,15 @@ I koden:
 - Barn ser sin egen vecka, vuxna ser allas
 - Imorgon och Veckan finns i appen och som widgets på hemskärmen
 
+Från Milestone 26:
+
+- Fliken Imorgon försvinner i appen. I Min dag stegar man framåt högst 4 dagar, och widgeten Imorgon på hemskärmen finns kvar.
+- En dag framåt är bara information: aktiviteter, händelser, uppgifter och packning, men inga rutiner och inga Klar-knappar. Appen öppnar alltid på idag.
+- Barn ser dagar framåt bara om vårdnadshavaren har valt det: family_user.days_ahead (0 = bara idag, 4 = upp till 4 dagar). Förval 0 i läget Barn och 4 i läget Ungdom. Det är familjens beslut och ligger därför på family_user.
+- Barn kan inte bocka av en uppgift på en dag efter idag (TaskPolicy::complete). Läxor kan göras klara i förväg. Rutinsteg och packning går bara att bocka av idag.
+- Vuxna stegar med ?dag=1–4 på Idag (today/Ahead), barn med ?dag på Min dag (child/Ahead). Ett större värde än barnet får blir idag.
+- Särskilda dagar visas under datumet och räknas ut i koden (App\Support\SpecialDays): röda dagar och högtider för alla, flaggdagar bara för vuxna. Namnsdagar kommer senare.
+
 Idag i version 1 (Milestone 5):
 
 - Vuxna (/dashboard) ser hela familjens dag, grupperad efter del av dagen, och kan visa en person i taget. Varje barn visas med "3 av 5 klara".
@@ -717,6 +726,8 @@ routines
 - start_time (nullable)
 - done_by (nullable: klar senast)
 - weekdays
+- weeks (all, even, odd: ISO-veckonummer, Milestone 26)
+- starts_on, ends_on (nullable: perioden rutinen gäller, Milestone 26)
 - ordered (fast eller fri ordning)
 
 routine_child
@@ -1064,6 +1075,13 @@ I version 2 (Milestone 15):
 - En händelse som heter som en aktivitet (t.ex. "Simskola") får aktivitetens bild, och visas inte en gång till de dagar aktiviteten redan syns.
 - Länken måste vara https (webcal:// byts) till en publik adress. Servern hämtar aldrig adresser i sitt eget nät, inte heller efter en omdirigering.
 - Kalendern läses i bakgrunden när den läggs till och med knappen Läs in nu. Sidor läser aldrig länken.
+
+Från Milestone 26:
+
+- calendars.visible_to_children ersätts av calendar_child (calendar_id, user_id): "Visa för" de barn vårdnadshavaren väljer. Om kalendern tillhör ett barn är det barnet förvalt. Ett barn ser bara kalendrar som är valda för det barnet.
+- Vårdnadshavare ser alla kalendrar. Editor och viewer ser bara kalendrar som är valda för något barn.
+- Hemskärmen visar kalendrar som är valda för något barn. Den personliga vyn visar inga kalenderhändelser.
+- Vuxnas Min dag visar alla händelser, utan gränsen på tre saker per dag.
 
 ---
 

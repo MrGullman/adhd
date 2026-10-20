@@ -105,6 +105,7 @@ class FamilyExporter
             'skolor' => $own('school_menus'),
             'skolmat' => $via('school_meals', 'school_menu_id', 'school_menus'),
             'kalendrar' => $own('calendars'),
+            'kalendrar_barn' => $via('calendar_child', 'calendar_id', 'calendars'),
             'kalenderhandelser' => $own('calendar_events'),
             'enheter' => $own('devices'),
             'hemskarmar_widgets' => $own('display_widgets'),

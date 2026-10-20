@@ -32,12 +32,12 @@ class UpdateCalendarRequest extends StoreCalendarRequest
             'name' => ['required', 'string', 'max:100'],
             'url' => ['nullable', 'string', 'max:2000', new IcsLinkRule],
             'user_id' => ['nullable', 'integer', Rule::exists('family_user', 'user_id')->where('family_id', $current->id())],
-            'visible_to_children' => ['boolean'],
+            ...$this->childrenRules($current),
         ];
     }
 
     /**
-     * @return array{name: string, user_id: int|null, visible_to_children: bool, url?: string}
+     * @return array{name: string, user_id: int|null, url?: string}
      */
     public function changes(): array
     {

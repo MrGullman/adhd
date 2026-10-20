@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
 import {
+    ArrowRight,
     CalendarDays,
     ChefHat,
     Check,
@@ -25,6 +26,7 @@ import FamilyAvatar from '@/components/FamilyAvatar.vue';
 import PictureThumb from '@/components/PictureThumb.vue';
 import PushToggle from '@/components/PushToggle.vue';
 import SchoolLunch from '@/components/SchoolLunch.vue';
+import SpecialDays from '@/components/SpecialDays.vue';
 import VisualTimer from '@/components/VisualTimer.vue';
 import { useChildStyle } from '@/composables/useChildStyle';
 import { useDoneLast } from '@/composables/useDoneLast';
@@ -33,6 +35,7 @@ import { homeworkText, isDueNow, whenText } from '@/lib/now';
 import { logout } from '@/routes';
 import {
     avatar as childAvatar,
+    home as childHome,
     recipes as childRecipes,
     shopping,
     week as childWeek,
@@ -52,6 +55,7 @@ import type {
 const props = defineProps<{
     child: { name: string; avatarColor: string; avatarUrl?: string | null };
     date: string;
+    specialDays: string[];
     currentPart: DayPart;
     now: TaskRowData | null;
     groups: DayGroup[];
@@ -65,6 +69,8 @@ const props = defineProps<{
     dinner: (MealEntry & { canCook?: boolean }) | null;
     points: number | null;
     vapidPublicKey: string | null;
+    /** Days ahead the child may look at, chosen by a parent. */
+    daysAhead: number;
 }>();
 
 const style = useChildStyle();
@@ -116,6 +122,7 @@ function removeOwnTask(task: TaskRowData): void {
                     <p class="text-caption text-ink-muted">
                         {{ formatDay(date) }}
                     </p>
+                    <SpecialDays :days="specialDays" child />
                 </div>
                 <!-- The child changes their own picture. -->
                 <Link :href="childAvatar()" aria-label="Byt bild">
@@ -428,6 +435,14 @@ function removeOwnTask(task: TaskRowData): void {
                 <Link :href="ChildTaskController.create()" :class="style.pill">
                     <Plus class="size-5" aria-hidden="true" />
                     Egen uppgift
+                </Link>
+                <Link
+                    v-if="daysAhead > 0"
+                    :href="childHome({ query: { dag: 1 } })"
+                    :class="style.pill"
+                >
+                    Imorgon
+                    <ArrowRight class="size-5" aria-hidden="true" />
                 </Link>
                 <Link :href="childWeek()" :class="style.pill">
                     <CalendarDays class="size-5" aria-hidden="true" />

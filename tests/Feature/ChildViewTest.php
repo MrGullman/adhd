@@ -50,6 +50,7 @@ class ChildViewTest extends TestCase
             'child_pictures' => true,
             'rewards_enabled' => true,
             'all_recipes' => false,
+            'days_ahead' => 0,
             ...$overrides,
         ]);
     }

@@ -14,6 +14,8 @@ const props = defineProps<{
         rewardsEnabled: boolean;
         /** May cook every recipe, not only the week's dinners. */
         allRecipes: boolean;
+        /** Days ahead the child may look at in Min dag: 0 or 4. */
+        daysAhead: number;
         /** Points for the whole family (Belöningar). */
         pointsEnabled: boolean;
     };
@@ -24,6 +26,7 @@ const form = useForm({
     child_pictures: props.settings.childPictures,
     rewards_enabled: props.settings.rewardsEnabled,
     all_recipes: props.settings.allRecipes,
+    days_ahead: props.settings.daysAhead,
 });
 
 function save(): void {
@@ -232,6 +235,35 @@ const modes = [
                 Annars bara veckans middagar.
             </p>
         </div>
+
+        <fieldset class="flex flex-col gap-1">
+            <legend class="mb-1 font-bold">Kommande dagar i Min dag</legend>
+            <label class="flex min-h-tap-adult items-center gap-3">
+                <input
+                    v-model="form.days_ahead"
+                    type="radio"
+                    name="days_ahead"
+                    :value="0"
+                    class="size-5"
+                />
+                Bara idag
+            </label>
+            <label class="flex min-h-tap-adult items-center gap-3">
+                <input
+                    v-model="form.days_ahead"
+                    type="radio"
+                    name="days_ahead"
+                    :value="4"
+                    class="size-5"
+                />
+                Upp till 4 dagar framåt
+            </label>
+            <p class="text-caption text-ink-muted">
+                {{ name }} kan titta på kommande dagar men inte bocka av något
+                där. Läxor kan alltid göras klara i förväg.
+            </p>
+            <InputError :message="form.errors.days_ahead" />
+        </fieldset>
 
         <p class="text-caption text-ink-muted">
             Läget och bildstödet följer med {{ name }} om barnet finns i flera
